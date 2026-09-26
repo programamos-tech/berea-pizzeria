@@ -18,9 +18,10 @@ export function SettingsSection({
   return (
     <section id={id} className={`${adminPanelClass} scroll-mt-6 overflow-hidden`}>
       <header className="flex items-start gap-3 border-b border-zinc-100 px-4 py-4 sm:px-6 dark:border-zinc-800">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-          <Icon className="size-[18px]" aria-hidden />
-        </span>
+        <Icon
+          className="mt-0.5 size-[18px] shrink-0 text-zinc-500 dark:text-zinc-400"
+          aria-hidden
+        />
         <div className="min-w-0">
           <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
             {title}
