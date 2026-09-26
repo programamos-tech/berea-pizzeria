@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
+import { OperatorAccountEditForm } from "@/components/admin/OperatorAccountEditForm";
 import { OperatorAccountEnterButton } from "@/components/admin/OperatorAccountEnterButton";
 import { OperatorAccountLogo } from "@/components/admin/OperatorAccountLogo";
 import { OperatorAccountModulesPanel } from "@/components/admin/OperatorAccountModulesPanel";
@@ -367,6 +368,31 @@ export default async function AdminCuentaDetallePage({
             Volver al listado
           </Link>
         </p>
+      </Section>
+
+      <Section
+        id="editar"
+        title="Editar información"
+        hint="Cambia el titular, el correo de acceso del propietario y los datos del negocio."
+      >
+        <OperatorAccountEditForm
+          saved={sp.saved === "1"}
+          error={sp.error === "email" || sp.error === "info" ? sp.error : null}
+          values={{
+            tenantId: row.id,
+            holderName: row.holderName === "Sin titular" ? "" : row.holderName,
+            holderEmail: row.email ?? "",
+            phone: row.phone ?? "",
+            whatsapp: brand.whatsapp ?? "",
+            tradeName: row.tradeName,
+            legalName: brand.legal_name ?? "",
+            taxNit: brand.tax_nit ?? "",
+            taxRegime: brand.tax_regime ?? "",
+            city: brand.city ?? "",
+            address: brand.address ?? "",
+            businessEmail: brand.email ?? "",
+          }}
+        />
       </Section>
     </div>
   );

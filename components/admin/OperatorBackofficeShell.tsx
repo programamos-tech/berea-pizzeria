@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, LayoutGrid, Receipt, ToggleRight, Users } from "lucide-react";
+import { Building2, LayoutGrid, Pencil, Receipt, ToggleRight, Users } from "lucide-react";
 import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import { AdminUserAvatar } from "@/components/admin/AdminUserAvatar";
 import { AdminUserMenu } from "@/components/admin/AdminUserMenu";
@@ -15,6 +15,7 @@ const ACCOUNT_SECTIONS = [
   { href: "#equipo", label: "Equipo", icon: Users },
   { href: "#ventas", label: "Ventas", icon: Receipt },
   { href: "#ficha", label: "Ficha", icon: Building2 },
+  { href: "#editar", label: "Editar", icon: Pencil },
 ] as const;
 
 function navClass(active: boolean) {
