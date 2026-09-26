@@ -34,28 +34,61 @@ export function unitVatAmountCents(
   return Math.max(0, gross - net);
 }
 
-/** Apagado si la cuenta no guardó el flag. */
-export function accountAllowsHigherSalePrice(storefrontConfig: unknown): boolean {
+function storefrontFlag(storefrontConfig: unknown, key: string): boolean {
   if (!storefrontConfig || typeof storefrontConfig !== "object" || Array.isArray(storefrontConfig)) {
     return false;
   }
-  return (storefrontConfig as Record<string, unknown>).pos_allow_higher_price === true;
+  return (storefrontConfig as Record<string, unknown>)[key] === true;
+}
+
+export type PosPricePolicy = {
+  /** Cobrar más que el precio de lista. */
+  allowHigher: boolean;
+  /** Cobrar menos que el precio de lista (hasta $0), con Cobrar o descuentos. */
+  allowBelow: boolean;
+};
+
+/** Ambos apagados si la cuenta no guardó los flags. */
+export function posPricePolicyFromConfig(storefrontConfig: unknown): PosPricePolicy {
+  return {
+    allowHigher: storefrontFlag(storefrontConfig, "pos_allow_higher_price"),
+    allowBelow: storefrontFlag(storefrontConfig, "pos_allow_below_price"),
+  };
+}
+
+export function posUnitViolatesPricePolicy(
+  unitFinalGross: number,
+  catalogGross: number,
+  policy: PosPricePolicy,
+): boolean {
+  const unit = Math.max(0, Math.round(Number(unitFinalGross ?? 0)));
+  const catalog = Math.max(0, Math.round(Number(catalogGross ?? 0)));
+  if (unit < catalog) return !policy.allowBelow;
+  if (unit > catalog) return !policy.allowHigher;
+  return false;
 }
 
 /**
- * Precio cobrado (el que ve el cliente, con IVA si aplica) por encima del catálogo.
- * Igual o menor se queda en el precio de catálogo.
+ * Unitario POS: catálogo, o el cobrado si el vendedor escribió un valor
+ * (`null` = catálogo; `0` = gratis).
+ * `gross` es el valor de ticket (con IVA si aplica) — el que debe ir a la factura.
  */
-export function raisedPosUnitNetCents(
+export function posCustomSaleUnits(
   catalogNetCents: number,
   hasVat: boolean | null | undefined,
   chargedGrossCents: number | null | undefined,
-): number {
+): { net: number; gross: number } {
   const catalogNet = unitPriceNetCents(catalogNetCents);
   const catalogGross = unitPriceGrossCents(catalogNet, hasVat, null);
-  const charged = Math.round(Number(chargedGrossCents ?? 0));
-  if (!Number.isFinite(charged) || charged <= catalogGross) return catalogNet;
-  return unitNetFromPosChargedUnitCents(charged, hasVat, null);
+  if (chargedGrossCents == null) return { net: catalogNet, gross: catalogGross };
+  const charged = Math.round(Number(chargedGrossCents));
+  if (!Number.isFinite(charged) || charged < 0) {
+    return { net: catalogNet, gross: catalogGross };
+  }
+  return {
+    net: unitNetFromPosChargedUnitCents(charged, hasVat, null),
+    gross: charged,
+  };
 }
 
 /** Etiqueta de IVA en UI (no usar `vat_percent` heredado con tasas “adaptadas”). */

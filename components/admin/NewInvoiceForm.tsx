@@ -22,10 +22,11 @@ import {
 import { adminButtonCancelClass } from "@/lib/admin-ui";
 import {
   formatCop,
-  formatCopAmountInput,
-  parseCopDecimalInput,
+  formatCopInputGrouping,
+  parseCopChargedPesos,
+  parseCopChargedPesosOrNull,
   parseCopInputDigitsToInt,
-  sanitizeCopDecimalTyping,
+  sanitizeCopIntegerTyping,
 } from "@/lib/money";
 import { isDefaultPosCustomerName } from "@/lib/pos-default-customer";
 import {
@@ -34,19 +35,19 @@ import {
   wholesaleDiscountPercentFromRow,
 } from "@/lib/customer-wholesale-pricing";
 import {
-  applyPosLineNetDiscountCents,
-  discountedUnitNetCentsFromLine,
-} from "@/lib/pos-line-discount";
-import {
   ADMIN_SEARCH_TIMEOUT_MS,
   abortSignalWithTimeout,
 } from "@/lib/abort-signal-timeout";
 import type { QuotationEditDraft } from "@/lib/load-quotation-edit-draft";
 import {
-  raisedPosUnitNetCents,
   saleVatPercentLabel,
   unitPriceGrossCents,
+  type PosPricePolicy,
 } from "@/lib/product-vat-price";
+import {
+  computePosProductLineAmounts,
+  POS_PRICE_NOT_ALLOWED_MESSAGE,
+} from "@/lib/pos-line-price";
 
 const sectionClass =
   "border-t border-zinc-200/70 pt-4 dark:border-zinc-800";
@@ -123,32 +124,6 @@ type CartLine = {
   chargedGrossRaw: string;
 };
 
-function lineUnitNetCents(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  const catalogNet = unitPriceAfterWholesaleCents(
-    Number(line.product.price_cents ?? 0),
-    wholesalePct,
-  );
-  if (!allowHigherPrice) return catalogNet;
-  const charged = Math.round(parseCopDecimalInput(line.chargedGrossRaw));
-  return raisedPosUnitNetCents(
-    catalogNet,
-    line.product.has_vat,
-    charged > 0 ? charged : null,
-  );
-}
-
-function lineBaseCents(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  return lineUnitNetCents(line, wholesalePct, allowHigherPrice) * line.quantity;
-}
-
 function unitFinalCents(product: ProductHit, wholesalePct: number): number {
   const net = unitPriceAfterWholesaleCents(
     Number(product.price_cents ?? 0),
@@ -157,12 +132,23 @@ function unitFinalCents(product: ProductHit, wholesalePct: number): number {
   return unitPriceGrossCents(net, product.has_vat, product.vat_percent);
 }
 
-function lineNetBeforeDiscount(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  return lineBaseCents(line, wholesalePct, allowHigherPrice);
+const LIST_PRICE_ONLY_POLICY: PosPricePolicy = {
+  allowHigher: false,
+  allowBelow: false,
+};
+
+function catalogLineNetCents(line: CartLine, wholesalePct: number): number {
+  return (
+    unitPriceAfterWholesaleCents(Number(line.product.price_cents ?? 0), wholesalePct) *
+    line.quantity
+  );
+}
+
+/** Cobrar vacío o igual al de lista → `null` (precio de catálogo). */
+function lineChargedUnitCents(line: CartLine, wholesalePct: number): number | null {
+  const typed = parseCopChargedPesosOrNull(line.chargedGrossRaw);
+  if (typed == null) return null;
+  return typed === unitFinalCents(line.product, wholesalePct) ? null : typed;
 }
 
 function effectiveLineDiscountPercent(line: CartLine): number | null {
@@ -171,57 +157,44 @@ function effectiveLineDiscountPercent(line: CartLine): number | null {
   return p > 0 && p <= 100 ? p : null;
 }
 
+function linePricing(
+  line: CartLine,
+  wholesalePct: number,
+  policy: PosPricePolicy,
+  discount?: { percent: number | null; amountCents: number },
+) {
+  return computePosProductLineAmounts({
+    priceCatalog: Number(line.product.price_cents ?? 0),
+    hasVat: Boolean(line.product.has_vat),
+    wholesalePct,
+    quantity: line.quantity,
+    chargedUnitCents: lineChargedUnitCents(line, wholesalePct),
+    discountPercent: discount ? discount.percent : effectiveLineDiscountPercent(line),
+    discountAmountCents: discount
+      ? discount.amountCents
+      : effectiveLineDiscountAmountCents(line, wholesalePct, policy),
+    policy,
+  });
+}
+
+function lineNetBeforeDiscount(
+  line: CartLine,
+  wholesalePct: number,
+  policy: PosPricePolicy,
+): number {
+  return linePricing(line, wholesalePct, policy, { percent: null, amountCents: 0 })
+    .lineNetBefore;
+}
+
 function effectiveLineDiscountAmountCents(
   line: CartLine,
   wholesalePct: number,
-  allowHigherPrice: boolean,
+  policy: PosPricePolicy,
 ): number {
   if (line.discountMode !== "amount") return 0;
   const raw = parseCopInputDigitsToInt(line.discountAmountRaw);
-  const maxNet = lineNetBeforeDiscount(line, wholesalePct, allowHigherPrice);
+  const maxNet = lineNetBeforeDiscount(line, wholesalePct, policy);
   return Math.min(Math.max(0, raw), maxNet);
-}
-
-function lineNetAfterDiscount(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  return applyPosLineNetDiscountCents(
-    lineNetBeforeDiscount(line, wholesalePct, allowHigherPrice),
-    effectiveLineDiscountPercent(line),
-    effectiveLineDiscountAmountCents(line, wholesalePct, allowHigherPrice),
-  );
-}
-
-function discountedUnitNetCents(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  return discountedUnitNetCentsFromLine(
-    lineNetAfterDiscount(line, wholesalePct, allowHigherPrice),
-    line.quantity,
-  );
-}
-
-function lineUnitGrossAfterDiscount(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  const du = discountedUnitNetCents(line, wholesalePct, allowHigherPrice);
-  return unitPriceGrossCents(du, line.product.has_vat, line.product.vat_percent);
-}
-
-function lineVatCents(
-  line: CartLine,
-  wholesalePct: number,
-  allowHigherPrice: boolean,
-): number {
-  const du = discountedUnitNetCents(line, wholesalePct, allowHigherPrice);
-  const ug = lineUnitGrossAfterDiscount(line, wholesalePct, allowHigherPrice);
-  return (ug - du) * line.quantity;
 }
 
 type PaymentTab = "cash" | "transfer" | "mixed" | "credit";
@@ -398,7 +371,7 @@ function errorMessage(code: string | undefined): string | null {
     case "kits_forbidden":
       return "Kits está apagado en Configuración. Quitá los combos de la factura.";
     case "price_floor":
-      return "El precio cobrado no puede quedar por debajo del precio del catálogo.";
+      return POS_PRICE_NOT_ALLOWED_MESSAGE;
     case "db":
       return adminCreateFailedMessage("sale");
     default:
@@ -431,13 +404,21 @@ function ConfirmInvoiceButton({
   );
 }
 
-function onInvoiceFormSubmit(e: React.FormEvent<HTMLFormElement>) {
+function onInvoiceFormSubmit(
+  e: React.FormEvent<HTMLFormElement>,
+  payloadJson: string,
+) {
   const submitter = (e.nativeEvent as SubmitEvent).submitter;
   if (
     !(submitter instanceof HTMLButtonElement) ||
     submitter.dataset.invoiceConfirm !== "true"
   ) {
     e.preventDefault();
+    return;
+  }
+  const payloadInput = e.currentTarget.elements.namedItem("payload");
+  if (payloadInput instanceof HTMLInputElement) {
+    payloadInput.value = payloadJson;
   }
 }
 
@@ -447,15 +428,16 @@ export function NewInvoiceForm({
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
-  allowHigherPrice = false,
+  pricePolicy = LIST_PRICE_ONLY_POLICY,
 }: {
   initialError?: string;
   initialCustomerId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
-  allowHigherPrice?: boolean;
+  pricePolicy?: PosPricePolicy;
 }) {
+  const canEditLinePrice = pricePolicy.allowHigher || pricePolicy.allowBelow;
   const editingQuotation = Boolean(editQuotation);
   const quickNameInputRef = useRef<HTMLInputElement>(null);
   const customerSearchInputRef = useRef<HTMLInputElement>(null);
@@ -513,6 +495,16 @@ export function NewInvoiceForm({
     (editQuotation?.lines ?? []).map((l) => {
       const hasPct = l.discountPercent != null && l.discountPercent > 0;
       const hasAmt = !hasPct && l.discountAmountCents > 0;
+      const catalogGross = unitPriceGrossCents(
+        unitPriceAfterWholesaleCents(l.price_cents, 0),
+        l.has_vat,
+        l.vat_percent,
+      );
+      const savedUnit = Math.max(0, Math.floor(Number(l.unitPriceCents ?? 0)));
+      const chargedGrossRaw =
+        !hasPct && !hasAmt && savedUnit !== catalogGross
+          ? sanitizeCopIntegerTyping(String(savedUnit))
+          : "";
       return {
         key: crypto.randomUUID(),
         product: {
@@ -529,7 +521,7 @@ export function NewInvoiceForm({
         discountMode: hasPct ? "percent" : hasAmt ? "amount" : "none",
         discountPercent: hasPct ? l.discountPercent! : 0,
         discountAmountRaw: hasAmt ? String(l.discountAmountCents) : "",
-        chargedGrossRaw: "",
+        chargedGrossRaw,
       };
     }),
   );
@@ -921,19 +913,25 @@ export function NewInvoiceForm({
     return s;
   }, [kitLines]);
 
+  const pricingByKey = useMemo(() => {
+    const m = new Map<string, ReturnType<typeof linePricing>>();
+    for (const line of lines) {
+      m.set(line.key, linePricing(line, customerWholesalePct, pricePolicy));
+    }
+    return m;
+  }, [lines, customerWholesalePct, pricePolicy]);
+
   const subtotalCents = useMemo(() => {
     let s = kitSubtotalCents;
-    for (const line of lines) {
-      s += lineNetAfterDiscount(line, customerWholesalePct, allowHigherPrice);
-    }
+    for (const p of pricingByKey.values()) s += p.lineNetAfter;
     return s;
-  }, [lines, customerWholesalePct, kitSubtotalCents, allowHigherPrice]);
+  }, [pricingByKey, kitSubtotalCents]);
 
   const wholesaleSavingsNetCents = useMemo(() => {
     if (customerWholesalePct <= 0) return 0;
     let s = 0;
     for (const line of lines) {
-      s += lineBaseCents(line, 0, false) - lineBaseCents(line, customerWholesalePct, false);
+      s += catalogLineNetCents(line, 0) - catalogLineNetCents(line, customerWholesalePct);
     }
     return s;
   }, [lines, customerWholesalePct]);
@@ -941,16 +939,24 @@ export function NewInvoiceForm({
   const catalogNetSubtotalCents = useMemo(() => {
     let s = 0;
     for (const line of lines) {
-      s += lineBaseCents(line, 0, false);
+      s += catalogLineNetCents(line, 0);
     }
     return s;
   }, [lines]);
 
   const vatCents = useMemo(() => {
     let s = 0;
-    for (const line of lines) s += lineVatCents(line, customerWholesalePct, allowHigherPrice);
+    for (const line of lines) {
+      const p = pricingByKey.get(line.key);
+      if (p) s += p.unitFinal * line.quantity - p.lineNetAfter;
+    }
     return s;
-  }, [lines, customerWholesalePct, allowHigherPrice]);
+  }, [lines, pricingByKey]);
+
+  const priceBlocked = useMemo(
+    () => [...pricingByKey.values()].some((p) => p.violatesPolicy),
+    [pricingByKey],
+  );
 
   const totalCents = subtotalCents + vatCents;
 
@@ -1022,11 +1028,12 @@ export function NewInvoiceForm({
   const canSubmit =
     customer !== null &&
     (lines.length > 0 || kitLines.length > 0) &&
-    totalCents > 0 &&
+    (totalCents > 0 || (pricePolicy.allowBelow && totalCents === 0)) &&
     shipChoice !== null &&
     shipChoice !== "" &&
     (documentKind === "quotation" || !cartStockExceeded) &&
-    paymentOk;
+    paymentOk &&
+    !priceBlocked;
 
   function selectCustomer(c: CustomerHit) {
     setCustomer(c);
@@ -1215,11 +1222,8 @@ export function NewInvoiceForm({
         const amt =
           pct != null
             ? 0
-            : effectiveLineDiscountAmountCents(l, customerWholesalePct, allowHigherPrice);
-        const catalogGross = unitFinalCents(l.product, customerWholesalePct);
-        const typedGross = Math.round(parseCopDecimalInput(l.chargedGrossRaw));
-        const chargedUnitCents =
-          allowHigherPrice && typedGross > catalogGross ? typedGross : null;
+            : effectiveLineDiscountAmountCents(l, customerWholesalePct, pricePolicy);
+        const chargedUnitCents = lineChargedUnitCents(l, customerWholesalePct);
         return {
           productId: l.product.id,
           quantity: l.quantity,
@@ -1265,7 +1269,7 @@ export function NewInvoiceForm({
     shipChoice,
     shipOptions,
     customerWholesalePct,
-    allowHigherPrice,
+    pricePolicy,
     submissionId,
   ]);
 
@@ -1280,7 +1284,7 @@ export function NewInvoiceForm({
       <form
         action={createPosInvoiceAction}
         className="flex flex-col gap-0"
-        onSubmit={onInvoiceFormSubmit}
+        onSubmit={(e) => onInvoiceFormSubmit(e, payloadJson)}
       >
         <input type="hidden" name="payload" value={payloadJson} readOnly />
 
@@ -1411,15 +1415,18 @@ export function NewInvoiceForm({
                     }
                   }
                   const maxQtyThisLine = Math.max(1, stock - usedElsewhere);
-                  const lineSubtotal = lineNetAfterDiscount(line, w, allowHigherPrice);
-                  const lineVat = lineVatCents(line, w, allowHigherPrice);
-                  const lineTotal = lineSubtotal + lineVat;
-                  const unitCatalogGross = unitFinalCents(line.product, w);
-                  const unitLineGross = lineUnitGrossAfterDiscount(line, w, allowHigherPrice);
-                  const hasLineDiscount =
-                    lineNetAfterDiscount(line, w, allowHigherPrice) <
-                    lineNetBeforeDiscount(line, w, allowHigherPrice);
-                  const maxDiscNet = lineNetBeforeDiscount(line, w, allowHigherPrice);
+                  const priced =
+                    pricingByKey.get(line.key) ?? linePricing(line, w, pricePolicy);
+                  const lineTotal = priced.unitFinal * line.quantity;
+                  const unitCatalogGross = priced.catalogGross;
+                  const unitLineGross = priced.unitFinal;
+                  const hasLineDiscount = priced.lineNetAfter < priced.lineNetBefore;
+                  const maxDiscNet = priced.lineNetBefore;
+                  const lineBlocked = priced.violatesPolicy;
+                  const showChargedInput =
+                    canEditLinePrice || line.chargedGrossRaw !== "";
+                  const showDiscountControls =
+                    pricePolicy.allowBelow || line.discountMode !== "none";
                   const discBtn =
                     "rounded-md px-2 py-1 text-[11px] font-medium transition";
                   return (
@@ -1430,7 +1437,8 @@ export function NewInvoiceForm({
                             {line.product.name}
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {hasLineDiscount || unitLineGross > unitCatalogGross ? (
+                            {hasLineDiscount ||
+                            unitLineGross !== unitCatalogGross ? (
                               <>
                                 <span className="mr-1 line-through opacity-60">
                                   {formatCop(unitCatalogGross)}
@@ -1446,29 +1454,43 @@ export function NewInvoiceForm({
                               ? ` · IVA ${String(saleVatPercentLabel(line.product.has_vat) ?? 0).replace(/\.0+$/, "")}%`
                               : ""}
                           </p>
-                          {allowHigherPrice ? (
+                          {showChargedInput ? (
                             <label className="mt-1.5 flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-300">
                               <span className="shrink-0">Cobrar</span>
                               <input
                                 type="text"
-                                inputMode="decimal"
-                                placeholder={formatCopAmountInput(unitCatalogGross)}
+                                inputMode="numeric"
+                                placeholder={formatCopInputGrouping(unitCatalogGross)}
                                 value={line.chargedGrossRaw}
                                 onChange={(e) =>
                                   setLineChargedGross(
                                     line.key,
-                                    sanitizeCopDecimalTyping(e.target.value),
+                                    sanitizeCopIntegerTyping(e.target.value),
                                   )
                                 }
                                 onBlur={() => {
-                                  const n = parseCopDecimalInput(line.chargedGrossRaw);
+                                  const n = parseCopChargedPesos(line.chargedGrossRaw);
                                   if (n > 0) {
-                                    setLineChargedGross(line.key, formatCopAmountInput(n));
+                                    setLineChargedGross(
+                                      line.key,
+                                      formatCopInputGrouping(n),
+                                    );
                                   }
                                 }}
-                                className="w-40 rounded-md border border-zinc-200/90 bg-white px-3 py-1.5 text-sm tabular-nums text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                                className={[
+                                  "w-40 rounded-md border bg-white px-3 py-1.5 text-sm tabular-nums text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100",
+                                  lineBlocked
+                                    ? "border-red-300 dark:border-red-800"
+                                    : "border-zinc-200/90 dark:border-zinc-700",
+                                ].join(" ")}
+                                aria-invalid={lineBlocked ? true : undefined}
                               />
                             </label>
+                          ) : null}
+                          {lineBlocked ? (
+                            <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">
+                              {POS_PRICE_NOT_ALLOWED_MESSAGE}
+                            </p>
                           ) : null}
                         </div>
                         <div className="flex items-center gap-2">
@@ -1504,6 +1526,7 @@ export function NewInvoiceForm({
                           <IconTrash />
                         </button>
                       </div>
+                      {showDiscountControls ? (
                       <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
                         <span className="font-medium text-zinc-600 dark:text-zinc-300">
                           Descuento (neto línea)
@@ -1562,6 +1585,7 @@ export function NewInvoiceForm({
                           </label>
                         ) : null}
                       </div>
+                      ) : null}
                     </li>
                   );
                 })}

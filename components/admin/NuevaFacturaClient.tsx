@@ -2,6 +2,7 @@
 
 import { NewInvoiceForm, NewInvoiceHeader } from "@/components/admin/NewInvoiceForm";
 import type { QuotationEditDraft } from "@/lib/load-quotation-edit-draft";
+import type { PosPricePolicy } from "@/lib/product-vat-price";
 
 export function NuevaFacturaClient({
   initialError,
@@ -9,14 +10,14 @@ export function NuevaFacturaClient({
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
-  allowHigherPrice = false,
+  pricePolicy,
 }: {
   initialError?: string;
   initialCustomerId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
-  allowHigherPrice?: boolean;
+  pricePolicy?: PosPricePolicy;
 }) {
   return (
     <>
@@ -27,7 +28,7 @@ export function NuevaFacturaClient({
         editQuotation={editQuotation}
         canUseCredit={canUseCredit}
         canUseKits={canUseKits}
-        allowHigherPrice={allowHigherPrice}
+        pricePolicy={pricePolicy}
       />
     </>
   );

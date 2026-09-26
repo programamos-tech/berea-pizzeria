@@ -20,6 +20,8 @@ export type QuotationEditDraftLine = {
   quantity: number;
   discountPercent: number | null;
   discountAmountCents: number;
+  /** Unitario guardado en la cotización (con IVA si aplica). */
+  unitPriceCents: number;
 };
 
 export type QuotationEditDraftKitLine = {
@@ -50,7 +52,8 @@ export type QuotationEditDraft = {
 
 /**
  * Carga una cotización abierta para reeditarla en el formulario POS.
- * Recalcula precios/stock actuales del catálogo (no congela el snapshot viejo).
+ * Recalcula stock y precio de catálogo actuales; conserva el unitario cobrado
+ * si era mayor al catálogo (campo Cobrar).
  */
 export async function loadQuotationEditDraft(
   supabase: SupabaseClient,
@@ -88,7 +91,7 @@ export async function loadQuotationEditDraft(
     supabase
       .from("order_items")
       .select(
-        "product_id,kit_id,quantity,line_discount_percent,line_discount_amount_cents,product_name_snapshot",
+        "product_id,kit_id,quantity,unit_price_cents,line_discount_percent,line_discount_amount_cents,product_name_snapshot",
       )
       .eq("order_id", id),
   ]);
@@ -167,6 +170,10 @@ export async function loadQuotationEditDraft(
         discountAmountCents: Math.max(
           0,
           Math.floor(Number(row.line_discount_amount_cents ?? 0)),
+        ),
+        unitPriceCents: Math.max(
+          0,
+          Math.floor(Number(row.unit_price_cents ?? 0)),
         ),
       });
       continue;

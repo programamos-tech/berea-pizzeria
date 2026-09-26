@@ -17,14 +17,7 @@ import {
 import { requireAdminPermission, assertCashRegisterOpenForStaff } from "@/lib/require-admin-permission";
 import { fetchOpenCashSession } from "@/lib/cash-register";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import {
-  unitPriceAfterWholesaleCents,
-  wholesaleDiscountPercentFromRow,
-} from "@/lib/customer-wholesale-pricing";
-import {
-  applyPosLineNetDiscountCents,
-  discountedUnitNetCentsFromLine,
-} from "@/lib/pos-line-discount";
+import { wholesaleDiscountPercentFromRow } from "@/lib/customer-wholesale-pricing";
 import { fetchKitsByIdsWithItems } from "@/lib/load-product-kits";
 import {
   buildKitPosComponentDeductions,
@@ -34,7 +27,8 @@ import {
   resolveKitSalePriceCents,
   type ProductKitRow,
 } from "@/lib/product-kits";
-import { accountAllowsHigherSalePrice, unitPriceGrossCents, unitNetFromPosChargedUnitCents } from "@/lib/product-vat-price";
+import { computePosProductLineAmounts } from "@/lib/pos-line-price";
+import { posPricePolicyFromConfig } from "@/lib/product-vat-price";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
@@ -56,7 +50,7 @@ export type PosInvoiceLinePayload = {
   discountPercent?: number | null;
   /** COP en centavos sobre neto total de línea; solo si no hay % válido. */
   discountAmountCents?: number | null;
-  /** Precio cobrado al cliente (con IVA si aplica). Solo si la cuenta lo permite y es mayor al catálogo. */
+  /** Precio cobrado al cliente (con IVA si aplica); `null` = catálogo, `0` = gratis. Sujeto a los flags de la cuenta. */
   chargedUnitCents?: number | null;
 };
 
@@ -380,20 +374,31 @@ export async function createPosInvoiceAction(formData: FormData) {
     .select("storefront_config")
     .eq("id", perm.tenantId)
     .maybeSingle();
-  const allowHigherPrice = accountAllowsHigherSalePrice(tenantCfg?.storefront_config);
+  const pricePolicy = posPricePolicyFromConfig(tenantCfg?.storefront_config);
 
-  function saleNetUnit(
-    priceCatalog: number,
-    hasVat: boolean,
+  function saleLineAmounts(
+    p: {
+      price_cents: number;
+      has_vat: boolean | null;
+    },
+    quantity: number,
     chargedUnitCents: number | null,
-  ): number {
-    const catalogNet = unitPriceAfterWholesaleCents(priceCatalog, wholesalePct);
-    if (!allowHigherPrice || chargedUnitCents == null || chargedUnitCents <= 0) {
-      return catalogNet;
-    }
-    const catalogGross = unitPriceGrossCents(catalogNet, hasVat, null);
-    if (chargedUnitCents < catalogGross) redirectFail("price_floor");
-    return unitNetFromPosChargedUnitCents(chargedUnitCents, hasVat, null);
+    discountPercent: number | null,
+    discountAmountCents: number,
+  ): { lineNetAfter: number; unitFinal: number } {
+    const priced = computePosProductLineAmounts({
+      priceCatalog: Math.max(0, Math.floor(Number(p.price_cents ?? 0))),
+      hasVat: Boolean(p.has_vat),
+      wholesalePct,
+      quantity,
+      chargedUnitCents,
+      discountPercent,
+      discountAmountCents,
+      policy: pricePolicy,
+    });
+    if (priced.discountInvalid) redirectFail("validation");
+    if (priced.violatesPolicy) redirectFail("price_floor");
+    return { lineNetAfter: priced.lineNetAfter, unitFinal: priced.unitFinal };
   }
 
   let subtotalCents = 0;
@@ -402,25 +407,15 @@ export async function createPosInvoiceAction(formData: FormData) {
   for (const l of lines) {
     const p = productById.get(l.productId);
     if (!p) redirectFail("products");
-    const priceCatalog = Math.max(0, Math.floor(Number(p.price_cents ?? 0)));
-    const hasVat = Boolean(p.has_vat);
-    const netUnit = saleNetUnit(priceCatalog, hasVat, l.chargedUnitCents);
-    const lineNetBefore = netUnit * l.quantity;
-    const pctForCalc =
-      l.discountPercent != null && l.discountPercent > 0 && l.discountPercent <= 100
-        ? l.discountPercent
-        : null;
-    const amtForCalc = pctForCalc != null ? 0 : l.discountAmountCents;
-    if (amtForCalc > lineNetBefore) redirectFail("validation");
-    const lineNetAfter = applyPosLineNetDiscountCents(
-      lineNetBefore,
-      pctForCalc,
-      amtForCalc,
+    const priced = saleLineAmounts(
+      p,
+      l.quantity,
+      l.chargedUnitCents,
+      l.discountPercent,
+      l.discountAmountCents,
     );
-    const discNetUnit = discountedUnitNetCentsFromLine(lineNetAfter, l.quantity);
-    const unitFinal = unitPriceGrossCents(discNetUnit, hasVat, null);
-    subtotalCents += lineNetAfter;
-    totalCents += unitFinal * l.quantity;
+    subtotalCents += priced.lineNetAfter;
+    totalCents += priced.unitFinal * l.quantity;
   }
 
   for (const kl of kitLines) {
@@ -573,28 +568,24 @@ export async function createPosInvoiceAction(formData: FormData) {
 
   const productItemRows = lines.map((l) => {
     const p = productById.get(l.productId)!;
-    const priceCatalog = Math.max(0, Math.floor(Number(p.price_cents ?? 0)));
-    const hasVat = Boolean(p.has_vat);
-    const netUnit = saleNetUnit(priceCatalog, hasVat, l.chargedUnitCents);
-    const lineNetBefore = netUnit * l.quantity;
     const pctForCalc =
       l.discountPercent != null && l.discountPercent > 0 && l.discountPercent <= 100
         ? l.discountPercent
         : null;
     const amtForCalc = pctForCalc != null ? 0 : l.discountAmountCents;
-    const lineNetAfter = applyPosLineNetDiscountCents(
-      lineNetBefore,
-      pctForCalc,
-      amtForCalc,
+    const priced = saleLineAmounts(
+      p,
+      l.quantity,
+      l.chargedUnitCents,
+      l.discountPercent,
+      l.discountAmountCents,
     );
-    const discNetUnit = discountedUnitNetCentsFromLine(lineNetAfter, l.quantity);
-    const unitFinal = unitPriceGrossCents(discNetUnit, hasVat, null);
     return {
       order_id: orderId,
       product_id: l.productId,
       kit_id: null,
       quantity: l.quantity,
-      unit_price_cents: unitFinal,
+      unit_price_cents: priced.unitFinal,
       product_name_snapshot: String(p.name ?? "Producto"),
       line_discount_percent: pctForCalc,
       line_discount_amount_cents: pctForCalc != null ? 0 : amtForCalc,

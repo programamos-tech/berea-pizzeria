@@ -3,6 +3,7 @@
 import nextDynamic from "next/dynamic";
 import { NuevaFacturaLoading } from "@/components/admin/NuevaFacturaLoading";
 import type { QuotationEditDraft } from "@/lib/load-quotation-edit-draft";
+import type { PosPricePolicy } from "@/lib/product-vat-price";
 
 const NuevaFacturaClient = nextDynamic(
   () =>
@@ -23,14 +24,14 @@ export function NuevaFacturaPageClient({
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
-  allowHigherPrice = false,
+  pricePolicy,
 }: {
   initialError?: string;
   initialCustomerId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
-  allowHigherPrice?: boolean;
+  pricePolicy?: PosPricePolicy;
 }) {
   return (
     <NuevaFacturaClient
@@ -39,7 +40,7 @@ export function NuevaFacturaPageClient({
       editQuotation={editQuotation}
       canUseCredit={canUseCredit}
       canUseKits={canUseKits}
-      allowHigherPrice={allowHigherPrice}
+      pricePolicy={pricePolicy}
     />
   );
 }

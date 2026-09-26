@@ -148,9 +148,19 @@ export async function updateProductCatalogFieldAction(
   return { ok: true };
 }
 
-export async function updateHigherSalePriceAction(
+export type PosPriceFlag = "higher" | "below";
+
+const POS_PRICE_FLAG_KEYS: Record<PosPriceFlag, string> = {
+  higher: "pos_allow_higher_price",
+  below: "pos_allow_below_price",
+};
+
+export async function updatePosPriceFlagAction(
+  flag: PosPriceFlag,
   enabled: boolean,
 ): Promise<{ ok: true } | { ok: false }> {
+  const key = POS_PRICE_FLAG_KEYS[flag];
+  if (!key) return { ok: false };
   const session = await requireAdminSession();
   if (session.jobRole !== "owner" && !session.isPlatformOperator) {
     return { ok: false };
@@ -182,7 +192,7 @@ export async function updateHigherSalePriceAction(
     .update({
       storefront_config: {
         ...current,
-        pos_allow_higher_price: enabled,
+        [key]: enabled,
       },
     })
     .eq("id", session.tenantId)

@@ -73,3 +73,33 @@ export function parseCopInputDigitsToInt(raw: string): number {
   if (!Number.isFinite(n) || n < 0) return 0;
   return Math.min(n, Number.MAX_SAFE_INTEGER);
 }
+
+/** Mientras se escribe un monto entero en pesos: dígitos + miles con punto (conserva `0`). */
+export function sanitizeCopIntegerTyping(raw: string): string {
+  if (!/\d/.test(raw)) return "";
+  const n = parseCopInputDigitsToInt(raw);
+  return n <= 0 ? "0" : formatCopInputGrouping(n);
+}
+
+/** Como {@link parseCopChargedPesos}, pero vacío → `null` (distinto de `0`). */
+export function parseCopChargedPesosOrNull(raw: string): number | null {
+  if (!/\d/.test(String(raw ?? ""))) return null;
+  return parseCopChargedPesos(raw);
+}
+
+/**
+ * Precio cobrado en POS (pesos enteros).
+ * Acepta `50000`, `50.000`, `50,000` (miles estilo Excel) y `50.000,00`.
+ */
+export function parseCopChargedPesos(raw: string): number {
+  const t = String(raw ?? "").trim();
+  if (!t) return 0;
+  const comma = t.lastIndexOf(",");
+  if (comma >= 0) {
+    const after = t.slice(comma + 1).replace(/\D/g, "");
+    if (after.length > 0 && after.length <= 2) {
+      return Math.round(parseCopDecimalInput(t));
+    }
+  }
+  return parseCopInputDigitsToInt(t);
+}

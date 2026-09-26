@@ -28,7 +28,7 @@ export async function GET(request: Request) {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id,name,reference,price_cents,cost_cents,stock_quantity,stock_local,has_vat,vat_percent",
+      "id,name,reference,price_cents,stock_quantity,stock_local,has_vat,vat_percent",
     )
     .or(orFilter)
     .order("name")
@@ -45,7 +45,12 @@ export async function GET(request: Request) {
   );
   return NextResponse.json({
     products: rows.map((row) => ({
-      ...row,
+      id: row.id,
+      name: row.name,
+      reference: row.reference,
+      price_cents: row.price_cents,
+      has_vat: row.has_vat,
+      vat_percent: row.vat_percent,
       stock_local: inventory.get(String(row.id)) ?? 0,
       stock_quantity: inventory.get(String(row.id)) ?? 0,
     })),

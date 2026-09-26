@@ -1,24 +1,43 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { updateHigherSalePriceAction } from "@/app/actions/admin/platform-settings";
+import {
+  updatePosPriceFlagAction,
+  type PosPriceFlag,
+} from "@/app/actions/admin/platform-settings";
 
-export function HigherSalePriceSettings({
+const COPY: Record<PosPriceFlag, { title: string; detail: string }> = {
+  below: {
+    title: "Vender por debajo del precio de venta",
+    detail:
+      "Permite cobrar menos que el precio de lista, incluso $0, con el campo Cobrar o con descuentos. Apagado, nunca se vende por menos del precio de venta.",
+  },
+  higher: {
+    title: "Vender por encima del precio de venta",
+    detail:
+      "Permite cobrar más que el precio de lista. El precio cobrado ya incluye el IVA.",
+  },
+};
+
+function PosPriceFlagToggle({
+  flag,
   enabled,
   canEdit,
 }: {
+  flag: PosPriceFlag;
   enabled: boolean;
   canEdit: boolean;
 }) {
   const [on, setOn] = useState(enabled);
   const [pending, startTransition] = useTransition();
+  const { title, detail } = COPY[flag];
 
   function toggle() {
     if (!canEdit || pending) return;
     const next = !on;
     setOn(next);
     startTransition(async () => {
-      const result = await updateHigherSalePriceAction(next);
+      const result = await updatePosPriceFlagAction(flag, next);
       if (!result.ok) setOn(!next);
     });
   }
@@ -27,17 +46,15 @@ export function HigherSalePriceSettings({
     <div className="flex items-center justify-between gap-4">
       <div className="min-w-0">
         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-          Precio mayor en la factura
+          {title}
         </p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          El precio cobrado ya incluye el IVA.
-        </p>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{detail}</p>
       </div>
       <button
         type="button"
         role="switch"
         aria-checked={on}
-        aria-label={`Precio mayor en la factura: ${on ? "encendido" : "apagado"}`}
+        aria-label={`${title}: ${on ? "encendido" : "apagado"}`}
         disabled={!canEdit || pending}
         onClick={toggle}
         className={[
@@ -55,6 +72,23 @@ export function HigherSalePriceSettings({
           ].join(" ")}
         />
       </button>
+    </div>
+  );
+}
+
+export function PosPriceSettings({
+  allowBelow,
+  allowHigher,
+  canEdit,
+}: {
+  allowBelow: boolean;
+  allowHigher: boolean;
+  canEdit: boolean;
+}) {
+  return (
+    <div className="space-y-5">
+      <PosPriceFlagToggle flag="below" enabled={allowBelow} canEdit={canEdit} />
+      <PosPriceFlagToggle flag="higher" enabled={allowHigher} canEdit={canEdit} />
     </div>
   );
 }

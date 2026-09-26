@@ -391,8 +391,8 @@ export function NewProductForm({
                 />
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Este producto no podrá ser vendido por menos del valor de precio de venta
-                configurado en la tienda.
+                Si se puede vender por encima o por debajo de este precio lo
+                define Configuración → Precios en la venta.
               </p>
             </div>
           </section>
