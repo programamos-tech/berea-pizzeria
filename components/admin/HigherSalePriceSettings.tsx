@@ -5,6 +5,7 @@ import {
   updatePosPriceFlagAction,
   type PosPriceFlag,
 } from "@/app/actions/admin/platform-settings";
+import { SettingsSwitchRow } from "@/components/admin/SettingsSwitchRow";
 
 const COPY: Record<PosPriceFlag, { title: string; detail: string }> = {
   below: {
@@ -43,36 +44,13 @@ function PosPriceFlagToggle({
   }
 
   return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-          {title}
-        </p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{detail}</p>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-label={`${title}: ${on ? "encendido" : "apagado"}`}
-        disabled={!canEdit || pending}
-        onClick={toggle}
-        className={[
-          "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors",
-          on
-            ? "border-zinc-900 bg-zinc-900 dark:border-zinc-100 dark:bg-zinc-100"
-            : "border-zinc-300 bg-zinc-200 dark:border-zinc-600 dark:bg-zinc-800",
-          !canEdit || pending ? "cursor-not-allowed opacity-60" : "",
-        ].join(" ")}
-      >
-        <span
-          className={[
-            "inline-block size-5 rounded-full bg-white shadow-sm transition-transform duration-200 dark:bg-zinc-950",
-            on ? "translate-x-6" : "translate-x-1",
-          ].join(" ")}
-        />
-      </button>
-    </div>
+    <SettingsSwitchRow
+      title={title}
+      description={detail}
+      checked={on}
+      disabled={!canEdit || pending}
+      onToggle={toggle}
+    />
   );
 }
 
@@ -86,7 +64,7 @@ export function PosPriceSettings({
   canEdit: boolean;
 }) {
   return (
-    <div className="space-y-5">
+    <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
       <PosPriceFlagToggle flag="below" enabled={allowBelow} canEdit={canEdit} />
       <PosPriceFlagToggle flag="higher" enabled={allowHigher} canEdit={canEdit} />
     </div>

@@ -1,10 +1,10 @@
 export const PRODUCT_CATALOG_FIELDS = [
-  { id: "brand", label: "Marca" },
-  { id: "category", label: "Categoría" },
-  { id: "sizes", label: "Tamaños" },
-  { id: "colors", label: "Colores" },
-  { id: "fragrances", label: "Fragancias" },
-  { id: "expiration", label: "Vencimiento" },
+  { id: "brand", label: "Marca", hint: "Fabricante o marca del producto." },
+  { id: "category", label: "Categoría", hint: "Para agrupar el catálogo." },
+  { id: "sizes", label: "Tamaños", hint: "Presentaciones, como 250 ml o 1 kg." },
+  { id: "colors", label: "Colores", hint: "Variantes de color disponibles." },
+  { id: "fragrances", label: "Fragancias", hint: "Aromas disponibles, con foto opcional." },
+  { id: "expiration", label: "Vencimiento", hint: "Fecha de vencimiento del producto." },
 ] as const;
 
 export type ProductCatalogFieldId = (typeof PRODUCT_CATALOG_FIELDS)[number]["id"];
