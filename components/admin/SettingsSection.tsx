@@ -18,7 +18,7 @@ export function SettingsSection({
   return (
     <section id={id} className={`${adminPanelClass} scroll-mt-6 overflow-hidden`}>
       <header className="flex items-start gap-3 border-b border-zinc-100 px-4 py-4 sm:px-6 dark:border-zinc-800">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--admin-coral)_12%,white)] text-[var(--admin-coral)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_18%,transparent)]">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
           <Icon className="size-[18px]" aria-hidden />
         </span>
         <div className="min-w-0">
