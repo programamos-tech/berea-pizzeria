@@ -18,6 +18,8 @@ export type DiningTableWithSession = DiningTableRow & {
 };
 
 export type DiningTablesBoard = {
+  /** Todas las mesas activas, orden de salón. */
+  all: DiningTableWithSession[];
   available: DiningTableWithSession[];
   occupied: DiningTableWithSession[];
 };
@@ -36,11 +38,11 @@ export async function fetchDiningTablesBoard(
 
   if (error) {
     console.error("[mesas] tables:", error.message);
-    return { available: [], occupied: [] };
+    return { all: [], available: [], occupied: [] };
   }
 
   const ids = (tables ?? []).map((t) => String(t.id));
-  if (ids.length === 0) return { available: [], occupied: [] };
+  if (ids.length === 0) return { all: [], available: [], occupied: [] };
 
   const { data: sessions, error: sessErr } = await supabase
     .from("dining_table_sessions")
@@ -71,6 +73,7 @@ export async function fetchDiningTablesBoard(
     });
   }
 
+  const all: DiningTableWithSession[] = [];
   const available: DiningTableWithSession[] = [];
   const occupied: DiningTableWithSession[] = [];
 
@@ -83,9 +86,10 @@ export async function fetchDiningTablesBoard(
       sortOrder: Number(t.sort_order) || 0,
       openSession: openByTable.get(String(t.id)) ?? null,
     };
+    all.push(row);
     if (row.openSession) occupied.push(row);
     else available.push(row);
   }
 
-  return { available, occupied };
+  return { all, available, occupied };
 }

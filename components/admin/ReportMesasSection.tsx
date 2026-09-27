@@ -1,6 +1,8 @@
+import type { DiningTableWithSession } from "@/lib/admin-dining-tables";
 import { fetchDiningTablesBoard } from "@/lib/admin-dining-tables";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Armchair, CircleDot, UtensilsCrossed } from "lucide-react";
 import { Suspense } from "react";
 
 const labelClass =
@@ -15,46 +17,171 @@ function openedAgo(iso: string): string {
   const opened = new Date(iso).getTime();
   if (!Number.isFinite(opened)) return "";
   const mins = Math.max(0, Math.round((Date.now() - opened) / 60_000));
-  if (mins < 1) return "recién abierta";
-  if (mins < 60) return `hace ${mins} min`;
+  if (mins < 1) return "recién";
+  if (mins < 60) return `${mins} min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (m === 0) return h === 1 ? "hace 1 h" : `hace ${h} h`;
-  return `hace ${h} h ${m} min`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} m`;
 }
 
-function MesaChip({
-  name,
-  meta,
-  tone,
+/** Icono de mesa redonda + sillas (vista salón). */
+function MesaFloorIcon({
+  occupied,
+  className = "",
 }: {
-  name: string;
-  meta: string;
-  tone: "free" | "busy";
+  occupied: boolean;
+  className?: string;
 }) {
-  const toneClass =
-    tone === "free"
-      ? "border-emerald-200/90 bg-emerald-50/80 text-emerald-950 dark:border-emerald-900/50 dark:bg-emerald-950/35 dark:text-emerald-100"
-      : "border-[color-mix(in_srgb,var(--admin-coral)_35%,transparent)] bg-[var(--admin-coral-mist)] text-zinc-900 dark:border-[color-mix(in_srgb,var(--admin-coral)_40%,transparent)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_18%,transparent)] dark:text-zinc-100";
+  const ink = occupied
+    ? "var(--admin-coral)"
+    : "currentColor";
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      className={className}
+      aria-hidden
+      fill="none"
+    >
+      {/* sillas */}
+      <rect
+        x="27"
+        y="4"
+        width="10"
+        height="8"
+        rx="2.5"
+        fill={ink}
+        opacity={occupied ? 0.9 : 0.35}
+      />
+      <rect
+        x="27"
+        y="52"
+        width="10"
+        height="8"
+        rx="2.5"
+        fill={ink}
+        opacity={occupied ? 0.9 : 0.35}
+      />
+      <rect
+        x="4"
+        y="27"
+        width="8"
+        height="10"
+        rx="2.5"
+        fill={ink}
+        opacity={occupied ? 0.9 : 0.35}
+      />
+      <rect
+        x="52"
+        y="27"
+        width="8"
+        height="10"
+        rx="2.5"
+        fill={ink}
+        opacity={occupied ? 0.9 : 0.35}
+      />
+      {/* tablero */}
+      <circle
+        cx="32"
+        cy="32"
+        r="16"
+        stroke={ink}
+        strokeWidth="2.5"
+        fill={occupied ? "color-mix(in srgb, var(--admin-coral) 18%, white)" : "transparent"}
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r="6"
+        fill={ink}
+        opacity={occupied ? 0.85 : 0.22}
+      />
+    </svg>
+  );
+}
+
+function MesaTile({ table }: { table: DiningTableWithSession }) {
+  const occupied = Boolean(table.openSession);
+  const displayNum = table.code || table.name.replace(/\D+/g, "") || table.name;
 
   return (
     <li
-      className={`flex min-w-0 flex-col rounded-xl border px-3 py-2.5 ${toneClass}`}
+      className={[
+        "relative flex min-h-[7.5rem] flex-col items-center justify-between rounded-2xl border px-2.5 py-3 text-center transition",
+        occupied
+          ? "border-[color-mix(in_srgb,var(--admin-coral)_45%,#e4e4e7)] bg-[var(--admin-coral-mist)] shadow-[0_1px_0_color-mix(in_srgb,var(--admin-coral)_25%,transparent)] dark:border-[color-mix(in_srgb,var(--admin-coral)_40%,#3f3f46)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_14%,transparent)]"
+          : "border-zinc-200/90 bg-white dark:border-zinc-700/80 dark:bg-zinc-900/50",
+      ].join(" ")}
     >
-      <span className="truncate text-sm font-semibold tracking-tight">{name}</span>
-      {meta ? (
-        <span className="mt-0.5 truncate text-[11px] opacity-80">{meta}</span>
-      ) : null}
+      <span
+        className={[
+          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]",
+          occupied
+            ? "bg-[var(--admin-coral)] text-white"
+            : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
+        ].join(" ")}
+      >
+        {occupied ? (
+          <UtensilsCrossed className="size-2.5" strokeWidth={2.4} aria-hidden />
+        ) : (
+          <CircleDot className="size-2.5" strokeWidth={2.4} aria-hidden />
+        )}
+        {occupied ? "Ocupada" : "Libre"}
+      </span>
+
+      <MesaFloorIcon
+        occupied={occupied}
+        className={`mt-1 size-12 ${occupied ? "" : "text-zinc-400 dark:text-zinc-500"}`}
+      />
+
+      <div className="mt-1 min-w-0 w-full">
+        <p
+          className={[
+            "truncate text-base font-semibold tabular-nums tracking-tight",
+            occupied
+              ? "text-zinc-900 dark:text-zinc-50"
+              : "text-zinc-800 dark:text-zinc-100",
+          ].join(" ")}
+        >
+          {displayNum}
+        </p>
+        <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
+          {table.name}
+        </p>
+        <p className="mt-0.5 flex items-center justify-center gap-1 truncate text-[10px] text-zinc-500 dark:text-zinc-400">
+          <Armchair className="size-3 shrink-0 opacity-70" aria-hidden />
+          <span className="truncate">
+            {occupied && table.openSession?.guestCount
+              ? `${table.openSession.guestCount} comensal${table.openSession.guestCount === 1 ? "" : "es"}`
+              : seatsLabel(table.seats)}
+            {occupied && table.openSession
+              ? ` · ${openedAgo(table.openSession.openedAt)}`
+              : ""}
+          </span>
+        </p>
+        {occupied && table.openSession?.note?.trim() ? (
+          <p className="mt-0.5 truncate text-[10px] font-medium text-[var(--admin-coral-deep)] dark:text-[var(--admin-coral-soft)]">
+            {table.openSession.note.trim()}
+          </p>
+        ) : null}
+      </div>
     </li>
   );
 }
 
 export function ReportMesasSkeleton() {
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5" role="status">
-      <div className="h-28 animate-pulse rounded-xl bg-zinc-100/40 dark:bg-zinc-900/40" />
-      <div className="h-28 animate-pulse rounded-xl bg-zinc-100/40 dark:bg-zinc-900/40" />
-      <span className="sr-only">Cargando mesas…</span>
+    <div className="flex min-h-0 flex-1 flex-col gap-3" role="status">
+      <div className="h-8 w-48 animate-pulse rounded bg-zinc-100/50 dark:bg-zinc-900/50" />
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-[7.5rem] animate-pulse rounded-2xl bg-zinc-100/40 dark:bg-zinc-900/40"
+          />
+        ))}
+      </div>
+      <span className="sr-only">Cargando mapa de mesas…</span>
     </div>
   );
 }
@@ -75,87 +202,70 @@ async function ReportMesasBoard() {
     perm.branchContext.active.id,
   );
 
-  const free = board.available;
-  const busy = board.occupied;
+  const tables = board.all;
+  const free = board.available.length;
+  const busy = board.occupied.length;
+
+  if (tables.length === 0) {
+    return (
+      <div className="flex min-h-[12rem] flex-col justify-center">
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          Mapa de mesas
+        </h2>
+        <p className="mt-2 text-sm text-zinc-500">
+          Aún no hay mesas configuradas en esta sucursal.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-5">
-      <section className="min-w-0">
-        <div className="flex items-baseline justify-between gap-3">
+    <section className="flex min-h-0 flex-1 flex-col">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            Mesas disponibles
+            Mapa de mesas
           </h2>
-          <span className={labelClass}>
-            <span className="tabular-nums">{free.length}</span> libre
-            {free.length === 1 ? "" : "s"}
+          <p className="mt-0.5 text-[11px] text-zinc-500">
+            Salón · sucursal activa · estado en tiempo real
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-600 dark:text-zinc-300">
+            <span className="inline-flex size-2.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+            <span className={labelClass}>
+              <span className="normal-case tracking-normal text-zinc-600 dark:text-zinc-300">
+                <span className="tabular-nums font-semibold">{free}</span> libre
+                {free === 1 ? "" : "s"}
+              </span>
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-600 dark:text-zinc-300">
+            <span className="inline-flex size-2.5 rounded-full bg-[var(--admin-coral)]" />
+            <span className="tabular-nums font-semibold text-zinc-700 dark:text-zinc-200">
+              {busy}
+            </span>{" "}
+            ocupada{busy === 1 ? "" : "s"}
           </span>
         </div>
-        <p className="mt-0.5 text-[11px] text-zinc-500">
-          Sin pedido abierto en la sucursal activa
-        </p>
-        {free.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-500">
-            No hay mesas libres ahora.
-          </p>
-        ) : (
-          <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {free.map((t) => (
-              <MesaChip
-                key={t.id}
-                name={t.name}
-                meta={seatsLabel(t.seats)}
-                tone="free"
-              />
-            ))}
-          </ul>
-        )}
-      </section>
+      </div>
 
-      <section className="min-w-0">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-            Mesas con pedidos
-          </h2>
-          <span className={labelClass}>
-            <span className="tabular-nums">{busy.length}</span> con pedido
-            {busy.length === 1 ? "" : "s"}
-          </span>
-        </div>
-        <p className="mt-0.5 text-[11px] text-zinc-500">
-          Pedido abierto · en curso
-        </p>
-        {busy.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-500">
-            Ninguna mesa tiene pedido abierto.
-          </p>
-        ) : (
-          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {busy.map((t) => {
-              const parts = [
-                seatsLabel(t.seats),
-                t.openSession?.guestCount
-                  ? `${t.openSession.guestCount} comensal${t.openSession.guestCount === 1 ? "" : "es"}`
-                  : null,
-                t.openSession ? openedAgo(t.openSession.openedAt) : null,
-                t.openSession?.note?.trim() || null,
-              ].filter(Boolean);
-              return (
-                <MesaChip
-                  key={t.id}
-                  name={t.name}
-                  meta={parts.join(" · ")}
-                  tone="busy"
-                />
-              );
-            })}
-          </ul>
-        )}
-      </section>
-    </div>
+      <div
+        className="mt-3 rounded-2xl border border-zinc-200/80 bg-[radial-gradient(circle_at_1px_1px,#e4e4e7_1px,transparent_0)] bg-[length:14px_14px] p-3 dark:border-zinc-800 dark:bg-[radial-gradient(circle_at_1px_1px,#3f3f46_1px,transparent_0)] dark:bg-[length:14px_14px] sm:p-4"
+        role="list"
+        aria-label="Mapa de mesas del salón"
+      >
+        <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+          {tables.map((t) => (
+            <MesaTile key={t.id} table={t} />
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 
-/** Sustituye el bloque Ingresos vs egresos + tops en Reportes. */
+/** Mapa visual de mesas en Reportes (libres vs ocupadas). */
 export function ReportMesasSection() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
