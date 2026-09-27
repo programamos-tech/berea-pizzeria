@@ -15,7 +15,7 @@ import {
   ReportActivityFeed,
   ReportActivityFeedSkeleton,
 } from "@/components/admin/ReportActivityFeed";
-import { ReportMonthlyChartsSection } from "@/components/admin/ReportMonthlyChartsSection";
+import { ReportMesasSection } from "@/components/admin/ReportMesasSection";
 import {
   currentYearMonthInReportStore,
   parseReportRangeFromSearchParams,
@@ -170,12 +170,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
 
             <div className="grid min-h-0 flex-1 grid-cols-1 items-start gap-5 border-t border-zinc-200/70 pt-4 dark:border-zinc-800 max-xl:flex-none lg:grid-cols-12 lg:gap-6 xl:items-stretch">
               <div className="flex min-h-0 min-w-0 flex-col lg:col-span-7 max-xl:min-h-0">
-                <ReportMonthlyChartsSection
-                  todayKey={todayKey}
-                  rangeFrom={rangeFrom}
-                  rangeTo={rangeTo}
-                  periodLabel={periodLabel}
-                />
+                <ReportMesasSection />
               </div>
 
               <section className="reports-chart-reveal flex h-auto max-h-[min(24rem,60vh)] min-h-0 w-full flex-col self-start border-t border-zinc-200/70 pt-4 dark:border-zinc-800 lg:col-span-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0 xl:h-full xl:max-h-none xl:self-stretch">
