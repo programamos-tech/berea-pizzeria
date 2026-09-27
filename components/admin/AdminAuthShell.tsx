@@ -4,7 +4,7 @@ import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import { LoginPhrases } from "@/components/admin/LoginPhrases";
 import {
   adminProductBrand,
-  liacoHorizontalLogoPath,
+  adminSidebarLogoPath,
   liacoStackedLogoPath,
 } from "@/lib/brand";
 
@@ -29,11 +29,11 @@ export function AdminAuthShell({
             className={`mx-auto flex w-full items-center justify-between gap-4 px-6 py-4 sm:px-8 ${contentWidthClassName}`}
           >
             <Image
-              src={liacoHorizontalLogoPath}
-              alt={adminProductBrand}
+              src={adminSidebarLogoPath}
+              alt="Berea House"
               width={480}
-              height={48}
-              className="h-7 w-auto max-w-[12rem] object-contain object-left"
+              height={265}
+              className="h-8 w-auto max-w-[10.5rem] object-contain object-left"
               priority
             />
             <div className="flex items-center gap-1 sm:gap-2">
@@ -60,10 +60,10 @@ export function AdminAuthShell({
       </div>
 
       <div className="relative z-10 flex min-h-dvh flex-col lg:flex-row">
-        {/* Facturas pattern: solid coral panel + centered icon + phrase */}
+        {/* Facturas pattern: solid coral + centered transparent mascot */}
         <aside className="flex shrink-0 flex-col items-center justify-center bg-[var(--admin-coral)] px-8 py-12 text-white lg:min-h-dvh lg:w-[46%] lg:flex-none">
           <Image
-            src="/login-liaco-pizza.jpg"
+            src="/login-liaco-pizza.png"
             alt="Liaco pizza"
             width={855}
             height={855}
@@ -86,16 +86,16 @@ export function AdminAuthShell({
               />
             </div>
             {children}
-            <p className="mt-10 flex flex-col items-center gap-2">
+            <p className="mt-10 flex flex-col items-center gap-1.5">
               <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-400">
-                Liaco Pizzería
+                Powered by
               </span>
               <Image
-                src={liacoHorizontalLogoPath}
-                alt={adminProductBrand}
+                src={adminSidebarLogoPath}
+                alt="Berea House"
                 width={480}
-                height={48}
-                className="h-4 w-auto max-w-[11rem] object-contain opacity-80"
+                height={265}
+                className="h-5 w-auto max-w-[7.5rem] object-contain"
               />
             </p>
           </div>

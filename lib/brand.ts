@@ -59,17 +59,17 @@ export const storeLogoPath =
   process.env.NEXT_PUBLIC_STORE_LOGO?.trim() || "/logo-finala.png";
 
 /**
- * Logo Berea (marca #ed7464 en Pizzerías) en el sidebar.
+ * Logo Berea House (producto) — powered-by login/sidebar.
  * Override: `NEXT_PUBLIC_ADMIN_SIDEBAR_LOGO`.
  */
 export const adminSidebarLogoPath =
   process.env.NEXT_PUBLIC_ADMIN_SIDEBAR_LOGO?.trim() ||
-  "/logo-liaco-horizontal.png";
+  "/logo-berea-productos-v3.png";
 
-/** Nombre del producto / sistema en el backoffice. */
+/** Nombre del producto / cuenta en el backoffice. */
 export const adminProductBrand = "Liaco Pizzería";
 
-/** Logo apilado Liaco (login / hero). Override: `NEXT_PUBLIC_LIACO_LOGO_STACKED`. */
+/** Logo apilado Liaco (cuenta / login form). Override: `NEXT_PUBLIC_LIACO_LOGO_STACKED`. */
 export const liacoStackedLogoPath =
   process.env.NEXT_PUBLIC_LIACO_LOGO_STACKED?.trim() ||
   "/logo-liaco-stacked.png";
@@ -87,16 +87,16 @@ export const adminTenantBrand =
   process.env.NEXT_PUBLIC_ADMIN_TENANT_NAME?.trim() || "Liaco Pizzería";
 
 /**
- * Avatar de la cuenta tenant.
+ * Logo de la cuenta tenant (sidebar brand slot).
  * Override: `NEXT_PUBLIC_ADMIN_TENANT_LOGO`.
  */
 export const adminTenantLogoPath =
   process.env.NEXT_PUBLIC_ADMIN_TENANT_LOGO?.trim() ||
   "/logo-liaco-stacked.png";
 
-/** Firma / wordmark. Override: `NEXT_PUBLIC_BEREA_LOGO`. */
+/** Firma Berea House. Override: `NEXT_PUBLIC_BEREA_LOGO`. */
 export const bereaSignaturePath =
-  process.env.NEXT_PUBLIC_BEREA_LOGO?.trim() || "/logo-liaco-horizontal.png";
+  process.env.NEXT_PUBLIC_BEREA_LOGO?.trim() || "/logo-berea-productos-v3.png";
 
 /**
  * Nombre en el pie © (independiente del nombre corto de marca si usás env de plantilla).
