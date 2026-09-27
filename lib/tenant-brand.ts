@@ -1,5 +1,5 @@
 /**
- * Shape of `tenants.brand` jsonb — invoice / tirilla fields for Berea Productos.
+ * Shape of `tenants.brand` jsonb — invoice / tirilla fields for Berea Pizzerías.
  * Empty or partial brand falls back to env defaults in `lib/brand.ts` (Aleya).
  *
  * Logo convention: public path (`/logo-….png`) or Storage object path

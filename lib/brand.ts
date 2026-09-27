@@ -1,6 +1,6 @@
 /** Visible store name; override with NEXT_PUBLIC_STORE_NAME per fork. */
 export const storeBrand =
-  process.env.NEXT_PUBLIC_STORE_NAME ?? "Milagros Guacarí";
+  process.env.NEXT_PUBLIC_STORE_NAME ?? "Berea Pizzerías";
 
 /**
  * Razón social en facturas / tirilla (si no va en env, coincide con `storeBrand`).
@@ -18,7 +18,7 @@ export const storeTaxNit = process.env.NEXT_PUBLIC_STORE_NIT?.trim() ?? "";
 export const invoiceLegalName =
   process.env.NEXT_PUBLIC_INVOICE_LEGAL_NAME?.trim() ||
   process.env.NEXT_PUBLIC_STORE_LEGAL_NAME?.trim() ||
-  "Aleya Shop SAS";
+  "Berea Pizzerías SAS";
 
 /** NIT en cabecera de factura (prioridad sobre `storeTaxNit` en ese documento). */
 export const invoiceTaxNit =
@@ -30,7 +30,7 @@ export const invoiceTaxNit =
 export const invoiceTradeName =
   process.env.NEXT_PUBLIC_INVOICE_TRADE_NAME?.trim() ||
   process.env.NEXT_PUBLIC_STORE_NAME?.trim() ||
-  "Aleya Shop";
+  "Berea Pizzerías";
 
 /** Logo en tirilla / factura impresa. */
 export const invoiceLogoPath =
@@ -67,14 +67,14 @@ export const adminSidebarLogoPath =
   "/logo-berea-productos-v3.png";
 
 /** Nombre del producto / sistema en el backoffice (marca Berea). */
-export const adminProductBrand = "Berea House";
+export const adminProductBrand = "Berea Pizzerías";
 
 /**
  * Cuenta SaaS / workspace en el sidebar.
  * Override: `NEXT_PUBLIC_ADMIN_TENANT_NAME` (por defecto “Aleya Shop”).
  */
 export const adminTenantBrand =
-  process.env.NEXT_PUBLIC_ADMIN_TENANT_NAME?.trim() || "Aleya Shop";
+  process.env.NEXT_PUBLIC_ADMIN_TENANT_NAME?.trim() || "Berea Pizzerías";
 
 /**
  * Avatar de la cuenta tenant (logo Aleya, claro sobre fondo oscuro).
@@ -93,17 +93,17 @@ export const bereaSignaturePath =
  * Ej.: NEXT_PUBLIC_STORE_COPYRIGHT_NAME
  */
 export const storeCopyrightHolder =
-  process.env.NEXT_PUBLIC_STORE_COPYRIGHT_NAME ?? "Milagros Guacarí";
+  process.env.NEXT_PUBLIC_STORE_COPYRIGHT_NAME ?? "Berea Pizzerías";
 
 /** Línea bajo el nombre (footer, etc.). */
 export const storeTagline =
   process.env.NEXT_PUBLIC_STORE_TAGLINE ??
-  "Personal Shopper · Productos 100% originales";
+  "Pizzería · pedidos y facturación";
 
 /** Párrafo corto sobre la tienda (footer). */
 export const storeShortDescription =
   process.env.NEXT_PUBLIC_STORE_DESCRIPTION ??
-  "Importaciones seleccionadas con asesoría personalizada. Productos auténticos y envíos a toda Colombia.";
+  "Sistema Berea Pizzerías para pedidos, caja y facturación. Entorno local de desarrollo.";
 
 /** Teléfono de contacto (footer, cabecera). */
 export const storeSupportPhone =
@@ -124,7 +124,7 @@ export const storeWhatsAppUrl: string = whatsappDigits
 /** Texto del anuncio superior (marquee). */
 export const storeAnnouncementMessage =
   process.env.NEXT_PUBLIC_STORE_ANNOUNCEMENT ??
-  "Aleya Shop · distribuidor autorizado Milagros · belleza 100% original · envíos a toda Colombia";
+  "Berea Pizzerías · entorno local de desarrollo";
 
 /** Mensaje corto del banner de bienvenida de la tienda. */
 export const storeWelcomeDiscountMessage =
@@ -137,7 +137,7 @@ export const storeWelcomeDiscountCode =
 
 /** Email de contacto visible en el footer. */
 export const storeSupportEmail =
-  process.env.NEXT_PUBLIC_STORE_EMAIL ?? "hola@milagrosguacari.com";
+  process.env.NEXT_PUBLIC_STORE_EMAIL ?? "hola@bereapizzerias.local";
 
 /** Horario de atención (texto libre). */
 export const storeSupportHours =
@@ -146,15 +146,15 @@ export const storeSupportHours =
 /** Perfil de Instagram de la tienda. */
 export const storeInstagramUrl =
   process.env.NEXT_PUBLIC_STORE_INSTAGRAM_URL ??
-  "https://www.instagram.com/milagrosguacari/";
+  "https://www.instagram.com/";
 
 /** Mensaje precargado para abrir WhatsApp. */
 export const storeWhatsAppPrefilledText =
   process.env.NEXT_PUBLIC_WHATSAPP_TEXT ??
-  "Hola, te escribo desde la tienda de Aleya Shop. Me gustaría recibir asesoría.";
+  "Hola, te escribo desde Berea Pizzerías.";
 
 /**
- * Soporte WhatsApp del backoffice Berea House (sidebar).
+ * Soporte WhatsApp del backoffice Berea Pizzerías (sidebar).
  * Override: `NEXT_PUBLIC_ADMIN_SUPPORT_WHATSAPP` (solo dígitos o con formato).
  */
 const adminSupportWhatsAppDigits =
@@ -169,4 +169,4 @@ export const adminSupportWhatsAppUrl = `https://wa.me/${adminSupportWhatsAppDigi
 
 export const adminSupportWhatsAppPrefilledText =
   process.env.NEXT_PUBLIC_ADMIN_SUPPORT_WHATSAPP_TEXT?.trim() ||
-  "Hola, escribo desde Berea House. Necesito ayuda con el panel.";
+  "Hola, escribo desde Berea Pizzerías. Necesito ayuda con el panel.";

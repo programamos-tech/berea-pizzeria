@@ -1,5 +1,5 @@
 /**
- * Berea Productos — multi-tenant host convention.
+ * Berea Pizzerías — multi-tenant host convention.
  *
  * Platform (SaaS entry):  productos.bereahouse.com
  * Tenant storefront/admin: {slug}.productos.bereahouse.com
@@ -10,8 +10,8 @@
  */
 
 export const PLATFORM_ROOT_DOMAIN = "bereahouse.com" as const;
-export const PLATFORM_PRODUCT_HOST = "productos.bereahouse.com" as const;
-export const DEFAULT_TENANT_SLUG = "aleya" as const;
+export const PLATFORM_PRODUCT_HOST = "pizzerias.bereahouse.com" as const;
+export const DEFAULT_TENANT_SLUG = "berea-pizzerias" as const;
 
 /** Request header set by middleware (slug only; safe to log). */
 export const TENANT_SLUG_HEADER = "x-berea-tenant-slug" as const;
@@ -33,10 +33,7 @@ export type ResolvedTenantHost = {
  * (DB custom_domains is source of truth after migration; this is the offline fallback.)
  */
 const LEGACY_HOST_TO_SLUG: Record<string, string> = {
-  "aleyashop.net": DEFAULT_TENANT_SLUG,
-  "www.aleyashop.net": DEFAULT_TENANT_SLUG,
-  "milagrosguacari.com": DEFAULT_TENANT_SLUG,
-  "www.milagrosguacari.com": DEFAULT_TENANT_SLUG,
+  // Local / preview hosts resolve via DEFAULT_TENANT_SLUG; no Aleya domains here.
 };
 
 export function normalizeHost(raw: string): string {

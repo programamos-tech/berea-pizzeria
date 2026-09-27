@@ -5,13 +5,13 @@ import { AdminThemeProvider } from "@/components/admin/AdminThemeProvider";
 
 export const metadata: Metadata = {
   title: {
-    default: "Berea House",
-    template: "%s · Berea House",
+    default: "Berea Pizzerías",
+    template: "%s · Berea Pizzerías",
   },
-  applicationName: "Berea House",
+  applicationName: "Berea Pizzerías",
   appleWebApp: {
     capable: true,
-    title: "Berea House",
+    title: "Berea Pizzerías",
     statusBarStyle: "default",
   },
   icons: {

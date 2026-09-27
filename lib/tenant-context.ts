@@ -31,7 +31,7 @@ export type TenantRef = {
 
 /**
  * Resolve the active tenant for this request (host header → tenants row).
- * Falls back to Aleya so legacy domains / local keep working.
+ * Falls back to DEFAULT_TENANT_SLUG (berea-pizzerias) for local / unknown hosts.
  */
 async function getRequestTenantUncached(): Promise<TenantRef> {
   const acting = await resolveActingCustomerTenant();
@@ -65,20 +65,20 @@ async function getRequestTenantUncached(): Promise<TenantRef> {
     notFound();
   }
 
-  // Hard fallback: Aleya (production dataset)
-  const { data: aleya } = await supabase
+  // Hard fallback: default tenant for this product (Berea Pizzerías).
+  const { data: fallback } = await supabase
     .from("tenants")
     .select("id, slug, name")
     .eq("slug", DEFAULT_TENANT_SLUG)
     .maybeSingle();
 
-  if (!aleya?.id) {
+  if (!fallback?.id) {
     throw new Error(
       `Tenant "${slug}" not found and default "${DEFAULT_TENANT_SLUG}" missing`,
     );
   }
 
-  return { id: aleya.id, slug: aleya.slug, name: aleya.name };
+  return { id: fallback.id, slug: fallback.slug, name: fallback.name };
 }
 
 export const getRequestTenant = cache(getRequestTenantUncached);
