@@ -63,6 +63,9 @@ export default function RootLayout({
     <html
       lang="es"
       className={`${poppins.variable} ${geistMono.variable} h-full antialiased`}
+      // Admin theme boot (`app/admin/layout.tsx`) sets color-scheme /
+      // backgroundColor on <html> before React hydrates (localStorage).
+      suppressHydrationWarning
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,6 +77,8 @@ export default function RootLayout({
       </head>
       <body
         className="flex min-h-full flex-col bg-white text-stone-800"
+        // Same admin theme boot / AdminThemeProvider may touch body chrome.
+        suppressHydrationWarning
         style={
           {
             "--admin-sidebar-bg": ADMIN_SIDEBAR_BG,

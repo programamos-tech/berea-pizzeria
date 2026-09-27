@@ -170,7 +170,7 @@ function SidebarHeader({
         <p
           className={`mt-0.5 whitespace-nowrap text-[10px] font-medium tracking-wide ${sidebarInkMuted}`}
         >
-          Gestiona tu tienda de productos
+          Gestiona tu Pizzería
         </p>
       </div>
       <SidebarTenantAccount
@@ -373,7 +373,7 @@ function AdminSidebarFallback({
           <p
             className={`mt-0.5 whitespace-nowrap text-[10px] font-medium tracking-wide ${sidebarInkMuted}`}
           >
-            Gestiona tu tienda de productos
+            Gestiona tu Pizzería
           </p>
         </div>
         <div className="mt-3.5 flex w-full items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-2 dark:border-zinc-700/70 dark:bg-zinc-900/55">
