@@ -181,16 +181,6 @@ export async function createPosInvoiceAction(formData: FormData) {
     redirectFail("credit_forbidden");
   }
 
-  // Cotización no exige caja abierta; la venta sí.
-  if (!isQuotation) {
-    await assertCashRegisterOpenForStaff();
-  }
-
-  const actorSession = isQuotation
-    ? null
-    : await fetchOpenCashSession(supabase);
-  const cashRegisterSessionId = actorSession?.id ?? null;
-
   if (isEditingQuotation && !isQuotation) redirectFail("validation");
 
   const customerId = String(payload.customerId ?? "").trim();
@@ -255,30 +245,43 @@ export async function createPosInvoiceAction(formData: FormData) {
     redirectFail("validation");
   }
 
-  if (isEditingQuotation) {
-    const { data: existingQ, error: existingErr } = await supabase
-      .from("orders")
-      .select("id,status")
-      .eq("id", quotationOrderId)
-      .maybeSingle();
+  const kitIds = [...new Set(kitLines.map((k) => k.kitId))];
+
+  const [, actorSession, existingQuotationRes, customerRes, kitsLoaded, tenantCfgRes] =
+    await Promise.all([
+      // Cotización no exige caja abierta; la venta sí.
+      isQuotation ? Promise.resolve() : assertCashRegisterOpenForStaff(),
+      isQuotation ? Promise.resolve(null) : fetchOpenCashSession(supabase),
+      isEditingQuotation
+        ? supabase
+            .from("orders")
+            .select("id,status")
+            .eq("id", quotationOrderId)
+            .maybeSingle()
+        : Promise.resolve(null),
+      supabase
+        .from("customers")
+        .select(
+          "id,name,email,phone,document_id,shipping_address,customer_kind,wholesale_discount_percent",
+        )
+        .eq("id", customerId)
+        .maybeSingle(),
+      kitIds.length > 0
+        ? fetchKitsByIdsWithItems(supabase, kitIds)
+        : Promise.resolve([] as ProductKitRow[]),
+      supabase
+        .from("tenants")
+        .select("storefront_config")
+        .eq("id", perm.tenantId)
+        .maybeSingle(),
+    ]);
+  const cashRegisterSessionId = actorSession?.id ?? null;
+
+  if (existingQuotationRes) {
+    const { data: existingQ, error: existingErr } = existingQuotationRes;
     if (existingErr || !existingQ) redirectFail("missing");
     if (String(existingQ!.status) !== "quotation") redirectFail("not_quotation");
   }
-
-  const kitIds = [...new Set(kitLines.map((k) => k.kitId))];
-
-  const [customerRes, kitsLoaded] = await Promise.all([
-    supabase
-      .from("customers")
-      .select(
-        "id,name,email,phone,document_id,shipping_address,customer_kind,wholesale_discount_percent",
-      )
-      .eq("id", customerId)
-      .maybeSingle(),
-    kitIds.length > 0
-      ? fetchKitsByIdsWithItems(supabase, kitIds)
-      : Promise.resolve([] as ProductKitRow[]),
-  ]);
 
   const { data: customer, error: cErr } = customerRes;
   if (cErr || !customer) redirectFail("customer");
@@ -338,18 +341,17 @@ export async function createPosInvoiceAction(formData: FormData) {
   >();
 
   if (stockProductIds.length > 0) {
-    const { data: products, error: pErr } = await supabase
-      .from("products")
-      .select(
-        "id,name,price_cents,stock_local,stock_warehouse,has_vat,vat_percent",
-      )
-      .in("id", stockProductIds);
+    const [{ data: products, error: pErr }, inventory] = await Promise.all([
+      supabase
+        .from("products")
+        .select(
+          "id,name,price_cents,stock_local,stock_warehouse,has_vat,vat_percent",
+        )
+        .in("id", stockProductIds),
+      fetchCurrentBranchInventoryMap(supabase, stockProductIds),
+    ]);
 
     if (pErr || !products) redirectFail("products");
-    const inventory = await fetchCurrentBranchInventoryMap(
-      supabase,
-      products.map((product) => String(product.id)),
-    );
     for (const p of products) {
       productById.set(p.id as string, {
         ...p,
@@ -369,12 +371,9 @@ export async function createPosInvoiceAction(formData: FormData) {
     }
   }
 
-  const { data: tenantCfg } = await supabase
-    .from("tenants")
-    .select("storefront_config")
-    .eq("id", perm.tenantId)
-    .maybeSingle();
-  const pricePolicy = posPricePolicyFromConfig(tenantCfg?.storefront_config);
+  const pricePolicy = posPricePolicyFromConfig(
+    tenantCfgRes.data?.storefront_config,
+  );
 
   function saleLineAmounts(
     p: {

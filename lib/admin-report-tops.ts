@@ -3,6 +3,7 @@ import {
   fetchOrderItemsInChunks,
   fetchOrdersCreatedInReportYmdWindow,
 } from "@/lib/admin-fetch-orders-for-report";
+import { createdAtBoundsForReportYmdRange } from "@/lib/admin-report-range";
 
 export type ReportTopClient = {
   key: string;
@@ -47,6 +48,28 @@ function clientDisplayName(row: {
   return "Cliente mostrador";
 }
 
+function parseTopsRpc(raw: unknown): ReportTopsResult | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as { clients?: unknown; products?: unknown };
+  if (!Array.isArray(r.clients) || !Array.isArray(r.products)) return null;
+  return {
+    clients: (r.clients as Record<string, unknown>[]).map((c) => ({
+      key: String(c.key ?? ""),
+      customerId: c.customerId != null ? String(c.customerId) : null,
+      name: String(c.name ?? ""),
+      orderCount: Math.max(0, Math.floor(Number(c.orderCount ?? 0))),
+      totalCents: asCents(c.totalCents),
+    })),
+    products: (r.products as Record<string, unknown>[]).map((p) => ({
+      key: String(p.key ?? ""),
+      productId: p.productId != null ? String(p.productId) : null,
+      name: String(p.name ?? ""),
+      quantity: asQty(p.quantity),
+      totalCents: asCents(p.totalCents),
+    })),
+  };
+}
+
 /**
  * Top clientes y productos en el rango de reportes (pedidos pagados).
  */
@@ -57,6 +80,18 @@ export async function fetchAdminReportTops(
   limit = 5,
 ): Promise<ReportTopsResult> {
   const lim = Math.min(12, Math.max(3, Math.trunc(limit)));
+  const bounds = createdAtBoundsForReportYmdRange(fromYmd, toYmd);
+  if (!bounds) return { clients: [], products: [] };
+
+  const { data: rpcData, error: rpcError } = await supabase.rpc("admin_report_tops", {
+    p_gte: bounds.gte,
+    p_lt: bounds.lt,
+    p_limit: lim,
+  });
+  const fromRpc = rpcError ? null : parseTopsRpc(rpcData);
+  if (fromRpc) return fromRpc;
+  if (rpcError) console.error("[admin reportes] tops rpc:", rpcError.message);
+
   const { rows: orderRows, error } = await fetchOrdersCreatedInReportYmdWindow(
     supabase,
     fromYmd,
