@@ -123,6 +123,28 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
               </Icon>
             ),
           },
+          {
+            href: "/admin/ingredients",
+            label: "Insumos",
+            icon: (
+              <Icon>
+                <path d="M12 3v18" />
+                <path d="M5 8h14" />
+                <path d="M7 12h10" />
+                <path d="M9 16h6" />
+              </Icon>
+            ),
+          },
+          {
+            href: "/admin/recipes",
+            label: "Recetas",
+            icon: (
+              <Icon>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </Icon>
+            ),
+          },
         ],
       },
       {
@@ -203,6 +225,8 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
 
 const PRODUCTS_HREF = "/admin/products";
 const KITS_HREF = "/admin/kits";
+const INGREDIENTS_HREF = "/admin/ingredients";
+const RECIPES_HREF = "/admin/recipes";
 const VENTAS_HREF = "/admin/ventas";
 const CREDITOS_HREF = "/admin/creditos";
 const ORDERS_HREF = "/admin/orders";
@@ -257,6 +281,15 @@ export function adminNavItemActive(
   }
   if (href === KITS_HREF) {
     return pathname === KITS_HREF || pathname.startsWith(`${KITS_HREF}/`);
+  }
+  if (href === INGREDIENTS_HREF) {
+    return (
+      pathname === INGREDIENTS_HREF ||
+      pathname.startsWith(`${INGREDIENTS_HREF}/`)
+    );
+  }
+  if (href === RECIPES_HREF) {
+    return pathname === RECIPES_HREF || pathname.startsWith(`${RECIPES_HREF}/`);
   }
   if (href === CUSTOMERS_HREF) {
     return (

@@ -150,6 +150,7 @@ export default async function AdminProductsPage({
     authPerm?.permissions.categorias_gestionar,
   );
   const canSeeKits = Boolean(authPerm?.permissions.kits_ver);
+  const canSeeMenuCatalog = Boolean(authPerm?.permissions.inventario_ver);
 
   const spRecord = sp as Record<string, string | string[] | undefined>;
   const qParam = spRecord.q;
@@ -325,6 +326,8 @@ export default async function AdminProductsPage({
           active="products"
           showProducts
           showKits={canSeeKits}
+          showIngredients={canSeeMenuCatalog}
+          showRecipes={canSeeMenuCatalog}
         />
 
         <div className="flex min-h-0 flex-col gap-4">

@@ -98,6 +98,8 @@ export default async function AdminKitsPage({
         active="kits"
         showProducts={canSeeProducts}
         showKits
+        showIngredients={canSeeProducts}
+        showRecipes={canSeeProducts}
       />
 
       <section className="min-h-0 border-t border-zinc-200/70 pt-4 dark:border-zinc-800">
