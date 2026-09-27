@@ -56,16 +56,27 @@ export function AdminAuthShell({
       </div>
 
       <div className="relative z-10 flex min-h-dvh flex-col lg:flex-row">
-        <aside className="flex shrink-0 flex-col items-center justify-center bg-[var(--admin-coral)] px-8 py-12 text-white lg:min-h-dvh lg:w-[46%] lg:flex-none">
+        <aside className="relative flex min-h-[42vh] shrink-0 flex-col items-center justify-end overflow-hidden bg-[var(--admin-coral)] px-8 pb-10 pt-16 text-white sm:min-h-[46vh] lg:min-h-dvh lg:w-[46%] lg:flex-none lg:justify-end lg:pb-14 lg:pt-12">
           <Image
-            src="/login-caja.png"
-            alt="Caja registradora"
-            width={855}
-            height={889}
-            className="h-auto w-full max-w-[16rem] object-contain sm:max-w-[20rem] lg:max-w-[22rem]"
+            src="/login-pizzeria-hero.jpg"
+            alt="Interior de pizzería"
+            fill
+            sizes="(max-width: 1023px) 100vw, 46vw"
+            className="object-cover object-center"
             priority
           />
-          <LoginPhrases />
+          {/* Soft brand wash + readable strip for the tagline */}
+          <div
+            className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--admin-coral)_28%,transparent)]"
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[color-mix(in_srgb,var(--admin-coral-deep)_85%,black)] via-[color-mix(in_srgb,var(--admin-coral)_45%,transparent)] to-transparent"
+            aria-hidden
+          />
+          <div className="relative z-10 flex w-full flex-col items-center">
+            <LoginPhrases />
+          </div>
         </aside>
 
         <main className="relative flex min-w-0 flex-1 flex-col justify-center px-6 py-12 sm:px-10 lg:px-16">

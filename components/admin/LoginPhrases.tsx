@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 const PHRASES = [
   "Hoy también puedes empezar.",
-  "Lo que construyes, se nota.",
-  "Un paso más y ya es avance.",
+  "Cada pedido cuenta.",
+  "Tu pizzería, en orden.",
   "Confía en lo que estás armando.",
   "Tu esfuerzo de hoy cuenta.",
   "Sigue. Ya vas más lejos.",
@@ -30,7 +30,7 @@ export function LoginPhrases() {
 
   return (
     <p
-      className="mt-8 h-10 max-w-[18rem] text-center text-sm font-medium text-white/95 transition-opacity duration-300"
+      className="h-10 max-w-[20rem] text-center text-sm font-medium text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] transition-opacity duration-300"
       style={{ opacity: visible ? 1 : 0 }}
       aria-live="polite"
     >
