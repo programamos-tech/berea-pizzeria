@@ -59,7 +59,7 @@ export const storeLogoPath =
   process.env.NEXT_PUBLIC_STORE_LOGO?.trim() || "/logo-finala.png";
 
 /**
- * Logo Berea House (letras #0197b2, fondo transparente) en el sidebar.
+ * Logo Berea (marca #ed7464 en Pizzerías) en el sidebar.
  * Override: `NEXT_PUBLIC_ADMIN_SIDEBAR_LOGO`.
  */
 export const adminSidebarLogoPath =

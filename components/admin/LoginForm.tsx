@@ -58,7 +58,7 @@ function IconEyeOff({ className }: { className?: string }) {
 }
 
 const iconInputWrap =
-  "flex items-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-3 transition-[border-color,box-shadow] duration-200 focus-within:border-zinc-400 focus-within:ring-1 focus-within:ring-zinc-300/50 dark:border-zinc-700 dark:bg-zinc-950 dark:focus-within:border-zinc-500 dark:focus-within:ring-zinc-600/40";
+  "flex items-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-3 transition-[border-color,box-shadow] duration-200 focus-within:border-[var(--admin-coral)] focus-within:ring-1 focus-within:ring-[color-mix(in_srgb,var(--admin-coral)_35%,transparent)] dark:border-zinc-700 dark:bg-zinc-950 dark:focus-within:border-[var(--admin-coral-soft)] dark:focus-within:ring-[color-mix(in_srgb,var(--admin-coral)_40%,transparent)]";
 
 const iconInputInner =
   "min-w-0 flex-1 border-0 bg-transparent py-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500";
@@ -181,7 +181,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="mt-2 w-full rounded-lg border border-zinc-900 bg-zinc-900 py-3.5 text-sm font-semibold tracking-wide text-white transition-[background-color,opacity] duration-200 hover:border-zinc-800 hover:bg-zinc-800 disabled:opacity-50 dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:border-white dark:hover:bg-white"
+        className="mt-2 w-full rounded-lg border border-[var(--admin-coral)] bg-[var(--admin-coral)] py-3.5 text-sm font-semibold tracking-wide text-white transition-[background-color,border-color,opacity] duration-200 hover:border-[var(--admin-coral-hover)] hover:bg-[var(--admin-coral-hover)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--admin-coral)_45%,transparent)] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
       >
         {loading ? "Entrando…" : "Iniciar sesión"}
       </button>

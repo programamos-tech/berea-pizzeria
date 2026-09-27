@@ -1,21 +1,21 @@
 /**
- * Tema del backoffice — acento Berea House (#0197b2), chrome en neutros.
+ * Tema del backoffice — acento Berea Pizzerías (#ed7464), chrome en neutros.
  *
- * Brand teal:  #0197b2
+ * Brand coral: #ed7464
  * Sidebar light: zinc-50
  * Sidebar dark:  zinc-950 (mismo canvas que el panel)
  */
-export const ADMIN_CORAL = "#0197b2" as const;
-export const ADMIN_CORAL_HOVER = "#01829a" as const;
-export const ADMIN_CORAL_DEEP = "#015a6e" as const;
-export const ADMIN_CORAL_SOFT = "#7ecfe0" as const;
-export const ADMIN_CORAL_MIST = "#e6f6fa" as const;
+export const ADMIN_CORAL = "#ed7464" as const;
+export const ADMIN_CORAL_HOVER = "#e05f4e" as const;
+export const ADMIN_CORAL_DEEP = "#c44a3c" as const;
+export const ADMIN_CORAL_SOFT = "#f5a89e" as const;
+export const ADMIN_CORAL_MIST = "#fdf2f0" as const;
 
-/** Ganancia / OK — verde fresco alineado al teal de marca. */
+/** Ganancia / OK — verde fresco que convive con el coral de marca. */
 export const ADMIN_PROFIT = "#2a9a7c" as const;
 export const ADMIN_PROFIT_DARK = "#5dceb0" as const;
 
-/** Pérdida / negativo — rojo suave que convive con el teal (no neón). */
+/** Pérdida / negativo — rojo suave (distinto del coral de marca). */
 export const ADMIN_LOSS = "#c4565c" as const;
 export const ADMIN_LOSS_DARK = "#e8959a" as const;
 

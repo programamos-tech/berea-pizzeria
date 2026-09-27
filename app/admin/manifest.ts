@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const TEAL = "#0197b2";
+const TEAL = "#ed7464";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

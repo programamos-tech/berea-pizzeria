@@ -56,7 +56,7 @@ export function AdminAuthShell({
       </div>
 
       <div className="relative z-10 flex min-h-dvh flex-col lg:flex-row">
-        <aside className="flex shrink-0 flex-col items-center justify-center bg-[#0197b2] px-8 py-12 text-white lg:min-h-dvh lg:w-[46%] lg:flex-none">
+        <aside className="flex shrink-0 flex-col items-center justify-center bg-[var(--admin-coral)] px-8 py-12 text-white lg:min-h-dvh lg:w-[46%] lg:flex-none">
           <Image
             src="/login-caja.png"
             alt="Caja registradora"
