@@ -148,7 +148,7 @@ export default async function AdminProductDetailPage({ params }: Props) {
               href="/admin/products"
               className="hover:text-zinc-800 dark:hover:text-zinc-200"
             >
-              Inventario
+              Menú
             </Link>
             <span className="mx-1.5 text-zinc-400">/</span>
             {crumb}

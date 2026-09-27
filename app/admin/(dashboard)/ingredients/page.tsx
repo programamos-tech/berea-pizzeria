@@ -29,9 +29,9 @@ export default async function AdminIngredientsPage() {
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Inventario</h1>
+          <h1 className={adminPageTitleClass}>Insumos</h1>
           <p className={adminPageSubtitleClass}>
-            Insumos del menú Liaco ({ingredients.length})
+            Lo que compras · {ingredients.length} insumos
           </p>
         </div>
         <Link

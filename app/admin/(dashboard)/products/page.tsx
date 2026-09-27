@@ -281,11 +281,9 @@ export default async function AdminProductsPage({
       <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
         <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
           <div className="min-w-0">
-            <h1 className={adminPageTitleClass}>
-              Inventario
-            </h1>
+            <h1 className={adminPageTitleClass}>Menú</h1>
             <p className={adminPageSubtitleClass}>
-              Catálogo compartido · stock de{" "}
+              Ítems vendibles · stock de{" "}
               {authPerm?.branchContext?.active.name ?? "la sucursal"}
             </p>
           </div>
@@ -316,7 +314,7 @@ export default async function AdminProductsPage({
                 href="/admin/products/new"
                 className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
               >
-                + Nuevo producto
+                + Nuevo ítem del menú
               </Link>
             ) : null}
           </div>
@@ -333,15 +331,15 @@ export default async function AdminProductsPage({
         <div className="flex min-h-0 flex-col gap-4">
           {queryError ? (
             <p className="text-sm text-amber-700 dark:text-amber-300">
-              No se pudo cargar productos desde Supabase. Revisa la conexión y
-              el esquema.
+              No se pudo cargar el menú desde Supabase. Revisa la conexión y el
+              esquema.
             </p>
           ) : null}
 
           {!queryError && usedFallbackSelect ? (
             <p className="text-sm text-amber-700 dark:text-amber-300">
-              La base está parcialmente migrada: se listan productos con un
-              esquema compatible.
+              La base está parcialmente migrada: se lista el menú con un esquema
+              compatible.
             </p>
           ) : null}
 
@@ -366,8 +364,8 @@ export default async function AdminProductsPage({
               <div className="py-8 text-center">
                 <p className="text-sm text-zinc-500 dark:text-zinc-400">
                   {hasFilters
-                    ? "No hay productos con estos criterios."
-                    : "Aún no hay productos en el catálogo."}
+                    ? "No hay ítems del menú con estos criterios."
+                    : "Aún no hay ítems en el menú."}
                 </p>
                 {canCreateProduct ? (
                   <Link
@@ -399,7 +397,7 @@ export default async function AdminProductsPage({
                             {p.name}
                           </p>
                           <p className="mt-1.5 text-xs text-zinc-500">
-                            Catálogo{" "}
+                            Categoría{" "}
                             <span className="font-medium text-zinc-700 dark:text-zinc-300">
                               {p.categoryName}
                             </span>
@@ -433,11 +431,11 @@ export default async function AdminProductsPage({
 
                 {/* Desktop */}
                 <div className="hidden min-w-0 overflow-x-auto lg:block">
-                  <table className="w-full min-w-[960px] table-fixed text-left text-sm">
+                  <table className="w-full min-w-[1040px] table-fixed text-left text-sm">
                     <colgroup>
-                      <col className="w-[5.5rem]" />
+                      <col className="w-[9.5rem]" />
                       <col />
-                      <col className="w-[16%]" />
+                      <col className="w-[14%]" />
                       <col className="w-[6.5rem]" />
                       <col className="w-[9.5rem]" />
                       <col className="w-[8.5rem]" />
@@ -445,9 +443,9 @@ export default async function AdminProductsPage({
                     </colgroup>
                     <thead>
                       <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
-                        <th className={`${thClass} w-[5.5rem]`}>Referencia</th>
-                        <th className={thClass}>Producto</th>
-                        <th className={thClass}>Catálogo</th>
+                        <th className={`${thClass} w-[9.5rem]`}>Referencia</th>
+                        <th className={thClass}>Ítem del menú</th>
+                        <th className={thClass}>Categoría</th>
                         <th className={`${thClass} w-[6.5rem] text-right`}>Stock</th>
                         <th className={thClass}>Estado del stock</th>
                         <th className={`${thClass} text-right`}>Precio de venta</th>
@@ -461,14 +459,17 @@ export default async function AdminProductsPage({
                           className="border-b border-zinc-100/80 last:border-0 transition hover:bg-zinc-50/50 dark:border-zinc-800/80 dark:hover:bg-zinc-900/40"
                         >
                           <td
-                            className={`${tdClass} w-[5.5rem] whitespace-nowrap font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-400`}
+                            className={`${tdClass} w-[9.5rem] max-w-[9.5rem] overflow-hidden font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-400`}
                           >
-                            {p.code}
+                            <span className="block truncate" title={p.code}>
+                              {p.code}
+                            </span>
                           </td>
-                          <td className={`${tdClass} min-w-0`}>
+                          <td className={`${tdClass} min-w-0 overflow-hidden`}>
                             <Link
                               href={`/admin/products/${p.id}`}
                               className="block truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                              title={p.name}
                             >
                               {p.name}
                             </Link>

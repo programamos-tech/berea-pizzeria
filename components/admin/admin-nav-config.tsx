@@ -23,7 +23,7 @@ export type AdminNavItem = {
   href: string;
   label: string;
   icon: ReactNode;
-  /** Submenú (p. ej. Productos / Kits bajo Inventario). */
+  /** Submenú (p. ej. Menú / Kits bajo Inventario). */
   children?: AdminNavItem[];
 };
 
@@ -104,7 +104,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
         children: [
           {
             href: "/admin/products",
-            label: "Productos",
+            label: "Menú",
             icon: (
               <Icon>
                 <path d="M21 16V8l-9-5-9 5v8l9 5 9-5z" />

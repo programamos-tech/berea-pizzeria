@@ -465,7 +465,7 @@ export function NewProductForm({
             </p>
 
             <AdminFormSubmitButton pendingLabel="Creando…">
-              Crear producto
+              Crear ítem del menú
             </AdminFormSubmitButton>
           </section>
         </div>
@@ -480,16 +480,16 @@ export function NewProductHeader() {
       <div className="min-w-0">
         <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
           <Link href="/admin/products" className="hover:text-zinc-800 dark:hover:text-zinc-200">
-            Inventario
+            Menú
           </Link>
           <span className="mx-1.5 text-zinc-300 dark:text-zinc-600">/</span>
-          <span className="text-zinc-700 dark:text-zinc-300">Nuevo producto</span>
+          <span className="text-zinc-700 dark:text-zinc-300">Nuevo ítem</span>
         </p>
         <h1 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl md:text-3xl">
-          Nuevo producto
+          Nuevo ítem del menú
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
-          Registra un nuevo producto en el catálogo: datos, precio y stock en un solo lugar.
+          Registra un ítem vendible: datos, precio y stock en un solo lugar.
         </p>
       </div>
       <Link

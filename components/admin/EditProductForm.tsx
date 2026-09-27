@@ -102,7 +102,7 @@ export function EditProductHeader({
               href="/admin/products"
               className="hover:text-zinc-800 dark:hover:text-zinc-200"
             >
-              Inventario
+              Menú
             </Link>
             <span className="mx-1.5 text-zinc-400 dark:text-zinc-600">/</span>
             <Link
@@ -110,13 +110,13 @@ export function EditProductHeader({
               className="hover:text-zinc-800 dark:hover:text-zinc-200"
               title={productName}
             >
-              {crumb || "Producto"}
+              {crumb || "Ítem"}
             </Link>
             <span className="mx-1.5 text-zinc-400 dark:text-zinc-600">/</span>
             <span className="text-zinc-600 dark:text-zinc-400">Editar</span>
           </p>
           <h1 className="mt-1 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-xl">
-            Editar producto
+            Editar ítem del menú
           </h1>
         </div>
         <div className="flex items-center gap-2">

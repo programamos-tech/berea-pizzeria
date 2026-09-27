@@ -35,9 +35,9 @@ export default async function AdminRecipesPage() {
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Inventario</h1>
+          <h1 className={adminPageTitleClass}>Recetas</h1>
           <p className={adminPageSubtitleClass}>
-            Recetas / BOM · {recipes.length} ({prep} prep · {menu} menú)
+            Cómo se arma · {recipes.length} ({prep} prep · {menu} menú)
           </p>
         </div>
         <Link

@@ -65,9 +65,9 @@ export default async function AdminKitsPage({
 
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Inventario</h1>
+          <h1 className={adminPageTitleClass}>Kits</h1>
           <p className={adminPageSubtitleClass}>
-            Combos de productos para tienda y mostrador
+            Combos del menú para tienda y mostrador
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
