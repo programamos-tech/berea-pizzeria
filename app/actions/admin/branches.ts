@@ -1,6 +1,6 @@
 "use server";
 
-import { isBranchId } from "@/lib/branch-context";
+import { branchSafeAdminPath, isBranchId } from "@/lib/branch-context";
 import {
   clearActiveBranchCookie,
   setActiveBranchCookie,
@@ -82,7 +82,9 @@ function branchCode(raw: string): string {
 export async function switchBranchAction(formData: FormData) {
   const perm = await requireAdminSession();
   const id = String(formData.get("branch_id") ?? "").trim();
-  const returnTo = safeAdminReturnTo(formData.get("return_to"));
+  const returnTo = branchSafeAdminPath(
+    safeAdminReturnTo(formData.get("return_to")),
+  );
   if (!isBranchId(id)) redirect(`${returnTo}?branch=invalid`);
 
   const supabase = await createSupabaseServerClient();

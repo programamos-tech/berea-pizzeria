@@ -2,6 +2,7 @@ import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import {
   ACTIVE_BRANCH_COOKIE,
+  ACTIVE_BRANCH_COOKIE_MAX_AGE,
   ACTIVE_BRANCH_HEADER,
   isBranchId,
   type BranchContext,
@@ -64,7 +65,7 @@ function branchCookieOptions() {
     sameSite: "lax" as const,
     secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: ACTIVE_BRANCH_COOKIE_MAX_AGE,
   };
 }
 

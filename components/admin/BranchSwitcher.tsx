@@ -1,8 +1,11 @@
 "use client";
 
-import { switchBranchAction } from "@/app/actions/admin/branches";
 import { useAdminTheme } from "@/components/admin/AdminThemeProvider";
-import type { BranchRef } from "@/lib/branch-context";
+import {
+  branchSafeAdminPath,
+  writeActiveBranchCookie,
+  type BranchRef,
+} from "@/lib/branch-context";
 import { adminProductBrand, adminSidebarLogoPath } from "@/lib/brand";
 import {
   shouldUnoptimizeStorageImageUrl,
@@ -10,11 +13,9 @@ import {
 } from "@/lib/storage-public-url";
 import { Check, ChevronDown, MapPin } from "lucide-react";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
-
-const SWITCH_SAFETY_MS = 15000;
 
 function BranchSwitchLoading({ branchName }: { branchName: string }) {
   const theme = useAdminTheme()?.resolved ?? "light";
@@ -80,31 +81,32 @@ export function BranchSwitcher({
   appearance?: "default" | "bare";
 }) {
   const pathname = usePathname();
-  const formRef = useRef<HTMLFormElement>(null);
-  const branchInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const [switchingBranch, setSwitchingBranch] = useState<BranchRef | null>(null);
+  const [switching, startSwitch] = useTransition();
   const bare = appearance === "bare";
 
   const selectBranch = (branchId: string) => {
-    if (branchId === active.id) {
-      setOpen(false);
-      return;
-    }
-    if (!formRef.current || !branchInputRef.current) return;
-    const selected = branches.find((branch) => branch.id === branchId);
-    if (selected) setSwitchingBranch(selected);
-    branchInputRef.current.value = branchId;
-    formRef.current.requestSubmit();
     setOpen(false);
+    const selected = branches.find((branch) => branch.id === branchId);
+    if (!selected || branchId === active.id) return;
+    setSwitchingBranch(selected);
+    writeActiveBranchCookie(branchId);
+    const target = branchSafeAdminPath(pathname);
+    startSwitch(() => {
+      if (target !== pathname) router.replace(target);
+      router.refresh();
+    });
   };
 
   useEffect(() => {
     if (!open) return;
 
     const closeOnOutsideClick = (event: PointerEvent) => {
-      if (!formRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
@@ -118,15 +120,6 @@ export function BranchSwitcher({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (!switchingBranch) return;
-    const timeout = window.setTimeout(
-      () => setSwitchingBranch(null),
-      SWITCH_SAFETY_MS,
-    );
-    return () => window.clearTimeout(timeout);
-  }, [switchingBranch]);
-
   if (branches.length <= 1) {
     return (
       <div
@@ -139,13 +132,7 @@ export function BranchSwitcher({
   }
 
   return (
-    <form
-      ref={formRef}
-      action={switchBranchAction}
-      className={`relative shrink-0 ${className}`}
-    >
-      <input type="hidden" name="return_to" value={pathname} />
-      <input ref={branchInputRef} type="hidden" name="branch_id" />
+    <div ref={containerRef} className={`relative shrink-0 ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}
@@ -191,9 +178,9 @@ export function BranchSwitcher({
           ))}
         </div>
       ) : null}
-      {switchingBranch ? (
+      {switching && switchingBranch ? (
         <BranchSwitchLoading branchName={switchingBranch.name} />
       ) : null}
-    </form>
+    </div>
   );
 }
