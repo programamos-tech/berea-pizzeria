@@ -2,7 +2,11 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import { LoginPhrases } from "@/components/admin/LoginPhrases";
-import { adminProductBrand, adminSidebarLogoPath } from "@/lib/brand";
+import {
+  adminProductBrand,
+  liacoHorizontalLogoPath,
+  liacoStackedLogoPath,
+} from "@/lib/brand";
 
 /** Chrome de autenticación (login en split) y picker de cuentas (canvas). */
 export function AdminAuthShell({
@@ -13,7 +17,7 @@ export function AdminAuthShell({
 }: {
   children: ReactNode;
   contentWidthClassName?: string;
-  /** `split`: login (panel oscuro). `canvas`: cuentas (logo sobre blanco / dark). */
+  /** `split`: login (panel brand + form). `canvas`: cuentas (logo sobre blanco / dark). */
   layout?: "split" | "canvas";
   headerActions?: ReactNode;
 }) {
@@ -25,11 +29,11 @@ export function AdminAuthShell({
             className={`mx-auto flex w-full items-center justify-between gap-4 px-6 py-4 sm:px-8 ${contentWidthClassName}`}
           >
             <Image
-              src={adminSidebarLogoPath}
+              src={liacoHorizontalLogoPath}
               alt={adminProductBrand}
               width={480}
-              height={265}
-              className="h-8 w-auto max-w-[10.5rem] object-contain object-left"
+              height={48}
+              className="h-7 w-auto max-w-[12rem] object-contain object-left"
               priority
             />
             <div className="flex items-center gap-1 sm:gap-2">
@@ -56,42 +60,42 @@ export function AdminAuthShell({
       </div>
 
       <div className="relative z-10 flex min-h-dvh flex-col lg:flex-row">
-        <aside className="relative flex min-h-[42vh] shrink-0 flex-col items-center justify-end overflow-hidden bg-[var(--admin-coral)] px-8 pb-10 pt-16 text-white sm:min-h-[46vh] lg:min-h-dvh lg:w-[46%] lg:flex-none lg:justify-end lg:pb-14 lg:pt-12">
+        {/* Facturas pattern: solid coral panel + centered icon + phrase */}
+        <aside className="flex shrink-0 flex-col items-center justify-center bg-[var(--admin-coral)] px-8 py-12 text-white lg:min-h-dvh lg:w-[46%] lg:flex-none">
           <Image
-            src="/login-pizzeria-hero.jpg"
-            alt="Interior de pizzería"
-            fill
-            sizes="(max-width: 1023px) 100vw, 46vw"
-            className="object-cover object-center"
+            src="/login-liaco-pizza.jpg"
+            alt="Liaco pizza"
+            width={855}
+            height={855}
+            className="h-auto w-full max-w-[16rem] object-contain sm:max-w-[20rem] lg:max-w-[22rem]"
             priority
           />
-          {/* Soft brand wash + readable strip for the tagline */}
-          <div
-            className="pointer-events-none absolute inset-0 bg-[color-mix(in_srgb,var(--admin-coral)_28%,transparent)]"
-            aria-hidden
-          />
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-[color-mix(in_srgb,var(--admin-coral-deep)_85%,black)] via-[color-mix(in_srgb,var(--admin-coral)_45%,transparent)] to-transparent"
-            aria-hidden
-          />
-          <div className="relative z-10 flex w-full flex-col items-center">
-            <LoginPhrases />
-          </div>
+          <LoginPhrases />
         </aside>
 
         <main className="relative flex min-w-0 flex-1 flex-col justify-center px-6 py-12 sm:px-10 lg:px-16">
           <div className={`relative mx-auto w-full ${contentWidthClassName}`}>
+            <div className="mb-8">
+              <Image
+                src={liacoStackedLogoPath}
+                alt={adminProductBrand}
+                width={273}
+                height={165}
+                className="h-14 w-auto object-contain object-left sm:h-16"
+                priority
+              />
+            </div>
             {children}
-            <p className="mt-10 flex flex-col items-center gap-1.5">
+            <p className="mt-10 flex flex-col items-center gap-2">
               <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-400">
-                Powered by
+                Liaco Pizzería
               </span>
               <Image
-                src={adminSidebarLogoPath}
+                src={liacoHorizontalLogoPath}
                 alt={adminProductBrand}
                 width={480}
-                height={265}
-                className="h-5 w-auto max-w-[7.5rem] object-contain"
+                height={48}
+                className="h-4 w-auto max-w-[11rem] object-contain opacity-80"
               />
             </p>
           </div>

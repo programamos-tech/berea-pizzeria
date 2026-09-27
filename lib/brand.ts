@@ -1,6 +1,6 @@
 /** Visible store name; override with NEXT_PUBLIC_STORE_NAME per fork. */
 export const storeBrand =
-  process.env.NEXT_PUBLIC_STORE_NAME ?? "Berea Pizzerías";
+  process.env.NEXT_PUBLIC_STORE_NAME ?? "Liaco Pizzería";
 
 /**
  * Razón social en facturas / tirilla (si no va en env, coincide con `storeBrand`).
@@ -64,36 +64,46 @@ export const storeLogoPath =
  */
 export const adminSidebarLogoPath =
   process.env.NEXT_PUBLIC_ADMIN_SIDEBAR_LOGO?.trim() ||
-  "/logo-berea-productos-v3.png";
+  "/logo-liaco-horizontal.png";
 
-/** Nombre del producto / sistema en el backoffice (marca Berea). */
-export const adminProductBrand = "Berea Pizzerías";
+/** Nombre del producto / sistema en el backoffice. */
+export const adminProductBrand = "Liaco Pizzería";
+
+/** Logo apilado Liaco (login / hero). Override: `NEXT_PUBLIC_LIACO_LOGO_STACKED`. */
+export const liacoStackedLogoPath =
+  process.env.NEXT_PUBLIC_LIACO_LOGO_STACKED?.trim() ||
+  "/logo-liaco-stacked.png";
+
+/** Logo horizontal Liaco. Override: `NEXT_PUBLIC_LIACO_LOGO_HORIZONTAL`. */
+export const liacoHorizontalLogoPath =
+  process.env.NEXT_PUBLIC_LIACO_LOGO_HORIZONTAL?.trim() ||
+  "/logo-liaco-horizontal.png";
 
 /**
  * Cuenta SaaS / workspace en el sidebar.
- * Override: `NEXT_PUBLIC_ADMIN_TENANT_NAME` (por defecto “Aleya Shop”).
+ * Override: `NEXT_PUBLIC_ADMIN_TENANT_NAME`.
  */
 export const adminTenantBrand =
-  process.env.NEXT_PUBLIC_ADMIN_TENANT_NAME?.trim() || "Berea Pizzerías";
+  process.env.NEXT_PUBLIC_ADMIN_TENANT_NAME?.trim() || "Liaco Pizzería";
 
 /**
- * Avatar de la cuenta tenant (logo Aleya, claro sobre fondo oscuro).
+ * Avatar de la cuenta tenant.
  * Override: `NEXT_PUBLIC_ADMIN_TENANT_LOGO`.
  */
 export const adminTenantLogoPath =
   process.env.NEXT_PUBLIC_ADMIN_TENANT_LOGO?.trim() ||
-  "/logo-aleyashop-mark.png";
+  "/logo-liaco-stacked.png";
 
-/** Firma Berea House (wordmark transparente). Override: `NEXT_PUBLIC_BEREA_LOGO`. */
+/** Firma / wordmark. Override: `NEXT_PUBLIC_BEREA_LOGO`. */
 export const bereaSignaturePath =
-  process.env.NEXT_PUBLIC_BEREA_LOGO?.trim() || "/logo-berea-productos-v3.png";
+  process.env.NEXT_PUBLIC_BEREA_LOGO?.trim() || "/logo-liaco-horizontal.png";
 
 /**
  * Nombre en el pie © (independiente del nombre corto de marca si usás env de plantilla).
  * Ej.: NEXT_PUBLIC_STORE_COPYRIGHT_NAME
  */
 export const storeCopyrightHolder =
-  process.env.NEXT_PUBLIC_STORE_COPYRIGHT_NAME ?? "Berea Pizzerías";
+  process.env.NEXT_PUBLIC_STORE_COPYRIGHT_NAME ?? "Liaco Pizzería";
 
 /** Línea bajo el nombre (footer, etc.). */
 export const storeTagline =

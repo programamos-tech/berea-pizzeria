@@ -30,7 +30,7 @@ export function LoginPhrases() {
 
   return (
     <p
-      className="h-10 max-w-[20rem] text-center text-sm font-medium text-white drop-shadow-[0_1px_8px_rgba(0,0,0,0.35)] transition-opacity duration-300"
+      className="mt-8 h-10 max-w-[18rem] text-center text-sm font-medium text-white/95 transition-opacity duration-300"
       style={{ opacity: visible ? 1 : 0 }}
       aria-live="polite"
     >

@@ -11,7 +11,7 @@
 
 export const PLATFORM_ROOT_DOMAIN = "bereahouse.com" as const;
 export const PLATFORM_PRODUCT_HOST = "pizzerias.bereahouse.com" as const;
-export const DEFAULT_TENANT_SLUG = "berea-pizzerias" as const;
+export const DEFAULT_TENANT_SLUG = "liaco" as const;
 
 /** Request header set by middleware (slug only; safe to log). */
 export const TENANT_SLUG_HEADER = "x-berea-tenant-slug" as const;
