@@ -163,17 +163,22 @@ begin
       continue;
     end if;
 
-    for i in 1..8 loop
+    for i in 1..12 loop
       insert into public.dining_tables (
         tenant_id, branch_id, name, code, seats, sort_order
       )
       values (
-        tid, bid, 'Mesa ' || i, i::text, case when i <= 4 then 4 else 6 end, i * 10
+        tid,
+        bid,
+        'Mesa ' || i,
+        i::text,
+        case when i <= 4 then 4 when i <= 8 then 6 else 8 end,
+        i * 10
       )
       returning id into mesa_id;
 
-      -- Algunas con pedido abierto (2, 5, 7)
-      if i in (2, 5, 7) then
+      -- Algunas con pedido abierto (2, 5, 7, 10)
+      if i in (2, 5, 7, 10) then
         insert into public.dining_table_sessions (
           tenant_id, branch_id, dining_table_id, status, guest_count, note
         )
@@ -182,10 +187,15 @@ begin
           bid,
           mesa_id,
           'open',
-          case when i = 5 then 6 else 2 end,
+          case
+            when i = 5 then 6
+            when i = 10 then 4
+            else 2
+          end,
           case
             when i = 2 then 'Pedido en cocina'
             when i = 5 then 'Familia · 6 personas'
+            when i = 10 then 'Para llevar · pendiente'
             else 'Esperando postre'
           end
         );
