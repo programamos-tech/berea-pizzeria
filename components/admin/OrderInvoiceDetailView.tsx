@@ -6,7 +6,12 @@ import {
 } from "@/components/admin/OrderInvoiceHeaderControls";
 import { OrderQuotationActions } from "@/components/admin/OrderQuotationActions";
 import { OrderInvoiceFulfillmentSelect } from "@/components/admin/OrderInvoiceFulfillmentSelect";
+import {
+  PedidoCocinaPanel,
+  type PedidoLineRecipe,
+} from "@/components/admin/PedidoCocinaPanel";
 import { StaticCopCents } from "@/components/admin/ReportsAnimatedFigures";
+import type { KitchenStatus } from "@/lib/kitchen-status";
 import {
   adminProductBrand,
   adminSidebarLogoPath,
@@ -118,6 +123,12 @@ export type OrderInvoiceDetailViewProps = {
   }[];
   checkoutPaymentMethod?: string | null;
   fulfillmentStatus?: string | null;
+  /** Pedido POS de salón/domicilio (cocina). */
+  isPedido?: boolean;
+  serviceType?: "domicilio" | "en_el_lugar" | null;
+  kitchenStatus?: KitchenStatus | null;
+  mesaLabel?: string | null;
+  lineRecipes?: PedidoLineRecipe[];
   /** Enlace al listado Ventas (p. ej. misma página y filtros). */
   ventasListHref?: string;
   /** Texto del listado en el breadcrumb. */
@@ -245,6 +256,11 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
     transferProofAttachments = [],
     checkoutPaymentMethod = null,
     fulfillmentStatus = null,
+    isPedido = false,
+    serviceType = null,
+    kitchenStatus = null,
+    mesaLabel = null,
+    lineRecipes = [],
     ventasListHref = "/admin/ventas",
     listLabel = "Ventas",
     creditExtras,
@@ -281,7 +297,11 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
   const isTransferWeb = checkoutPaymentMethod === "transfer";
   const isQuotation = status === "quotation";
   const isLetterLayout = isQuotation || invoiceLayout === "letter";
-  const docNoun = isQuotation ? "Cotización" : "Factura";
+  const docNoun = isPedido
+    ? "Pedido"
+    : isQuotation
+      ? "Cotización"
+      : "Factura";
 
   const pagoTone = ventaFormaPagoTone(wompiReference, {
     checkoutPaymentMethod: checkoutPaymentMethod ?? undefined,
@@ -498,12 +518,21 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
               {cancellationReason.trim()}
             </p>
           ) : null}
+          {isPedido ? (
+            <p className="mt-2 text-sm font-medium text-[var(--admin-coral)]">
+              {serviceType === "domicilio"
+                ? "Domicilio"
+                : mesaLabel
+                  ? `Mesa ${mesaLabel}`
+                  : "En el lugar"}
+            </p>
+          ) : null}
         </div>
         <Link
           href={ventasListHref}
           className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
           title="Volver"
-          aria-label="Volver a ventas"
+          aria-label={isPedido ? "Volver a pedidos" : "Volver a ventas"}
         >
           <svg
             viewBox="0 0 24 24"
@@ -663,6 +692,18 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
 
       {/* Pantalla: layout limpio estilo Reportes (impresión arriba en bloques hidden print:block) */}
       <div className="print:hidden">
+        {isPedido && kitchenStatus ? (
+          <div className="mb-5">
+            <PedidoCocinaPanel
+              orderId={orderId}
+              createdAt={createdAt}
+              initialKitchenStatus={kitchenStatus}
+              serviceType={serviceType}
+              mesaLabel={mesaLabel}
+              lineRecipes={lineRecipes}
+            />
+          </div>
+        ) : null}
         <div className="flex flex-col gap-6 border-t border-zinc-200/70 pt-4 dark:border-zinc-800 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(18rem,20rem)] lg:items-start lg:gap-10 xl:gap-12">
           <section className="reports-chart-reveal min-w-0">
             {lines.length === 0 ? (
@@ -709,6 +750,19 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                                 Ref. {ref}
                               </span>
                             ) : null}
+                            {isPedido
+                              ? (() => {
+                                  const lr = lineRecipes.find(
+                                    (r) => r.lineId === line.id,
+                                  );
+                                  if (!lr?.recipe) return null;
+                                  return (
+                                    <span className="mt-1 block text-xs font-medium text-[var(--admin-coral)]">
+                                      Receta disponible en panel Cocina
+                                    </span>
+                                  );
+                                })()
+                              : null}
                           </td>
                           <td className="py-3 pr-4 text-right tabular-nums text-zinc-700 dark:text-zinc-300">
                             {line.quantity}

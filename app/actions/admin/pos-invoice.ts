@@ -632,6 +632,7 @@ export async function createPosInvoiceAction(formData: FormData) {
         shipping_phone: shippingPhone,
         shipping_reference: shippingReference,
         ...(serviceType ? { service_type: serviceType } : {}),
+        ...(isPedido ? { kitchen_status: "recibido" } : {}),
         ...(!skipsSettlement && paymentMethod === "mixed"
           ? {
               pos_mixed_cash_cents: posMixedCashCents,

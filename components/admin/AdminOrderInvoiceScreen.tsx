@@ -1,14 +1,21 @@
 import { notFound, redirect } from "next/navigation";
 import { OrderCreditPanel } from "@/components/admin/OrderCreditPanel";
 import { OrderInvoiceDetailView } from "@/components/admin/OrderInvoiceDetailView";
+import type { PedidoLineRecipe } from "@/components/admin/PedidoCocinaPanel";
 import { fetchOrderCreditPaymentsMap } from "@/lib/admin-order-credits";
+import { fetchAdminRecipeDetail } from "@/lib/admin-menu-catalog";
 import { resolveProfileName } from "@/lib/cash-close-report";
+import {
+  isKitchenStatus,
+  type KitchenStatus,
+} from "@/lib/kitchen-status";
 import {
   isPosCreditSale,
   mapOrderCreditPaymentRows,
   orderCreditPendingCents,
   sumOrderCreditPaidCents,
 } from "@/lib/order-credit";
+import { parseProcedureSteps } from "@/lib/recipe-procedure-steps";
 import { decodeQuotationStockNotices } from "@/lib/quotation-stock-notice";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getInvoiceLayoutForRequest, getTenantBrandForRequest } from "@/lib/tenant-context";
@@ -22,15 +29,32 @@ type ItemRow = {
   product_id: string | null;
   line_discount_percent: number | null;
   line_discount_amount_cents: number | null;
-  products: { reference: string } | { reference: string }[] | null;
+  products:
+    | { reference: string | null; recipe_id: string | null }
+    | { reference: string | null; recipe_id: string | null }[]
+    | null;
 };
 
-function productRefFromRow(row: ItemRow): string | null {
+function productFromRow(row: ItemRow): {
+  reference: string | null;
+  recipe_id: string | null;
+} | null {
   const raw = row.products;
   const p = Array.isArray(raw) ? raw[0] : raw;
   if (!p || typeof p !== "object") return null;
-  const ref = "reference" in p && typeof p.reference === "string" ? p.reference.trim() : "";
+  return p;
+}
+
+function productRefFromRow(row: ItemRow): string | null {
+  const p = productFromRow(row);
+  const ref = p?.reference != null ? String(p.reference).trim() : "";
   return ref.length > 0 ? ref : null;
+}
+
+function productRecipeIdFromRow(row: ItemRow): string | null {
+  const p = productFromRow(row);
+  const id = p?.recipe_id != null ? String(p.recipe_id).trim() : "";
+  return id.length > 0 ? id : null;
 }
 
 export async function AdminOrderInvoiceScreen({
@@ -59,7 +83,7 @@ export async function AdminOrderInvoiceScreen({
     supabase
       .from("order_items")
       .select(
-        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, products(reference)",
+        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, products(reference, recipe_id)",
       )
       .eq("order_id", orderId),
   ]);
@@ -68,6 +92,7 @@ export async function AdminOrderInvoiceScreen({
 
   const wompiReference =
     order.wompi_reference != null ? String(order.wompi_reference) : null;
+  const isPedido = Boolean(wompiReference?.startsWith("POS:pedido:"));
   const isCredit = isPosCreditSale(wompiReference);
   if (requireCredit && !isCredit) {
     redirect(`/admin/orders/${orderId}`);
@@ -87,6 +112,92 @@ export async function AdminOrderInvoiceScreen({
         : null,
     lineDiscountAmountCents: Math.max(0, Number(it.line_discount_amount_cents ?? 0)),
   }));
+
+  const serviceTypeRaw =
+    "service_type" in order && order.service_type != null
+      ? String(order.service_type)
+      : null;
+  const serviceType =
+    serviceTypeRaw === "domicilio" || serviceTypeRaw === "en_el_lugar"
+      ? serviceTypeRaw
+      : null;
+
+  let kitchenStatus: KitchenStatus | null = null;
+  if (isPedido) {
+    const raw =
+      "kitchen_status" in order && order.kitchen_status != null
+        ? String(order.kitchen_status)
+        : "recibido";
+    kitchenStatus = isKitchenStatus(raw) ? raw : "recibido";
+  }
+
+  let mesaLabel: string | null = null;
+  let lineRecipes: PedidoLineRecipe[] = [];
+
+  if (isPedido) {
+    if (serviceType === "en_el_lugar") {
+      const { data: sess } = await supabase
+        .from("dining_table_sessions")
+        .select("dining_table_id, dining_tables(name, code)")
+        .eq("order_id", orderId)
+        .order("opened_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const tables = sess?.dining_tables as
+        | { name?: string | null; code?: string | null }
+        | { name?: string | null; code?: string | null }[]
+        | null
+        | undefined;
+      const table = Array.isArray(tables) ? tables[0] : tables;
+      const code = table?.code != null ? String(table.code).trim() : "";
+      const name = table?.name != null ? String(table.name).trim() : "";
+      mesaLabel = code || name || null;
+    }
+
+    const recipeIds = [
+      ...new Set(
+        items
+          .map((it) => productRecipeIdFromRow(it))
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    const recipeMap = new Map<
+      string,
+      NonNullable<Awaited<ReturnType<typeof fetchAdminRecipeDetail>>>
+    >();
+    await Promise.all(
+      recipeIds.map(async (rid) => {
+        const detail = await fetchAdminRecipeDetail(supabase, rid);
+        if (detail) recipeMap.set(rid, detail);
+      }),
+    );
+
+    lineRecipes = items.map((it) => {
+      const rid = productRecipeIdFromRow(it);
+      const detail = rid ? recipeMap.get(rid) : null;
+      return {
+        lineId: String(it.id),
+        productName: String(it.product_name_snapshot ?? "Producto"),
+        recipe: detail
+          ? {
+              id: String(detail.recipe.id),
+              name: String(detail.recipe.name),
+              procedureSteps: parseProcedureSteps(
+                String(detail.recipe.procedure_text ?? ""),
+              ),
+              lines: detail.lines.map((l) => ({
+                name: String(
+                  l.ingredient_name ?? l.component_name ?? "Ítem",
+                ),
+                quantity: Number(l.quantity ?? 0),
+                unit: String(l.unit ?? ""),
+                optional: Boolean(l.is_optional),
+              })),
+            }
+          : null,
+      };
+    });
+  }
 
   const invoiceRef = ventaNumeroReferencia(
     orderId,
@@ -282,8 +393,13 @@ export async function AdminOrderInvoiceScreen({
           ? String(order.fulfillment_status)
           : null
       }
+      isPedido={isPedido}
+      serviceType={serviceType}
+      kitchenStatus={kitchenStatus}
+      mesaLabel={mesaLabel}
+      lineRecipes={lineRecipes}
       ventasListHref={listHref}
-      listLabel={listLabel}
+      listLabel={isPedido ? "Pedidos" : listLabel}
       invoiceBrand={invoiceBrand}
       invoiceLayout={invoiceLayout}
       convertError={errorCode}
