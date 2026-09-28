@@ -37,7 +37,7 @@ export default async function AdminRecipesPage() {
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Recetas · cómo se arma · {recipes.length} ({prep} prep · {menu} menú)
+            Recetas y BOM · {recipes.length} fichas ({prep} prep · {menu} menú)
           </p>
         </div>
         <InventorySubnav

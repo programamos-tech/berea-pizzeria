@@ -33,11 +33,8 @@ export default async function AdminIngredientsPage() {
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Insumos · lo que compras · {ingredients.length}. Usá{" "}
-            <span className="font-medium text-zinc-700 dark:text-zinc-200">
-              Entrada
-            </span>{" "}
-            para sumar stock.
+            Ingresos de inventario · registrá compras y entradas de stock
+            ({ingredients.length} insumos).
           </p>
         </div>
         <InventorySubnav

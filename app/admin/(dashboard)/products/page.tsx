@@ -299,7 +299,7 @@ export default async function AdminProductsPage({
           <div className="min-w-0">
             <h1 className={adminPageTitleClass}>Inventario</h1>
             <p className={adminPageSubtitleClass}>
-              Menú · lo que vendes · stock de{" "}
+              Menú vendible · catálogo y stock de{" "}
               {authPerm?.branchContext?.active.name ?? "la sucursal"}
             </p>
           </div>
