@@ -16,6 +16,7 @@ import { parseProductCatalogFields } from "@/lib/product-catalog-fields";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
 import { SALE_VAT_PERCENT, tenantChargesVat } from "@/lib/product-vat-price";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
+import { estimateProductMenuCost } from "@/lib/recipe-cost-estimate";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,7 @@ type ProductRow = {
   fragrance_option_images?: Record<string, unknown> | null;
   has_vat?: boolean | null;
   vat_percent?: number | null;
+  recipe_id?: string | null;
 };
 
 function fragranceRowsForEditForm(p: ProductRow): FragranceRowInitial[] {
@@ -126,6 +128,11 @@ export default async function EditProductPage({ params, searchParams }: Props) {
 
   const img = storagePublicObjectUrl(p.image_path);
   const boundUpdate = updateProduct.bind(null, id);
+  const menuCost = await estimateProductMenuCost(
+    supabase,
+    id,
+    p.recipe_id ?? null,
+  );
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
@@ -134,6 +141,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
         productName={p.name}
         referenceLabel={referenceLabel}
         stockLocal={stockLocal}
+        menuKind={menuCost.kind}
       />
 
       {error ? (
@@ -155,6 +163,19 @@ export default async function EditProductPage({ params, searchParams }: Props) {
         currentImageUrl={img}
         catalogFields={parseProductCatalogFields(tenant?.storefront_config)}
         chargeVat={tenantChargesVat(tenant?.storefront_config)}
+        menuKind={menuCost.kind}
+        recipeCost={
+          menuCost.kind === "elaborado"
+            ? {
+                estimatedCostCents: menuCost.estimatedCostCents,
+                isPartial: menuCost.isPartial,
+                missingCostCount: menuCost.missingCostCount,
+                lineCount: menuCost.lineCount,
+                recipeName: menuCost.recipeName,
+                variantCount: menuCost.variantCount,
+              }
+            : null
+        }
         initial={{
           name: p.name,
           reference: p.reference ?? "",

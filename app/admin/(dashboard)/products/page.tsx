@@ -27,6 +27,7 @@ import {
 } from "@/lib/product-vat-price";
 import { AdminProductsFlashToast } from "@/components/admin/AdminProductsFlashToast";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
+import { MenuItemKindBadge } from "@/components/admin/MenuItemKindBadge";
 import {
   StaticCopCents,
   StaticInteger,
@@ -39,6 +40,8 @@ import {
   adminPageSubtitleClass,
   adminPageTitleClass,
 } from "@/lib/admin-ui";
+import { fetchMenuItemKindsByProductIds } from "@/lib/recipe-cost-estimate";
+import type { MenuItemKind } from "@/lib/menu-item-kind";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +80,7 @@ type RawAdminProductRow = {
   stock_quantity: number;
   stock_warehouse?: number;
   stock_local?: number;
+  recipe_id?: string | null;
   categories?: { name?: string | null } | { name?: string | null }[] | null;
 };
 
@@ -88,6 +92,7 @@ type AdminProductRowModel = {
   publicPriceCents: number;
   /** Stock del punto (local). */
   stock_local: number;
+  recipe_id: string | null;
 };
 
 function normalizeAdminProductRow(
@@ -112,6 +117,7 @@ function normalizeAdminProductRow(
     categoryName: category?.name?.trim() || "—",
     publicPriceCents,
     stock_local: stockLocal,
+    recipe_id: raw.recipe_id ?? null,
   };
 }
 
@@ -258,11 +264,19 @@ export default async function AdminProductsPage({
     supabase,
     list.map((row) => String((row as { id?: string }).id ?? "")),
   );
+  const kindByProduct = await fetchMenuItemKindsByProductIds(
+    supabase,
+    list.map((row) => {
+      const raw = row as { id?: string; recipe_id?: string | null };
+      return { id: String(raw.id ?? ""), recipe_id: raw.recipe_id ?? null };
+    }),
+  );
   const productRows = list.map((row) => {
     const normalized = normalizeAdminProductRow(row, storefrontConfig);
     return {
       ...normalized,
       stock_local: inventoryByProduct.get(normalized.id) ?? 0,
+      menuKind: (kindByProduct.get(normalized.id) ?? "reventa") as MenuItemKind,
     };
   });
 
@@ -413,6 +427,9 @@ export default async function AdminProductsPage({
                           <p className="mt-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {p.name}
                           </p>
+                          <div className="mt-1.5">
+                            <MenuItemKindBadge kind={p.menuKind} />
+                          </div>
                           <p className="mt-1.5 text-xs text-zinc-500">
                             Categoría{" "}
                             <span className="font-medium text-zinc-700 dark:text-zinc-300">
@@ -483,13 +500,19 @@ export default async function AdminProductsPage({
                             </span>
                           </td>
                           <td className={`${tdClass} min-w-0 overflow-hidden`}>
-                            <Link
-                              href={`/admin/products/${p.id}`}
-                              className="block truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-                              title={p.name}
-                            >
-                              {p.name}
-                            </Link>
+                            <div className="flex min-w-0 items-center gap-2">
+                              <Link
+                                href={`/admin/products/${p.id}`}
+                                className="min-w-0 truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                                title={p.name}
+                              >
+                                {p.name}
+                              </Link>
+                              <MenuItemKindBadge
+                                kind={p.menuKind}
+                                className="shrink-0"
+                              />
+                            </div>
                           </td>
                           <td className={`${tdClass} truncate text-xs text-zinc-500 dark:text-zinc-400`}>
                             {p.categoryName}

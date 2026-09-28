@@ -27,6 +27,7 @@ import {
   defaultProductCatalogFields,
   type ProductCatalogFields,
 } from "@/lib/product-catalog-fields";
+import { MenuItemKindBadge } from "@/components/admin/MenuItemKindBadge";
 
 export type ProductCategoryOption = { id: string; name: string };
 
@@ -509,11 +510,15 @@ export function NewProductHeader() {
           <span className="mx-1.5 text-zinc-300 dark:text-zinc-600">/</span>
           <span className="text-zinc-700 dark:text-zinc-300">Nuevo ítem</span>
         </p>
-        <h1 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl md:text-3xl">
-          Nuevo ítem del menú
-        </h1>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl md:text-3xl">
+            Nuevo ítem del menú
+          </h1>
+          <MenuItemKindBadge kind="reventa" />
+        </div>
         <p className="mt-2 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
-          Registra un ítem vendible: datos, precio y stock en un solo lugar.
+          Por defecto es reventa (costo de compra). Los elaborados se vinculan a
+          una receta con BOM para estimar el costo por insumos.
         </p>
       </div>
       <Link

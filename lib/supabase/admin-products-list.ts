@@ -27,6 +27,8 @@ function isRetriableSelectError(err: { message?: string; code?: string } | null)
  * Plain `string[]` (not `as const`) avoids supabase-js union explosion (TS2590).
  */
 const PRODUCT_SELECT_ATTEMPTS: readonly string[] = [
+  "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id,categories(id,name)",
+  "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id",
   "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,categories(id,name)",
   "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id",
   "id,name,reference,price_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,categories(id,name)",

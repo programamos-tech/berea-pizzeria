@@ -30,9 +30,20 @@ import {
   defaultProductCatalogFields,
   type ProductCatalogFields,
 } from "@/lib/product-catalog-fields";
+import type { MenuItemKind } from "@/lib/menu-item-kind";
+import { MenuItemKindBadge } from "@/components/admin/MenuItemKindBadge";
 
 const filterLabelClass =
   "mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500";
+
+export type RecipeCostEstimateSummary = {
+  estimatedCostCents: number;
+  isPartial: boolean;
+  missingCostCount: number;
+  lineCount: number;
+  recipeName: string | null;
+  variantCount: number;
+};
 
 const sectionClass =
   "border-t border-zinc-200/70 pt-5 dark:border-zinc-800";
@@ -76,6 +87,8 @@ type Props = {
   catalogFields?: ProductCatalogFields;
   /** Cuenta cobra IVA (`storefront_config.charge_vat`). */
   chargeVat?: boolean;
+  menuKind?: MenuItemKind;
+  recipeCost?: RecipeCostEstimateSummary | null;
 };
 
 export function EditProductHeader({
@@ -83,11 +96,13 @@ export function EditProductHeader({
   productName,
   referenceLabel,
   stockLocal,
+  menuKind = "reventa",
 }: {
   productId: string;
   productName: string;
   referenceLabel: string;
   stockLocal: number;
+  menuKind?: MenuItemKind;
 }) {
   const [stockOpen, setStockOpen] = useState(false);
   const crumb =
@@ -117,9 +132,12 @@ export function EditProductHeader({
             <span className="mx-1.5 text-zinc-400 dark:text-zinc-600">/</span>
             <span className="text-zinc-600 dark:text-zinc-400">Editar</span>
           </p>
-          <h1 className="mt-1 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-xl">
-            Editar ítem del menú
-          </h1>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-xl">
+              Editar ítem del menú
+            </h1>
+            <MenuItemKindBadge kind={menuKind} />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -179,7 +197,10 @@ export function EditProductForm({
   currentImageUrl,
   catalogFields = defaultProductCatalogFields(),
   chargeVat = true,
+  menuKind = "reventa",
+  recipeCost = null,
 }: Props) {
+  const isElaborado = menuKind === "elaborado";
   const [name, setName] = useState(initial.name);
   const [reference, setReference] = useState(initial.reference);
   const [description, setDescription] = useState(initial.description);
@@ -449,7 +470,48 @@ export function EditProductForm({
         <section>
           <h2 className={sectionTitle}>Información financiera</h2>
           <div className="mt-4 space-y-3">
-            {chargeVat ? (
+            {isElaborado && recipeCost ? (
+              <div className="rounded-lg border border-zinc-200/90 bg-zinc-50/80 px-3 py-3 dark:border-zinc-700 dark:bg-zinc-950/50">
+                <p className={filterLabelClass}>Costo estimado (receta)</p>
+                <p className="mt-1 text-xl font-semibold tabular-nums tracking-tight text-zinc-900 dark:text-zinc-100">
+                  {formatCop(recipeCost.estimatedCostCents)}
+                </p>
+                <p className="mt-1.5 text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
+                  {recipeCost.recipeName
+                    ? `Según BOM de «${recipeCost.recipeName}»`
+                    : "Según insumos de la receta"}
+                  {recipeCost.variantCount > 1
+                    ? ` · ${recipeCost.variantCount} variantes (usa la receta por defecto)`
+                    : null}
+                  . Se actualiza con el costo unitario de cada insumo (Entrada en Insumos).
+                </p>
+                {recipeCost.isPartial || recipeCost.estimatedCostCents <= 0 ? (
+                  <p className="mt-1.5 text-[11px] leading-snug text-amber-800 dark:text-amber-200">
+                    {recipeCost.estimatedCostCents <= 0
+                      ? "Estimación incompleta: cargá el costo unitario de los insumos en Inventario → Insumos."
+                      : `Estimación parcial: faltan costos en ${recipeCost.missingCostCount} insumo${
+                          recipeCost.missingCostCount === 1 ? "" : "s"
+                        }.`}
+                  </p>
+                ) : null}
+                {/* Conserva costo manual en BD hasta que exista override explícito */}
+                <input
+                  type="hidden"
+                  name="cost_cents"
+                  value={String(Math.max(0, Math.floor(costCents)))}
+                />
+                <input
+                  type="hidden"
+                  name="cost_gross_cents"
+                  value={String(
+                    Math.max(
+                      0,
+                      Math.floor(chargeVat ? costGrossCents : costCents),
+                    ),
+                  )}
+                />
+              </div>
+            ) : chargeVat ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={filterLabelClass}>
@@ -548,13 +610,22 @@ export function EditProductForm({
           </div>
 
           <ul className="mt-3 space-y-1.5 text-sm">
+            {isElaborado && recipeCost ? (
+            <li className="flex justify-between text-zinc-500">
+              <span>Costo estimado</span>
+              <span className="tabular-nums text-zinc-800 dark:text-zinc-200">
+                {formatCop(recipeCost.estimatedCostCents)}
+              </span>
+            </li>
+            ) : (
             <li className="flex justify-between text-zinc-500">
               <span>{chargeVat ? "Costo s/IVA" : "Costo"}</span>
               <span className="tabular-nums text-zinc-800 dark:text-zinc-200">
                 {formatCop(costCents)}
               </span>
             </li>
-            {chargeVat ? (
+            )}
+            {chargeVat && !isElaborado ? (
             <li className="flex justify-between text-zinc-500">
               <span>Costo c/IVA</span>
               <span className="tabular-nums text-zinc-800 dark:text-zinc-200">

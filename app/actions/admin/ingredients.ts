@@ -52,14 +52,33 @@ export async function addIngredientStockEntry(
   const prev = Math.max(0, Number(ing.stock_qty ?? 0));
   const next = Math.round((prev + qty) * 10000) / 10000;
 
+  const stockPatch: { stock_qty: number; unit_cost_cents?: number } = {
+    stock_qty: next,
+  };
+  if (unitCostCents != null) {
+    stockPatch.unit_cost_cents = unitCostCents;
+  }
+
   const { error: updErr } = await supabase
     .from("ingredients")
-    .update({ stock_qty: next })
+    .update(stockPatch)
     .eq("id", ingredientId);
 
   if (updErr) {
-    console.error("addIngredientStockEntry update", updErr.message);
-    return { ok: false, error: "No se pudo actualizar el stock." };
+    // Compat: columna unit_cost_cents aún no migrada
+    if (unitCostCents != null && /unit_cost_cents/i.test(updErr.message)) {
+      const retry = await supabase
+        .from("ingredients")
+        .update({ stock_qty: next })
+        .eq("id", ingredientId);
+      if (retry.error) {
+        console.error("addIngredientStockEntry update", retry.error.message);
+        return { ok: false, error: "No se pudo actualizar el stock." };
+      }
+    } else {
+      console.error("addIngredientStockEntry update", updErr.message);
+      return { ok: false, error: "No se pudo actualizar el stock." };
+    }
   }
 
   const { error: movErr } = await supabase.from("ingredient_stock_movements").insert({
