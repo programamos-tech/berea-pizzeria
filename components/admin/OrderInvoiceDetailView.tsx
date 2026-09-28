@@ -424,27 +424,50 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
             <h1 className="min-w-0 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
               {docNoun} #{invoiceRef}
             </h1>
-            <Link
-              href={ventasListHref}
-              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-              title="Volver"
-              aria-label={isPedido ? "Volver a pedidos" : "Volver a ventas"}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                className="size-4"
-                aria-hidden
+            <div className="flex shrink-0 items-center gap-2">
+              {isPedido ? (
+                serviceType === "domicilio" ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--admin-coral)] px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm">
+                    <Bike
+                      className="size-4 shrink-0"
+                      strokeWidth={2.4}
+                      aria-hidden
+                    />
+                    Domicilio
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm dark:bg-teal-600">
+                    <Armchair
+                      className="size-4 shrink-0"
+                      strokeWidth={2.4}
+                      aria-hidden
+                    />
+                    {mesaLabel ? `Mesa ${mesaLabel}` : "En el lugar"}
+                  </span>
+                )
+              ) : null}
+              <Link
+                href={ventasListHref}
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+                title="Volver"
+                aria-label={isPedido ? "Volver a pedidos" : "Volver a ventas"}
               >
-                <path
-                  d="m15 18-6-6 6-6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className="size-4"
+                  aria-hidden
+                >
+                  <path
+                    d="m15 18-6-6 6-6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           </div>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-zinc-500">
             <span className="inline-flex items-center gap-1.5">
@@ -541,19 +564,6 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
               <span className="font-medium">Anulación: </span>
               {cancellationReason.trim()}
             </p>
-          ) : null}
-          {isPedido ? (
-            serviceType === "domicilio" ? (
-              <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[var(--admin-coral)] px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm">
-                <Bike className="size-4 shrink-0" strokeWidth={2.4} aria-hidden />
-                Domicilio
-              </span>
-            ) : (
-              <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm dark:bg-teal-600">
-                <Armchair className="size-4 shrink-0" strokeWidth={2.4} aria-hidden />
-                {mesaLabel ? `Mesa ${mesaLabel}` : "En el lugar"}
-              </span>
-            )
           ) : null}
         </div>
       </header>
