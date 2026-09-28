@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { createQuickStoreCustomer } from "@/app/actions/admin/store-customers";
 import { AdminFormSubmitButton } from "@/components/admin/AdminFormSubmitButton";
 import { AdminPortalRoot } from "@/components/admin/AdminPortalRoot";
+import { MesaFloorIcon } from "@/components/admin/MesaFloorIcon";
 import { createPosInvoiceAction } from "@/app/actions/admin/pos-invoice";
 import { adminCreateFailedMessage } from "@/lib/admin-create-failed-messages";
 import {
@@ -20,6 +21,7 @@ import {
   productSectionTitle as sectionTitle,
 } from "@/components/admin/product-form-primitives";
 import { adminButtonCancelClass } from "@/lib/admin-ui";
+import { Armchair, CircleDot, UtensilsCrossed } from "lucide-react";
 import {
   formatCop,
   formatCopInputGrouping,
@@ -413,6 +415,8 @@ function errorMessage(code: string | undefined): string | null {
       return "Esa mesa ya tiene un pedido abierto. Elegí otra o cerrá el actual.";
     case "mesa_invalid":
       return "La mesa seleccionada no es válida.";
+    case "guest_name":
+      return "Para domicilio, indicá a nombre de quién es el pedido.";
     case "db":
       return adminCreateFailedMessage("sale");
     default:
@@ -596,8 +600,15 @@ export function NewInvoiceForm({
     const firstFree = diningTables.find((t) => !t.occupied);
     return firstFree?.id ?? "";
   });
+  const [customerMode, setCustomerMode] = useState<"final" | "other">("final");
+  const [requestElectronicInvoice, setRequestElectronicInvoice] =
+    useState(false);
+  const [guestName, setGuestName] = useState("");
   const skipsStockGate =
     documentKind === "quotation" || documentKind === "pedido";
+  /** Pedido: IVA solo si piden factura electrónica. */
+  const effectiveChargeVat =
+    documentKind === "pedido" ? requestElectronicInvoice : chargeVat;
   const availableTables = useMemo(
     () => diningTables.filter((t) => !t.occupied),
     [diningTables],
@@ -974,10 +985,32 @@ export function NewInvoiceForm({
   const pricingByKey = useMemo(() => {
     const m = new Map<string, ReturnType<typeof linePricing>>();
     for (const line of lines) {
-      m.set(line.key, linePricing(line, customerWholesalePct, pricePolicy, chargeVat));
+      const pricedLine =
+        documentKind === "pedido" && requestElectronicInvoice
+          ? {
+              ...line,
+              product: { ...line.product, has_vat: true },
+            }
+          : line;
+      m.set(
+        pricedLine.key,
+        linePricing(
+          pricedLine,
+          customerWholesalePct,
+          pricePolicy,
+          effectiveChargeVat,
+        ),
+      );
     }
     return m;
-  }, [lines, customerWholesalePct, pricePolicy, chargeVat]);
+  }, [
+    lines,
+    customerWholesalePct,
+    pricePolicy,
+    effectiveChargeVat,
+    documentKind,
+    requestElectronicInvoice,
+  ]);
 
   const subtotalCents = useMemo(() => {
     let s = kitSubtotalCents;
@@ -1054,6 +1087,17 @@ export function NewInvoiceForm({
     [shipOptions],
   );
 
+  const clientAddressText = useMemo(() => {
+    if (selectedShipOption?.kind === "address") {
+      return [selectedShipOption.label, selectedShipOption.detail]
+        .filter(Boolean)
+        .join(" — ");
+    }
+    const first = savedAddressOptions[0];
+    if (first) return [first.label, first.detail].filter(Boolean).join(" — ");
+    return null;
+  }, [selectedShipOption, savedAddressOptions]);
+
   const cashGivenCents = parseCopInputDigitsToInt(cashGivenRaw);
   const mixedCashCents = parseCopInputDigitsToInt(mixedCashRaw);
   const mixedTransferCents = parseCopInputDigitsToInt(mixedTransferRaw);
@@ -1089,17 +1133,27 @@ export function NewInvoiceForm({
     (Boolean(diningTableId) &&
       availableTables.some((t) => t.id === diningTableId));
 
+  const guestNameOk =
+    documentKind !== "pedido" ||
+    serviceType !== "domicilio" ||
+    guestName.trim().length >= 2;
+
+  const shipOk =
+    documentKind === "pedido"
+      ? true
+      : shipChoice !== null && shipChoice !== "";
+
   const canSubmit =
     customer !== null &&
     (lines.length > 0 || kitLines.length > 0) &&
     (totalCents > 0 || (pricePolicy.allowBelow && totalCents === 0)) &&
-    shipChoice !== null &&
-    shipChoice !== "" &&
+    shipOk &&
     (skipsStockGate || !cartStockExceeded) &&
     paymentOk &&
     !priceBlocked &&
     (documentKind !== "pedido" || Boolean(serviceType)) &&
-    mesaOk;
+    mesaOk &&
+    guestNameOk;
 
   function selectCustomer(c: CustomerHit) {
     setCustomer(c);
@@ -1277,7 +1331,13 @@ export function NewInvoiceForm({
   const payloadJson = useMemo(() => {
     if (!customer) return "";
     let address: string | null = null;
-    if (!shipChoice || shipChoice === "pickup") {
+    if (documentKind === "pedido") {
+      if (serviceType === "domicilio") {
+        address = clientAddressText || customer.name || "Domicilio";
+      } else {
+        address = "En el lugar";
+      }
+    } else if (!shipChoice || shipChoice === "pickup") {
       address = "Retiro en tienda";
     } else {
       const opt = shipOptions.find((o) => o.id === shipChoice);
@@ -1296,8 +1356,17 @@ export function NewInvoiceForm({
         const amt =
           pct != null
             ? 0
-            : effectiveLineDiscountAmountCents(l, customerWholesalePct, pricePolicy, chargeVat);
-        const chargedUnitCents = lineChargedUnitCents(l, customerWholesalePct, chargeVat);
+            : effectiveLineDiscountAmountCents(
+                l,
+                customerWholesalePct,
+                pricePolicy,
+                effectiveChargeVat,
+              );
+        const chargedUnitCents = lineChargedUnitCents(
+          l,
+          customerWholesalePct,
+          effectiveChargeVat,
+        );
         return {
           productId: l.product.id,
           quantity: l.quantity,
@@ -1315,6 +1384,12 @@ export function NewInvoiceForm({
       serviceType: documentKind === "pedido" ? serviceType : null,
       diningTableId:
         documentKind === "pedido" && diningTableId ? diningTableId : null,
+      guestName:
+        documentKind === "pedido" && serviceType === "domicilio"
+          ? guestName.trim()
+          : null,
+      electronicInvoice:
+        documentKind === "pedido" ? requestElectronicInvoice : false,
       ...(payment === "mixed"
         ? {
             mixedCashCents: mixedCashCents,
@@ -1339,6 +1414,9 @@ export function NewInvoiceForm({
     documentKind,
     serviceType,
     diningTableId,
+    guestName,
+    requestElectronicInvoice,
+    clientAddressText,
     editingQuotation,
     editQuotation?.orderId,
     mixedCashCents,
@@ -1349,6 +1427,7 @@ export function NewInvoiceForm({
     shipOptions,
     customerWholesalePct,
     pricePolicy,
+    effectiveChargeVat,
     submissionId,
   ]);
 
@@ -1410,7 +1489,7 @@ export function NewInvoiceForm({
                           </span>
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
                             {p.reference ? `${p.reference} · ` : null}
-                            {formatCop(unitFinalCents(p, customerWholesalePct, chargeVat))}
+                            {formatCop(unitFinalCents(p, customerWholesalePct, effectiveChargeVat))}
                             {stock < 6
                               ? ` · Stock tienda: ${stock}${skipsStockGate && stock < 1 ? " (pedido sin stock)" : ""}`
                               : null}
@@ -1502,7 +1581,8 @@ export function NewInvoiceForm({
                     ? 999
                     : Math.max(1, stock - usedElsewhere);
                   const priced =
-                    pricingByKey.get(line.key) ?? linePricing(line, w, pricePolicy, chargeVat);
+                    pricingByKey.get(line.key) ??
+                    linePricing(line, w, pricePolicy, effectiveChargeVat);
                   const lineTotal = priced.unitFinal * line.quantity;
                   const unitCatalogGross = priced.catalogGross;
                   const unitLineGross = priced.unitFinal;
@@ -1536,7 +1616,7 @@ export function NewInvoiceForm({
                             ) : (
                               <span>{formatCop(unitCatalogGross)} c/u</span>
                             )}
-                            {productChargesVat(line.product, chargeVat)
+                            {productChargesVat(line.product, effectiveChargeVat)
                               ? ` · IVA ${String(saleVatPercentLabel(true) ?? 0).replace(/\.0+$/, "")}%`
                               : ""}
                           </p>
@@ -1768,6 +1848,175 @@ export function NewInvoiceForm({
               <h2 className={sectionTitle}>
                 Cliente <span className="text-red-600 dark:text-red-400">*</span>
               </h2>
+              {documentKind === "pedido" && !editingQuotation ? (
+                <>
+                  <div className={segmentTrackClass}>
+                    {(
+                      [
+                        { id: "final" as const, label: "Cliente Final" },
+                        { id: "other" as const, label: "Cliente diferente" },
+                      ] as const
+                    ).map((tab) => {
+                      const active = customerMode === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => {
+                            setCustomerMode(tab.id);
+                            if (tab.id === "final" && initialCustomerId) {
+                              setCustomerQuery("");
+                              setCustomerHits([]);
+                              void fetch(
+                                `/api/admin/customers/${initialCustomerId}/pos-profile`,
+                                { cache: "no-store" },
+                              )
+                                .then(async (res) => {
+                                  if (!res.ok) return;
+                                  const json = (await res.json()) as {
+                                    shipOptions?: ShipOption[];
+                                    customer?: {
+                                      id: string;
+                                      name: string;
+                                      email?: string | null;
+                                      phone?: string | null;
+                                      document_id?: string | null;
+                                      customer_kind?: string | null;
+                                      wholesale_discount_percent?: number | null;
+                                    };
+                                  };
+                                  const c = json.customer;
+                                  if (!c?.id) return;
+                                  applyPosProfile(json);
+                                  profileAppliedForIdRef.current = c.id;
+                                  setCustomer({
+                                    id: c.id,
+                                    name: c.name,
+                                    email: c.email ?? null,
+                                    phone: c.phone ?? null,
+                                    document_id: c.document_id ?? null,
+                                  });
+                                })
+                                .catch(() => {});
+                            } else if (tab.id === "other") {
+                              clearCustomer();
+                            }
+                          }}
+                          className={[
+                            "flex flex-1 items-center justify-center rounded-md px-2 py-2 text-center text-xs font-semibold transition sm:text-sm",
+                            active ? segmentBtnActive : segmentBtnIdle,
+                          ].join(" ")}
+                        >
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {customerMode === "other" ? (
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                      <div className="relative min-w-0 flex-1">
+                        {customer && customerQuery.trim().length === 0 ? (
+                          <div
+                            className={`${inputClass} flex items-center gap-2 pr-2`}
+                          >
+                            <Link
+                              href={`/admin/customers/${customer.id}`}
+                              className="min-w-0 flex-1 truncate font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
+                            >
+                              {customer.name}
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={clearCustomer}
+                              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800"
+                              aria-label="Quitar cliente"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <input
+                              ref={customerSearchInputRef}
+                              value={customerQuery}
+                              onChange={(e) => setCustomerQuery(e.target.value)}
+                              onKeyDown={onCustomerSearchKeyDown}
+                              placeholder="Buscar por nombre, cédula, email o teléfono"
+                              className={inputClass}
+                              autoComplete="off"
+                            />
+                            {customerQuery.trim().length > 0 ? (
+                              <div className="absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+                                {customerLoading ? (
+                                  <p className="px-3 py-2 text-sm text-zinc-500">
+                                    Buscando…
+                                  </p>
+                                ) : customerHits.length === 0 ? (
+                                  <p className="px-3 py-2 text-sm text-zinc-500">
+                                    Sin resultados.
+                                  </p>
+                                ) : (
+                                  customerHits.map((c) => (
+                                    <button
+                                      key={c.id}
+                                      type="button"
+                                      onClick={() => selectCustomer(c)}
+                                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                    >
+                                      <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                        {c.name}
+                                      </span>
+                                      <span className="text-xs text-zinc-500">
+                                        {[c.document_id, c.email, c.phone]
+                                          .filter(Boolean)
+                                          .join(" · ")}
+                                      </span>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            ) : null}
+                          </>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setQuickError(null);
+                          setQuickModalOpen(true);
+                        }}
+                        className={`${btnIdle} shrink-0 px-3 py-2.5`}
+                      >
+                        + Nuevo cliente
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
+                      {customer
+                        ? `Usando ${customer.name}.`
+                        : "Se usará Cliente Final al confirmar."}
+                    </p>
+                  )}
+                  <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input
+                      type="checkbox"
+                      checked={requestElectronicInvoice}
+                      onChange={(e) =>
+                        setRequestElectronicInvoice(e.target.checked)
+                      }
+                      className="mt-0.5 size-4 rounded border-zinc-300 text-[var(--admin-coral)] focus:ring-[var(--admin-coral)]"
+                    />
+                    <span>
+                      <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                        Solicito factura electrónica
+                      </span>
+                      <span className="mt-0.5 block text-xs text-zinc-500">
+                        Si está marcado, el resumen muestra IVA. Si no, el pedido va sin IVA.
+                      </span>
+                    </span>
+                  </label>
+                </>
+              ) : (
               <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
                 <div className="relative min-w-0 flex-1">
                   {customer && customerQuery.trim().length === 0 ? (
@@ -1877,8 +2126,10 @@ export function NewInvoiceForm({
                   + Nuevo cliente
                 </button>
               </div>
+              )}
             </section>
 
+            {documentKind !== "pedido" || editingQuotation ? (
             <section className={`${sectionClass} order-4 xl:order-none`}>
               <h2 className={`${sectionTitle} flex items-center gap-2`}>
                 <IconHome />
@@ -1944,6 +2195,7 @@ export function NewInvoiceForm({
                 </div>
               )}
             </section>
+            ) : null}
 
             <section className={`${sectionClass} order-5 xl:order-none`}>
               <h2 className={sectionTitle}>Tipo de pedido</h2>
@@ -1985,6 +2237,8 @@ export function NewInvoiceForm({
                           ) {
                             setDiningTableId(availableTables[0]?.id ?? "");
                           }
+                        } else {
+                          setDiningTableId("");
                         }
                       }}
                       className={[
@@ -2000,47 +2254,109 @@ export function NewInvoiceForm({
                   );
                 })}
               </div>
-              <div className="mt-4">
-                <label className={labelClass}>
-                  Mesa
-                  {serviceType === "en_el_lugar" ? (
-                    <span className="text-red-600 dark:text-red-400"> *</span>
-                  ) : (
-                    <span className="font-normal text-zinc-400"> (opcional)</span>
-                  )}
-                </label>
-                <select
-                  value={diningTableId}
-                  onChange={(e) => setDiningTableId(e.target.value)}
-                  className={inputClass}
-                  required={serviceType === "en_el_lugar"}
-                >
-                  {serviceType === "domicilio" ? (
-                    <option value="">Sin mesa</option>
-                  ) : (
-                    <option value="" disabled>
-                      Elegí una mesa
-                    </option>
-                  )}
-                  {diningTables.map((t) => (
-                    <option
-                      key={t.id}
-                      value={t.id}
-                      disabled={t.occupied}
-                    >
-                      {t.name}
-                      {t.code ? ` · ${t.code}` : ""}
-                      {t.seats > 0 ? ` · ${t.seats} puestos` : ""}
-                      {t.occupied ? " · Ocupada" : ""}
-                    </option>
-                  ))}
-                </select>
-                {serviceType === "en_el_lugar" && availableTables.length === 0 ? (
-                  <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
-                    No hay mesas libres. Liberá una en el mapa del salón o elegí domicilio.
-                  </p>
-                ) : null}
-              </div>
+
+              {serviceType === "en_el_lugar" ? (
+                <div className="mt-4">
+                  <label className={labelClass}>
+                    Mesa <span className="text-red-600 dark:text-red-400">*</span>
+                  </label>
+                  <div
+                    className="mt-2 rounded-2xl border border-zinc-200/80 bg-[radial-gradient(circle_at_1px_1px,#e4e4e7_1px,transparent_0)] bg-[length:14px_14px] p-2.5 dark:border-zinc-800 dark:bg-[radial-gradient(circle_at_1px_1px,#3f3f46_1px,transparent_0)] dark:bg-[length:14px_14px]"
+                    role="listbox"
+                    aria-label="Elegir mesa del salón"
+                  >
+                    <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {diningTables.map((t) => {
+                        const selected = diningTableId === t.id;
+                        const occupied = t.occupied;
+                        const displayNum =
+                          t.code || t.name.replace(/\D+/g, "") || t.name;
+                        return (
+                          <li key={t.id}>
+                            <button
+                              type="button"
+                              role="option"
+                              aria-selected={selected}
+                              disabled={occupied}
+                              onClick={() => setDiningTableId(t.id)}
+                              className={[
+                                "relative flex w-full min-h-[6.5rem] flex-col items-center justify-between rounded-xl border px-1.5 py-2 text-center transition",
+                                occupied
+                                  ? "cursor-not-allowed border-[color-mix(in_srgb,var(--admin-coral)_45%,#e4e4e7)] bg-[var(--admin-coral-mist)] opacity-70 dark:border-[color-mix(in_srgb,var(--admin-coral)_40%,#3f3f46)]"
+                                  : selected
+                                    ? "border-[var(--admin-coral)] bg-white shadow-[0_0_0_2px_color-mix(in_srgb,var(--admin-coral)_35%,transparent)] dark:bg-zinc-950"
+                                    : "border-zinc-200/90 bg-white hover:border-zinc-300 dark:border-zinc-700/80 dark:bg-zinc-900/50 dark:hover:border-zinc-600",
+                              ].join(" ")}
+                            >
+                              <span
+                                className={[
+                                  "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.1em]",
+                                  occupied
+                                    ? "bg-[var(--admin-coral)] text-white"
+                                    : selected
+                                      ? "bg-[var(--admin-coral)] text-white"
+                                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
+                                ].join(" ")}
+                              >
+                                {occupied ? (
+                                  <UtensilsCrossed className="size-2" strokeWidth={2.4} aria-hidden />
+                                ) : (
+                                  <CircleDot className="size-2" strokeWidth={2.4} aria-hidden />
+                                )}
+                                {occupied ? "Ocupada" : selected ? "Elegida" : "Libre"}
+                              </span>
+                              <MesaFloorIcon
+                                occupied={occupied || selected}
+                                className={`size-9 ${occupied || selected ? "" : "text-zinc-400 dark:text-zinc-500"}`}
+                              />
+                              <div className="min-w-0 w-full">
+                                <p className="truncate text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
+                                  {displayNum}
+                                </p>
+                                <p className="flex items-center justify-center gap-0.5 truncate text-[9px] text-zinc-500">
+                                  <Armchair className="size-2.5 shrink-0 opacity-70" aria-hidden />
+                                  {t.seats > 0 ? `${t.seats} p.` : t.name}
+                                </p>
+                              </div>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                  {availableTables.length === 0 ? (
+                    <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+                      No hay mesas libres. Liberá una en Reportes o elegí domicilio.
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  <div>
+                    <label className={labelClass}>
+                      Pedido a nombre de{" "}
+                      <span className="text-red-600 dark:text-red-400">*</span>
+                    </label>
+                    <input
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Nombre de quien recibe"
+                      className={inputClass}
+                      autoComplete="name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Dirección del cliente</label>
+                    <p className="mt-1.5 whitespace-pre-line text-sm text-zinc-700 dark:text-zinc-300">
+                      {clientAddressText ||
+                        (customer
+                          ? "Este cliente no tiene dirección guardada."
+                          : "Elegí un cliente para ver su dirección.")}
+                    </p>
+                  </div>
+                </div>
+              )}
               <p className="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
                 El pedido queda abierto sin cobro ni descuento de stock. El cobro se hace después.
               </p>
@@ -2242,12 +2558,14 @@ export function NewInvoiceForm({
                       {formatCop(subtotalCents)}
                     </dd>
                   </div>
+                  {effectiveChargeVat ? (
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
-                    <dt>{chargeVat ? "IVA" : "IVA (N/A)"}</dt>
+                    <dt>IVA</dt>
                     <dd className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
-                      {chargeVat ? formatCop(vatCents) : formatCop(0)}
+                      {formatCop(vatCents)}
                     </dd>
                   </div>
+                  ) : null}
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
                     <dt className="font-medium text-zinc-800 dark:text-zinc-200">
                       {documentKind === "quotation"

@@ -69,6 +69,10 @@ export type PosInvoicePayload = {
   serviceType?: PosServiceType | null;
   /** Mesa del salón (requerida si serviceType = en_el_lugar). */
   diningTableId?: string | null;
+  /** Nombre del pedido a domicilio (requerido si serviceType = domicilio). */
+  guestName?: string | null;
+  /** Solicita factura electrónica → cobra IVA en el pedido aunque la cuenta lo tenga apagado. */
+  electronicInvoice?: boolean;
   /** Editar cotización existente (solo con documentKind quotation). */
   quotationOrderId?: string | null;
   paymentMethod: "cash" | "transfer" | "mixed" | "credit";
@@ -195,10 +199,16 @@ export async function createPosInvoiceAction(formData: FormData) {
     redirectError(code, isEditingQuotation ? quotationOrderId : undefined);
   }
 
+  const guestName = String(payload.guestName ?? "").trim();
+  const electronicInvoice = Boolean(payload.electronicInvoice);
+
   if (isPedido) {
     if (!serviceType) redirectFail("service_type");
     if (serviceType === "en_el_lugar" && !diningTableId) {
       redirectFail("mesa_required");
+    }
+    if (serviceType === "domicilio" && guestName.length < 2) {
+      redirectFail("guest_name");
     }
   }
 
@@ -438,9 +448,13 @@ export async function createPosInvoiceAction(formData: FormData) {
     discountPercent: number | null,
     discountAmountCents: number,
   ): { lineNetAfter: number; unitFinal: number } {
+    const hasVat =
+      isPedido && electronicInvoice
+        ? true
+        : effectiveHasVat(storefrontConfig, p.has_vat);
     const priced = computePosProductLineAmounts({
       priceCatalog: Math.max(0, Math.floor(Number(p.price_cents ?? 0))),
-      hasVat: effectiveHasVat(storefrontConfig, p.has_vat),
+      hasVat,
       wholesalePct,
       quantity,
       chargedUnitCents,
@@ -588,16 +602,23 @@ export async function createPosInvoiceAction(formData: FormData) {
       .eq("order_id", orderId);
     if (delItemsErr) redirectFail("db");
   } else {
+    const displayCustomerName =
+      isPedido && serviceType === "domicilio" && guestName.length >= 2
+        ? guestName
+        : String(customerRow.name ?? "Cliente");
+
     const { data: orderRow, error: oErr } = await supabase
       .from("orders")
       .insert({
         status: isPedido ? "pending" : isQuotation ? "quotation" : "paid",
-        customer_name: String(customerRow.name ?? "Cliente"),
+        customer_name: displayCustomerName,
         customer_email: customerEmail,
         customer_id: customerId,
         total_cents: totalCents,
         currency: "COP",
-        wompi_reference: wompiRef,
+        wompi_reference: isPedido
+          ? `${wompiRef}${electronicInvoice ? ":fe" : ""}`
+          : wompiRef,
         shipping_address: shippingAddress,
         shipping_phone: shippingPhone,
         ...(serviceType ? { service_type: serviceType } : {}),
@@ -838,6 +859,8 @@ export async function createPosInvoiceAction(formData: FormData) {
       document_kind: documentKind,
       service_type: serviceType,
       dining_table_id: diningTableId || null,
+      guest_name: guestName || null,
+      electronic_invoice: isPedido ? electronicInvoice : null,
       edited_quotation: isEditingQuotation,
       subtotal_cents: subtotalCents,
       vat_cents: vatCents,
