@@ -22,6 +22,9 @@ export type AdminRecipeRow = {
   procedure_text: string;
   is_active: boolean;
   lines_count: number;
+  /** Primer producto del menú con esta receta por defecto (si hay). */
+  linked_product_id: string | null;
+  linked_product_name: string | null;
 };
 
 function mapIngredientRow(row: Record<string, unknown>): AdminIngredientRow {
@@ -113,11 +116,16 @@ export async function fetchAdminRecipes(
 
   const ids = (data ?? []).map((r) => String(r.id));
   const countByRecipe = new Map<string, number>();
+  const productByRecipe = new Map<string, { id: string; name: string }>();
   if (ids.length) {
-    const { data: lineRows, error: lineErr } = await supabase
-      .from("recipe_lines")
-      .select("recipe_id")
-      .in("recipe_id", ids);
+    const [{ data: lineRows, error: lineErr }, { data: productRows }] =
+      await Promise.all([
+        supabase.from("recipe_lines").select("recipe_id").in("recipe_id", ids),
+        supabase
+          .from("products")
+          .select("id,name,recipe_id")
+          .in("recipe_id", ids),
+      ]);
     if (lineErr) {
       console.error("fetchAdminRecipes lines", lineErr.message);
     } else {
@@ -126,20 +134,33 @@ export async function fetchAdminRecipes(
         countByRecipe.set(rid, (countByRecipe.get(rid) ?? 0) + 1);
       }
     }
+    for (const row of productRows ?? []) {
+      const rid = String(row.recipe_id ?? "");
+      if (!rid || productByRecipe.has(rid)) continue;
+      productByRecipe.set(rid, {
+        id: String(row.id),
+        name: String(row.name ?? ""),
+      });
+    }
   }
 
-  const rows = (data ?? []).map((row) => ({
-    id: String(row.id),
-    name: String(row.name),
-    slug: String(row.slug),
-    kind: String(row.kind),
-    category_key: String(row.category_key),
-    yield_qty: Number(row.yield_qty),
-    yield_unit: String(row.yield_unit),
-    procedure_text: String(row.procedure_text ?? ""),
-    is_active: Boolean(row.is_active),
-    lines_count: countByRecipe.get(String(row.id)) ?? 0,
-  }));
+  const rows = (data ?? []).map((row) => {
+    const linked = productByRecipe.get(String(row.id));
+    return {
+      id: String(row.id),
+      name: String(row.name),
+      slug: String(row.slug),
+      kind: String(row.kind),
+      category_key: String(row.category_key),
+      yield_qty: Number(row.yield_qty),
+      yield_unit: String(row.yield_unit),
+      procedure_text: String(row.procedure_text ?? ""),
+      is_active: Boolean(row.is_active),
+      lines_count: countByRecipe.get(String(row.id)) ?? 0,
+      linked_product_id: linked?.id ?? null,
+      linked_product_name: linked?.name ?? null,
+    };
+  });
 
   rows.sort((a, b) => {
     if (a.kind !== b.kind) return a.kind.localeCompare(b.kind);
