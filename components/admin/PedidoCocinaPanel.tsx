@@ -40,25 +40,57 @@ function formatElapsed(ms: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-function PedidoCronometro({ startedAt }: { startedAt: string }) {
+function PedidoCronometro({
+  startedAt,
+  stopped,
+  stoppedAt,
+}: {
+  startedAt: string;
+  /** Estado final (Servido / Entregado): cronómetro apagado. */
+  stopped: boolean;
+  /** ISO del momento en que se marcó entregado; congela el elapsed. */
+  stoppedAt: string | null;
+}) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (stopped) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [stopped]);
+
   const start = new Date(startedAt).getTime();
-  const elapsed = Number.isFinite(start) ? now - start : 0;
+  const end = stopped
+    ? stoppedAt
+      ? new Date(stoppedAt).getTime()
+      : now
+    : now;
+  const elapsed =
+    Number.isFinite(start) && Number.isFinite(end) ? Math.max(0, end - start) : 0;
+
   return (
-    <div className="flex items-baseline justify-end gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
-        Cronómetro
-      </span>
-      <span
-        className="text-2xl font-semibold tabular-nums tracking-tight text-[var(--admin-coral)]"
-        aria-live="polite"
-      >
-        {formatElapsed(elapsed)}
-      </span>
+    <div className="flex flex-col items-end gap-0.5">
+      <div className="flex items-baseline justify-end gap-2">
+        <span
+          className={[
+            "text-[10px] font-semibold uppercase tracking-[0.14em]",
+            stopped ? "text-zinc-400 dark:text-zinc-500" : "text-zinc-500",
+          ].join(" ")}
+        >
+          Cronómetro
+          {stopped ? " · apagado" : ""}
+        </span>
+        <span
+          className={[
+            "text-2xl font-semibold tabular-nums tracking-tight",
+            stopped
+              ? "text-zinc-400 dark:text-zinc-500"
+              : "text-[var(--admin-coral)]",
+          ].join(" ")}
+          aria-live={stopped ? "off" : "polite"}
+        >
+          {formatElapsed(elapsed)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -67,16 +99,21 @@ export function PedidoCocinaPanel({
   orderId,
   createdAt,
   initialKitchenStatus,
+  initialKitchenCompletedAt = null,
   serviceType,
   lineRecipes,
 }: {
   orderId: string;
   createdAt: string;
   initialKitchenStatus: KitchenStatus;
+  initialKitchenCompletedAt?: string | null;
   serviceType: "domicilio" | "en_el_lugar" | null;
   lineRecipes: PedidoLineRecipe[];
 }) {
   const [status, setStatus] = useState<KitchenStatus>(initialKitchenStatus);
+  const [kitchenCompletedAt, setKitchenCompletedAt] = useState<string | null>(
+    initialKitchenCompletedAt,
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [recipeOpen, setRecipeOpen] = useState<PedidoLineRecipe | null>(null);
@@ -98,8 +135,11 @@ export function PedidoCocinaPanel({
         return;
       }
       setStatus(res.kitchenStatus);
+      setKitchenCompletedAt(res.kitchenCompletedAt);
     });
   }
+
+  const cronometroStopped = status === "entregado";
 
   return (
     <section className="print:hidden rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
@@ -117,7 +157,11 @@ export function PedidoCocinaPanel({
         </div>
 
         <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
-          <PedidoCronometro startedAt={createdAt} />
+          <PedidoCronometro
+            startedAt={createdAt}
+            stopped={cronometroStopped}
+            stoppedAt={kitchenCompletedAt}
+          />
           <div className="flex flex-wrap gap-1.5 sm:justify-end">
             {KITCHEN_STATUSES.map((s) => {
               const active = status === s;

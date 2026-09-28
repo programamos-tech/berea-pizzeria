@@ -128,6 +128,7 @@ export type OrderInvoiceDetailViewProps = {
   isPedido?: boolean;
   serviceType?: "domicilio" | "en_el_lugar" | null;
   kitchenStatus?: KitchenStatus | null;
+  kitchenCompletedAt?: string | null;
   mesaLabel?: string | null;
   lineRecipes?: PedidoLineRecipe[];
   /** Enlace al listado Ventas (p. ej. misma página y filtros). */
@@ -260,6 +261,7 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
     isPedido = false,
     serviceType = null,
     kitchenStatus = null,
+    kitchenCompletedAt = null,
     mesaLabel = null,
     lineRecipes = [],
     ventasListHref = "/admin/ventas",
@@ -715,6 +717,7 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
               orderId={orderId}
               createdAt={createdAt}
               initialKitchenStatus={kitchenStatus}
+              initialKitchenCompletedAt={kitchenCompletedAt}
               serviceType={serviceType}
               lineRecipes={lineRecipes}
             />

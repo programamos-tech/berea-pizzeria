@@ -123,12 +123,17 @@ export async function AdminOrderInvoiceScreen({
       : null;
 
   let kitchenStatus: KitchenStatus | null = null;
+  let kitchenCompletedAt: string | null = null;
   if (isPedido) {
     const raw =
       "kitchen_status" in order && order.kitchen_status != null
         ? String(order.kitchen_status)
         : "recibido";
     kitchenStatus = isKitchenStatus(raw) ? raw : "recibido";
+    kitchenCompletedAt =
+      "kitchen_completed_at" in order && order.kitchen_completed_at != null
+        ? String(order.kitchen_completed_at)
+        : null;
   }
 
   let mesaLabel: string | null = null;
@@ -396,6 +401,7 @@ export async function AdminOrderInvoiceScreen({
       isPedido={isPedido}
       serviceType={serviceType}
       kitchenStatus={kitchenStatus}
+      kitchenCompletedAt={kitchenCompletedAt}
       mesaLabel={mesaLabel}
       lineRecipes={lineRecipes}
       ventasListHref={listHref}

@@ -12,7 +12,11 @@ export async function updatePedidoKitchenStatus(
   orderId: string,
   kitchenStatus: string,
 ): Promise<
-  | { ok: true; kitchenStatus: KitchenStatus }
+  | {
+      ok: true;
+      kitchenStatus: KitchenStatus;
+      kitchenCompletedAt: string | null;
+    }
   | { ok: false; error: "auth" | "forbidden" | "invalid" | "db" | "not_pedido" }
 > {
   const id = String(orderId ?? "").trim();
@@ -30,7 +34,7 @@ export async function updatePedidoKitchenStatus(
   const supabase = await createSupabaseServerClient();
   const { data: order } = await supabase
     .from("orders")
-    .select("id,status,wompi_reference")
+    .select("id,status,wompi_reference,kitchen_completed_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -44,9 +48,22 @@ export async function updatePedidoKitchenStatus(
     return { ok: false, error: "invalid" };
   }
 
+  const existingCompleted =
+    "kitchen_completed_at" in order && order.kitchen_completed_at != null
+      ? String(order.kitchen_completed_at)
+      : null;
+
+  const kitchenCompletedAt =
+    next === "entregado"
+      ? existingCompleted || new Date().toISOString()
+      : null;
+
   const { error } = await supabase
     .from("orders")
-    .update({ kitchen_status: next })
+    .update({
+      kitchen_status: next,
+      kitchen_completed_at: kitchenCompletedAt,
+    })
     .eq("id", id);
 
   if (error) return { ok: false, error: "db" };
@@ -55,5 +72,5 @@ export async function updatePedidoKitchenStatus(
   revalidatePath("/admin/ventas");
   revalidatePath("/admin/orders");
 
-  return { ok: true, kitchenStatus: next };
+  return { ok: true, kitchenStatus: next, kitchenCompletedAt };
 }
