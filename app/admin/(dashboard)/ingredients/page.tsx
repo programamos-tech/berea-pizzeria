@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
+import { IngredientFiltersBar } from "@/components/admin/IngredientFiltersBar";
 import { IngredientTableActions } from "@/components/admin/IngredientTableActions";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
+import {
+  filterIngredients,
+  spString,
+} from "@/lib/admin-inventory-filters";
 import { fetchAdminIngredients } from "@/lib/admin-menu-catalog";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { formatCop } from "@/lib/money";
@@ -27,6 +32,9 @@ export default async function AdminIngredientsPage({
 }) {
   const sp = await searchParams;
   const deleted = sp.deleted === "1" || sp.deleted === "true";
+  const q = spString(sp, "q");
+  const status = spString(sp, "status") || "all";
+  const unit = spString(sp, "unit");
   const [perm, supabase] = await Promise.all([
     loadAdminPermissions(),
     createSupabaseServerClient(),
@@ -36,7 +44,12 @@ export default async function AdminIngredientsPage({
   const canStock = Boolean(perm?.permissions.stock_actualizar);
   const canCreate = Boolean(perm?.permissions.productos_crear);
   const canEdit = Boolean(perm?.permissions.productos_editar);
-  const ingredients = await fetchAdminIngredients(supabase);
+  const allIngredients = await fetchAdminIngredients(supabase);
+  const units = [
+    ...new Set(allIngredients.map((i) => i.unit).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b, "es"));
+  const ingredients = filterIngredients(allIngredients, { q, status, unit });
+  const hasFilters = Boolean(q || (status && status !== "all") || unit);
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
@@ -45,7 +58,8 @@ export default async function AdminIngredientsPage({
           <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
             Ingresos de inventario · registrá compras y entradas de stock
-            ({ingredients.length} insumos).
+            ({ingredients.length}
+            {hasFilters ? ` de ${allIngredients.length}` : ""} insumos).
           </p>
         </div>
         <InventorySubnav
@@ -59,7 +73,7 @@ export default async function AdminIngredientsPage({
               <Link
                 href="/admin/ingredients"
                 className={adminToolbarIconBtnClass}
-                title="Recargar listado"
+                title="Quitar filtros y recargar"
                 aria-label="Actualizar"
               >
                 <RefreshCw
@@ -87,7 +101,14 @@ export default async function AdminIngredientsPage({
         </p>
       ) : null}
 
-      {ingredients.length === 0 ? (
+      <IngredientFiltersBar
+        defaultQ={q}
+        defaultStatus={status}
+        defaultUnit={unit}
+        units={units}
+      />
+
+      {allIngredients.length === 0 ? (
         <div className="py-8 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Aún no hay insumos.
@@ -100,6 +121,18 @@ export default async function AdminIngredientsPage({
               Crear el primero
             </Link>
           ) : null}
+        </div>
+      ) : ingredients.length === 0 ? (
+        <div className="py-8 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            No hay insumos con estos criterios.
+          </p>
+          <Link
+            href="/admin/ingredients"
+            className="mt-3 inline-block text-sm font-medium text-zinc-800 underline-offset-2 hover:underline dark:text-zinc-200"
+          >
+            Limpiar filtros
+          </Link>
         </div>
       ) : (
         <>

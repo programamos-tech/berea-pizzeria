@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
+import { RecipeFiltersBar } from "@/components/admin/RecipeFiltersBar";
 import { RecipeTableActions } from "@/components/admin/RecipeTableActions";
+import {
+  filterRecipes,
+  spString,
+} from "@/lib/admin-inventory-filters";
 import { fetchAdminRecipes } from "@/lib/admin-menu-catalog";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -30,6 +35,9 @@ export default async function AdminRecipesPage({
 }) {
   const sp = await searchParams;
   const deleted = sp.deleted === "1" || sp.deleted === "true";
+  const q = spString(sp, "q");
+  const kind = spString(sp, "kind") || "all";
+  const category = spString(sp, "category");
   const [perm, supabase] = await Promise.all([
     loadAdminPermissions(),
     createSupabaseServerClient(),
@@ -38,7 +46,12 @@ export default async function AdminRecipesPage({
   const canSeeKits = Boolean(perm?.permissions.kits_ver);
   const canCreate = Boolean(perm?.permissions.productos_crear);
   const canEdit = Boolean(perm?.permissions.productos_editar);
-  const recipes = await fetchAdminRecipes(supabase);
+  const allRecipes = await fetchAdminRecipes(supabase);
+  const categories = [
+    ...new Set(allRecipes.map((r) => r.category_key).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b, "es"));
+  const recipes = filterRecipes(allRecipes, { q, kind, category });
+  const hasFilters = Boolean(q || (kind && kind !== "all") || category);
   const prep = recipes.filter((r) => r.kind === "prep").length;
   const menu = recipes.filter((r) => r.kind === "menu").length;
 
@@ -48,7 +61,9 @@ export default async function AdminRecipesPage({
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Recetas y BOM · {recipes.length} fichas ({prep} prep · {menu} menú)
+            Recetas y BOM · {recipes.length}
+            {hasFilters ? ` de ${allRecipes.length}` : ""} fichas ({prep} prep ·{" "}
+            {menu} menú)
           </p>
         </div>
         <InventorySubnav
@@ -62,7 +77,7 @@ export default async function AdminRecipesPage({
               <Link
                 href="/admin/recipes"
                 className={adminToolbarIconBtnClass}
-                title="Recargar listado"
+                title="Quitar filtros y recargar"
                 aria-label="Actualizar"
               >
                 <RefreshCw
@@ -90,7 +105,14 @@ export default async function AdminRecipesPage({
         </p>
       ) : null}
 
-      {recipes.length === 0 ? (
+      <RecipeFiltersBar
+        defaultQ={q}
+        defaultKind={kind}
+        defaultCategory={category}
+        categories={categories}
+      />
+
+      {allRecipes.length === 0 ? (
         <div className="py-8 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
             Aún no hay recetas.
@@ -103,6 +125,18 @@ export default async function AdminRecipesPage({
               Crear la primera
             </Link>
           ) : null}
+        </div>
+      ) : recipes.length === 0 ? (
+        <div className="py-8 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            No hay recetas con estos criterios.
+          </p>
+          <Link
+            href="/admin/recipes"
+            className="mt-3 inline-block text-sm font-medium text-zinc-800 underline-offset-2 hover:underline dark:text-zinc-200"
+          >
+            Limpiar filtros
+          </Link>
         </div>
       ) : (
         <>
