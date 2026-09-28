@@ -123,11 +123,10 @@ function normalizeAdminProductRow(
 
 function ProductStockStatus({ stock }: { stock: number }) {
   const baseClass =
-    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide";
+    "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide";
   if (stock <= 0) {
     return (
       <span className={`${baseClass} bg-red-50 text-red-900 ring-1 ring-red-200/90 dark:bg-red-950/45 dark:text-red-200 dark:ring-red-800/50`}>
-        <span className="size-1.5 rounded-full bg-current opacity-75" aria-hidden />
         Sin stock
       </span>
     );
@@ -135,14 +134,12 @@ function ProductStockStatus({ stock }: { stock: number }) {
   if (stock <= LOW_STOCK_MAX) {
     return (
       <span className={`${baseClass} bg-amber-50 text-amber-900 ring-1 ring-amber-200/90 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-800/55`}>
-        <span className="size-1.5 rounded-full bg-current opacity-75" aria-hidden />
         Stock bajo
       </span>
     );
   }
   return (
     <span className={`${baseClass} bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800/60`}>
-      <span className="size-1.5 rounded-full bg-current opacity-75" aria-hidden />
       Con stock
     </span>
   );
