@@ -17,6 +17,21 @@ export const RECIPE_CATEGORY_PRESETS = [
   "preparaciones",
 ] as const;
 
+/** Etiquetas legibles (manual §§1–12). */
+const RECIPE_CATEGORY_LABELS: Record<string, string> = {
+  masas: "Masas (§1–2)",
+  salsas: "Salsas (§3–4)",
+  pizzas: "Pizzas (§5)",
+  panouzzos: "Panouzzos (§6)",
+  lasanas: "Lasañas (§7)",
+  strombolis: "Strombolis (§8)",
+  limonadas: "Limonadas (§9)",
+  postres: "Postres (§10)",
+  bebidas: "Bebidas (§11)",
+  adiciones: "Adiciones (§12)",
+  preparaciones: "Preparaciones",
+};
+
 export const RECIPE_LINE_UNITS = [
   "g",
   "ml",
@@ -56,6 +71,15 @@ export function normalizeCategoryKey(raw: string): string {
     .replace(/^-|-$/g, "")
     .slice(0, 40);
   return s || "preparaciones";
+}
+
+export function recipeCategoryLabel(key: string): string {
+  const k = normalizeCategoryKey(key);
+  return RECIPE_CATEGORY_LABELS[k] ?? (k ? k.replace(/-/g, " ") : "—");
+}
+
+export function recipeKindLabel(kind: string): string {
+  return kind === "prep" ? "Preparación" : "Menú";
 }
 
 /** Parse BOM lines from form fields `line_count` + `line_N_*`. */

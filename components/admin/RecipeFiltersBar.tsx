@@ -4,6 +4,7 @@ import {
   adminFilterInputClass,
   adminFilterLabelClass,
 } from "@/lib/admin-ui";
+import { recipeCategoryLabel } from "@/lib/recipe-form";
 
 type Props = {
   defaultQ: string;
@@ -51,8 +52,8 @@ export function RecipeFiltersBar({
           className={adminFilterInputClass}
         >
           <option value="all">Todos</option>
-          <option value="prep">Preparación</option>
-          <option value="menu">Menú</option>
+          <option value="prep">Preparación (§1–4)</option>
+          <option value="menu">Menú (§5–12)</option>
         </select>
       </div>
       <div className="min-w-0 lg:col-span-4">
@@ -69,7 +70,7 @@ export function RecipeFiltersBar({
           <option value="">Todas las categorías</option>
           {categories.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {recipeCategoryLabel(c)}
             </option>
           ))}
         </select>

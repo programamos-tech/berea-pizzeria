@@ -3,11 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  isIngredientCategoryKey,
+  normalizeIngredientCategoryKey,
+} from "@/lib/ingredient-categories";
+import {
   isIngredientUnit,
   slugifyIngredientName,
 } from "@/lib/ingredient-units";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+function parseCategoryKey(raw: FormDataEntryValue | null): string {
+  const key = normalizeIngredientCategoryKey(String(raw ?? ""));
+  return isIngredientCategoryKey(key) ? key : "otros";
+}
 
 function parseQty(raw: FormDataEntryValue | null): number | null {
   const n = Number(String(raw ?? "").replace(",", ".").trim());
@@ -132,6 +141,7 @@ export async function createIngredient(formData: FormData) {
 
   const name = String(formData.get("name") ?? "").trim();
   const unitRaw = String(formData.get("unit") ?? "g").trim().toLowerCase();
+  const categoryKey = parseCategoryKey(formData.get("category_key"));
   const notes = String(formData.get("notes") ?? "").trim().slice(0, 500);
   const unitCostCents = parseOptionalCostCents(formData.get("unit_cost_cents"));
   const isActive = formData.get("is_active") !== "off";
@@ -154,6 +164,7 @@ export async function createIngredient(formData: FormData) {
     name,
     slug,
     unit: unitRaw,
+    category_key: categoryKey,
     notes,
     is_active: isActive,
     stock_qty: 0,
@@ -199,6 +210,7 @@ export async function updateIngredient(ingredientId: string, formData: FormData)
 
   const name = String(formData.get("name") ?? "").trim();
   const unitRaw = String(formData.get("unit") ?? "g").trim().toLowerCase();
+  const categoryKey = parseCategoryKey(formData.get("category_key"));
   const notes = String(formData.get("notes") ?? "").trim().slice(0, 500);
   const unitCostCents = parseOptionalCostCents(formData.get("unit_cost_cents"));
   const clearCost = formData.get("clear_unit_cost") === "on";
@@ -232,6 +244,7 @@ export async function updateIngredient(ingredientId: string, formData: FormData)
     name,
     slug,
     unit: unitRaw,
+    category_key: categoryKey,
     notes,
     is_active: isActive,
   };

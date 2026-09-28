@@ -74,6 +74,7 @@ export default async function EditIngredientPage({
           notes: ing.notes,
           unitCostCents: ing.unit_cost_cents,
           isActive: ing.is_active,
+          categoryKey: ing.category_key,
         }}
       />
     </div>

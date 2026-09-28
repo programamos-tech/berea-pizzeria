@@ -9,6 +9,10 @@ import {
 } from "@/lib/admin-inventory-filters";
 import { fetchAdminRecipes } from "@/lib/admin-menu-catalog";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
+import {
+  recipeCategoryLabel,
+  recipeKindLabel,
+} from "@/lib/recipe-form";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   adminPageSubtitleClass,
@@ -24,8 +28,19 @@ const thClass =
   "pb-3 pr-5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500";
 const tdClass = "py-3.5 pr-5 align-middle text-sm text-zinc-800 dark:text-zinc-100";
 
-function kindLabel(kind: string) {
-  return kind === "prep" ? "Preparación" : "Menú";
+function KindBadge({ kind }: { kind: string }) {
+  if (kind === "prep") {
+    return (
+      <span className="inline-flex items-center rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-sky-900 ring-1 ring-sky-200/90 dark:bg-sky-950/50 dark:text-sky-200 dark:ring-sky-800/60">
+        Preparación
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-950 ring-1 ring-amber-200/90 dark:bg-amber-950/45 dark:text-amber-100 dark:ring-amber-800/60">
+      Menú
+    </span>
+  );
 }
 
 export default async function AdminRecipesPage({
@@ -49,7 +64,9 @@ export default async function AdminRecipesPage({
   const allRecipes = await fetchAdminRecipes(supabase);
   const categories = [
     ...new Set(allRecipes.map((r) => r.category_key).filter(Boolean)),
-  ].sort((a, b) => a.localeCompare(b, "es"));
+  ].sort((a, b) =>
+    recipeCategoryLabel(a).localeCompare(recipeCategoryLabel(b), "es"),
+  );
   const recipes = filterRecipes(allRecipes, { q, kind, category });
   const hasFilters = Boolean(q || (kind && kind !== "all") || category);
   const prep = recipes.filter((r) => r.kind === "prep").length;
@@ -61,7 +78,7 @@ export default async function AdminRecipesPage({
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Recetas y BOM · {recipes.length}
+            Preparaciones (§1–4) y Menú (§5–12) · {recipes.length}
             {hasFilters ? ` de ${allRecipes.length}` : ""} fichas ({prep} prep ·{" "}
             {menu} menú)
           </p>
@@ -155,7 +172,8 @@ export default async function AdminRecipesPage({
                       {r.name}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      {kindLabel(r.kind)} · {r.category_key} · {r.lines_count}{" "}
+                      {recipeKindLabel(r.kind)} ·{" "}
+                      {recipeCategoryLabel(r.category_key)} · {r.lines_count}{" "}
                       líneas
                     </p>
                   </Link>
@@ -210,9 +228,11 @@ export default async function AdminRecipesPage({
                         </p>
                       ) : null}
                     </td>
-                    <td className={tdClass}>{kindLabel(r.kind)}</td>
-                    <td className={`${tdClass} capitalize text-xs text-zinc-600 dark:text-zinc-300`}>
-                      {r.category_key}
+                    <td className={tdClass}>
+                      <KindBadge kind={r.kind} />
+                    </td>
+                    <td className={`${tdClass} text-xs text-zinc-600 dark:text-zinc-300`}>
+                      {recipeCategoryLabel(r.category_key)}
                     </td>
                     <td className={`${tdClass} text-xs tabular-nums text-zinc-600`}>
                       {r.yield_qty} {r.yield_unit}

@@ -6,7 +6,12 @@ import { AdminFormSubmitButton } from "@/components/admin/AdminFormSubmitButton"
 import {
   RECIPE_CATEGORY_PRESETS,
   RECIPE_LINE_UNITS,
+  recipeCategoryLabel,
 } from "@/lib/recipe-form";
+import {
+  parseProcedureSteps,
+  serializeProcedureSteps,
+} from "@/lib/recipe-procedure-steps";
 import {
   productInputClass as inputClass,
   productLabelClass as labelClass,
@@ -81,9 +86,10 @@ export function RecipeForm({
   );
   const [yieldQty, setYieldQty] = useState(initial?.yieldQty ?? "1");
   const [yieldUnit, setYieldUnit] = useState(initial?.yieldUnit ?? "porcion");
-  const [procedureText, setProcedureText] = useState(
-    initial?.procedureText ?? "",
-  );
+  const [procedureSteps, setProcedureSteps] = useState<string[]>(() => {
+    const parsed = parseProcedureSteps(initial?.procedureText ?? "");
+    return parsed.length ? parsed : [""];
+  });
   const [isActive, setIsActive] = useState(initial?.isActive ?? true);
   const [lines, setLines] = useState<LineState[]>(() =>
     initial?.lines?.length
@@ -94,9 +100,12 @@ export function RecipeForm({
       : [newLine()],
   );
 
+  const procedureText = serializeProcedureSteps(procedureSteps);
+
   return (
     <form action={formAction} className="mx-auto max-w-3xl space-y-6">
       <input type="hidden" name="line_count" value={String(lines.length)} />
+      <input type="hidden" name="procedure_text" value={procedureText} />
 
       <section className={cardClass}>
         <h2 className={sectionTitle}>Datos de la receta</h2>
@@ -146,7 +155,7 @@ export function RecipeForm({
             >
               {RECIPE_CATEGORY_PRESETS.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {recipeCategoryLabel(c)}
                 </option>
               ))}
             </select>
@@ -181,17 +190,65 @@ export function RecipeForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="rec-proc" className={labelClass}>
-              Procedimiento (opcional)
-            </label>
-            <textarea
-              id="rec-proc"
-              name="procedure_text"
-              rows={4}
-              value={procedureText}
-              onChange={(e) => setProcedureText(e.target.value)}
-              className={inputClass}
-            />
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <label className={labelClass}>Procedimiento (pasos)</label>
+              <button
+                type="button"
+                onClick={() =>
+                  setProcedureSteps((prev) => [...prev, ""])
+                }
+                className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200"
+              >
+                + Añadir paso
+              </button>
+            </div>
+            <p className="mb-3 text-xs text-zinc-500">
+              Un paso por bloque. Se guardan numerados en el detalle de la
+              receta.
+            </p>
+            <div className="space-y-3">
+              {procedureSteps.map((step, index) => (
+                <div
+                  key={`proc-${index}`}
+                  className="rounded-lg border border-zinc-200/90 p-3 dark:border-zinc-700"
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                      Paso {index + 1}
+                    </p>
+                    {procedureSteps.length > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setProcedureSteps((prev) =>
+                            prev.filter((_, i) => i !== index),
+                          )
+                        }
+                        className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+                      >
+                        Quitar
+                      </button>
+                    ) : null}
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={step}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setProcedureSteps((prev) =>
+                        prev.map((s, i) => (i === index ? value : s)),
+                      );
+                    }}
+                    placeholder={
+                      index === 0
+                        ? "Ej. En vaso alto, agregar hielo hasta la mitad…"
+                        : "Siguiente paso…"
+                    }
+                    className={inputClass}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           {mode === "edit" ? (

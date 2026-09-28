@@ -45,90 +45,90 @@ const CATEGORIES = [
   { name: "Adiciones", sort: 110, icon: "plus" },
 ];
 
-/** Raw ingredients appearing in the manual (unit = default stock UoM). */
+/** Raw ingredients appearing in the manual: [name, unit, category_key]. */
 const INGREDIENTS = [
-  ["Harina", "g"],
-  ["Agua", "ml"],
-  ["Levadura", "g"],
-  ["Hielo", "g"],
-  ["Sal", "g"],
-  ["Aceite de oliva", "ml"],
-  ["Azúcar", "g"],
-  ["Leche en polvo", "g"],
-  ["Esencia de queso", "ml"],
-  ["Orégano", "g"],
-  ["Tomates frescos", "lb"],
-  ["Cebolla", "g"],
-  ["Ajo", "unidad"],
-  ["Albahaca", "al_gusto"],
-  ["Tomillo", "al_gusto"],
-  ["Albahaca fresca", "al_gusto"],
-  ["Margarina Astra", "lb"],
-  ["Miel", "g"],
-  ["Picante Ají Basco", "g"],
-  ["Pepperoncino", "al_gusto"],
-  ["Arequipe", "g"],
-  ["Vinagre balsámico", "ml"],
-  ["Mayonesa", "ml"],
-  ["Perejil o cilantro", "g"],
-  ["Leche", "ml"],
-  ["Mozzarella", "g"],
-  ["Queso mozzarella", "g"],
-  ["Jamón serrano", "g"],
-  ["Chorizo español", "g"],
-  ["Pepperoni", "g"],
-  ["Pollo", "g"],
-  ["Tocineta salteada", "g"],
-  ["Maíz", "g"],
-  ["Chorizo argentino salteado", "unidad"],
-  ["Chorizo argentino", "g"],
-  ["Parmesano", "g"],
-  ["Queso parmesano", "g"],
-  ["Salami", "g"],
-  ["Jalapeños", "g"],
-  ["Piña caramelizada", "g"],
-  ["Salsa BBQ", "al_gusto"],
-  ["Puerro crocante", "al_gusto"],
-  ["Salsa bechamel", "al_gusto"],
-  ["Setas", "g"],
-  ["Queso azul", "al_gusto"],
-  ["Jamón", "g"],
-  ["Tomate cherry", "g"],
-  ["Pesto", "al_gusto"],
-  ["Pollo BBQ", "g"],
-  ["Queso crema", "g"],
-  ["Cebolla avinada", "g"],
-  ["Queso pera", "g"],
-  ["Mermelada de tomate cherry", "g"],
-  ["Pasta lasaña", "g"],
-  ["Ragú de carne", "g"],
-  ["Champiñones", "g"],
-  ["Pan artesanal", "unidad"],
-  ["Papa ripio", "g"],
-  ["Bocadillo", "g"],
-  ["Vino tinto", "oz"],
-  ["Vino rosado", "oz"],
-  ["Vino blanco", "oz"],
-  ["Sweet and Sour", "oz"],
-  ["Jugo de naranja", "oz"],
-  ["Manzana", "unidad"],
-  ["Patilla", "g"],
-  ["Lychee", "unidad"],
-  ["Canada Dry", "oz"],
-  ["Hierbabuena", "al_gusto"],
-  ["Romero", "al_gusto"],
-  ["Naranja", "unidad"],
-  ["Brownie preparado", "unidad"],
-  ["Helado Popsy Gourmet", "g"],
-  ["Salsa de arequipe", "al_gusto"],
+  ["Harina", "g", "harinas"],
+  ["Agua", "ml", "basicos"],
+  ["Levadura", "g", "harinas"],
+  ["Hielo", "g", "basicos"],
+  ["Sal", "g", "basicos"],
+  ["Aceite de oliva", "ml", "salsas"],
+  ["Azúcar", "g", "basicos"],
+  ["Leche en polvo", "g", "lacteos"],
+  ["Esencia de queso", "ml", "lacteos"],
+  ["Orégano", "g", "especias"],
+  ["Tomates frescos", "lb", "vegetales"],
+  ["Cebolla", "g", "vegetales"],
+  ["Ajo", "unidad", "vegetales"],
+  ["Albahaca", "al_gusto", "especias"],
+  ["Tomillo", "al_gusto", "especias"],
+  ["Albahaca fresca", "al_gusto", "especias"],
+  ["Margarina Astra", "lb", "lacteos"],
+  ["Miel", "g", "salsas"],
+  ["Picante Ají Basco", "g", "especias"],
+  ["Pepperoncino", "al_gusto", "especias"],
+  ["Arequipe", "g", "lacteos"],
+  ["Vinagre balsámico", "ml", "salsas"],
+  ["Mayonesa", "ml", "salsas"],
+  ["Perejil o cilantro", "g", "especias"],
+  ["Leche", "ml", "lacteos"],
+  ["Mozzarella", "g", "lacteos"],
+  ["Queso mozzarella", "g", "lacteos"],
+  ["Jamón serrano", "g", "carnes"],
+  ["Chorizo español", "g", "carnes"],
+  ["Pepperoni", "g", "carnes"],
+  ["Pollo", "g", "carnes"],
+  ["Tocineta salteada", "g", "carnes"],
+  ["Maíz", "g", "vegetales"],
+  ["Chorizo argentino salteado", "unidad", "carnes"],
+  ["Chorizo argentino", "g", "carnes"],
+  ["Parmesano", "g", "lacteos"],
+  ["Queso parmesano", "g", "lacteos"],
+  ["Salami", "g", "carnes"],
+  ["Jalapeños", "g", "vegetales"],
+  ["Piña caramelizada", "g", "vegetales"],
+  ["Salsa BBQ", "al_gusto", "salsas"],
+  ["Puerro crocante", "al_gusto", "vegetales"],
+  ["Salsa bechamel", "al_gusto", "salsas"],
+  ["Setas", "g", "vegetales"],
+  ["Queso azul", "al_gusto", "lacteos"],
+  ["Jamón", "g", "carnes"],
+  ["Tomate cherry", "g", "vegetales"],
+  ["Pesto", "al_gusto", "salsas"],
+  ["Pollo BBQ", "g", "carnes"],
+  ["Queso crema", "g", "lacteos"],
+  ["Cebolla avinada", "g", "vegetales"],
+  ["Queso pera", "g", "lacteos"],
+  ["Mermelada de tomate cherry", "g", "salsas"],
+  ["Pasta lasaña", "g", "panaderia"],
+  ["Ragú de carne", "g", "carnes"],
+  ["Champiñones", "g", "vegetales"],
+  ["Pan artesanal", "unidad", "panaderia"],
+  ["Papa ripio", "g", "panaderia"],
+  ["Bocadillo", "g", "panaderia"],
+  ["Vino tinto", "oz", "bebidas"],
+  ["Vino rosado", "oz", "bebidas"],
+  ["Vino blanco", "oz", "bebidas"],
+  ["Sweet and Sour", "oz", "bebidas"],
+  ["Jugo de naranja", "oz", "bebidas"],
+  ["Manzana", "unidad", "vegetales"],
+  ["Patilla", "g", "vegetales"],
+  ["Lychee", "unidad", "vegetales"],
+  ["Canada Dry", "oz", "bebidas"],
+  ["Hierbabuena", "al_gusto", "especias"],
+  ["Romero", "al_gusto", "especias"],
+  ["Naranja", "unidad", "vegetales"],
+  ["Brownie preparado", "unidad", "postres"],
+  ["Helado Popsy Gourmet", "g", "postres"],
+  ["Salsa de arequipe", "al_gusto", "salsas"],
   // Portion / prep outputs used as BOM components on menu items
-  ["Porción masa napolitana", "g"],
-  ["Porción masa americana", "g"],
-  ["Salsa napolitana", "ml"],
-  ["Mantequilla de ajo", "al_gusto"],
-  ["Miel picante", "al_gusto"],
-  ["Salsa tártara", "al_gusto"],
-  ["Queso para borde", "g"],
+  ["Porción masa napolitana", "g", "preparaciones"],
+  ["Porción masa americana", "g", "preparaciones"],
+  ["Salsa napolitana", "ml", "salsas"],
+  ["Mantequilla de ajo", "al_gusto", "salsas"],
+  ["Miel picante", "al_gusto", "salsas"],
+  ["Salsa tártara", "al_gusto", "salsas"],
+  ["Queso para borde", "g", "lacteos"],
 ];
 
 /** Prep recipes: batch formulas from manual sections 1–4 (+ helpers). */
@@ -403,7 +403,7 @@ const PIZZA_TOPPINGS = {
 
 const PANOUZZOS = {
   "Il Forno": [
-    { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
+    { qty: 180, unit: "g", recipe: "masa-napolitana-lote", note: "Porción 180 g" },
     { qty: 50, unit: "ml", ingredient: "Salsa napolitana" },
     { qty: 75, unit: "g", ingredient: "Mozzarella" },
     { qty: 40, unit: "g", ingredient: "Pollo" },
@@ -415,7 +415,7 @@ const PANOUZZOS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano", note: "aprox" },
   ],
   Supremo: [
-    { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
+    { qty: 180, unit: "g", recipe: "masa-napolitana-lote", note: "Porción 180 g" },
     { qty: 50, unit: "ml", ingredient: "Salsa napolitana" },
     { qty: 75, unit: "g", ingredient: "Mozzarella" },
     { qty: 80, unit: "g", ingredient: "Pollo BBQ" },
@@ -425,7 +425,7 @@ const PANOUZZOS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano", note: "aprox" },
   ],
   Rústico: [
-    { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
+    { qty: 180, unit: "g", recipe: "masa-napolitana-lote", note: "Porción 180 g" },
     { qty: 50, unit: "ml", ingredient: "Salsa napolitana" },
     { qty: 75, unit: "g", ingredient: "Mozzarella" },
     { qty: 1, unit: "unidad", ingredient: "Chorizo argentino salteado" },
@@ -435,7 +435,7 @@ const PANOUZZOS = {
     { qty: 5, unit: "g", ingredient: "Parmesano" },
   ],
   Vesuvio: [
-    { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
+    { qty: 180, unit: "g", recipe: "masa-napolitana-lote", note: "Porción 180 g" },
     { qty: 75, unit: "g", ingredient: "Mozzarella" },
     { qty: 1, unit: "unidad", ingredient: "Queso pera" },
     { qty: 0, unit: "al_gusto", ingredient: "Mermelada de tomate cherry", optional: true },
@@ -446,7 +446,7 @@ const PANOUZZOS = {
     { qty: 5, unit: "g", ingredient: "Parmesano" },
   ],
   Mediterráneo: [
-    { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
+    { qty: 180, unit: "g", recipe: "masa-napolitana-lote", note: "Porción 180 g" },
     { qty: 75, unit: "g", ingredient: "Mozzarella" },
     { qty: 15, unit: "g", ingredient: "Mermelada de tomate cherry" },
     { qty: 5, unit: "g", ingredient: "Pesto" },
@@ -490,7 +490,7 @@ const LASANAS = {
 
 const STROMBOLIS = {
   Bravissimo: [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
+    { qty: 200, unit: "g", recipe: "masa-americana-lote", note: "Porción 200 g" },
     { qty: 0, unit: "al_gusto", ingredient: "Mantequilla de ajo", optional: true },
     { qty: 0, unit: "al_gusto", ingredient: "Orégano", optional: true },
     { qty: 120, unit: "g", ingredient: "Queso mozzarella" },
@@ -502,7 +502,7 @@ const STROMBOLIS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano" },
   ],
   Diavolo: [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
+    { qty: 200, unit: "g", recipe: "masa-americana-lote", note: "Porción 200 g" },
     { qty: 0, unit: "al_gusto", ingredient: "Mantequilla de ajo", optional: true },
     { qty: 0, unit: "al_gusto", ingredient: "Orégano", optional: true },
     { qty: 75, unit: "g", ingredient: "Queso mozzarella" },
@@ -514,7 +514,7 @@ const STROMBOLIS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano" },
   ],
   Bianco: [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
+    { qty: 200, unit: "g", recipe: "masa-americana-lote", note: "Porción 200 g" },
     { qty: 0, unit: "al_gusto", ingredient: "Mantequilla de ajo", optional: true },
     { qty: 0, unit: "al_gusto", ingredient: "Orégano", optional: true },
     { qty: 120, unit: "g", ingredient: "Queso mozzarella" },
@@ -525,7 +525,7 @@ const STROMBOLIS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano" },
   ],
   Ananas: [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
+    { qty: 200, unit: "g", recipe: "masa-americana-lote", note: "Porción 200 g" },
     { qty: 0, unit: "al_gusto", ingredient: "Mantequilla de ajo", optional: true },
     { qty: 0, unit: "al_gusto", ingredient: "Orégano", optional: true },
     { qty: 120, unit: "g", ingredient: "Queso mozzarella" },
@@ -534,7 +534,7 @@ const STROMBOLIS = {
     { qty: 5, unit: "g", ingredient: "Queso parmesano" },
   ],
   "Dolce Amore": [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
+    { qty: 200, unit: "g", recipe: "masa-americana-lote", note: "Porción 200 g" },
     { qty: 0, unit: "al_gusto", ingredient: "Mantequilla de ajo", optional: true },
     { qty: 0, unit: "al_gusto", ingredient: "Orégano", optional: true },
     { qty: 100, unit: "g", ingredient: "Bocadillo" },
@@ -648,17 +648,48 @@ const PRICE = {
   prep: 0,
 };
 
+/** Prefer nested prep recipes for masas/salsas when the BOM line matches. */
+function nestPrepLine(line) {
+  if (line.recipe) return line;
+  const map = {
+    "Salsa napolitana": { recipe: "salsa-napolitana-lote" },
+    "Miel picante": { recipe: "miel-picante" },
+    "Mantequilla de ajo": { recipe: "mantequilla-de-ajo" },
+    "Salsa tártara": { recipe: "salsa-tartara" },
+  };
+  const hit = line.ingredient ? map[line.ingredient] : null;
+  if (!hit) return line;
+  const { ingredient: _drop, ...rest } = line;
+  return { ...rest, ...hit };
+}
+
 function pizzaLines(variant, toppings) {
+  const tops = toppings.map(nestPrepLine);
   if (variant === "napolitana") {
     return [
-      { qty: 180, unit: "g", ingredient: "Porción masa napolitana" },
-      ...toppings,
+      {
+        qty: 180,
+        unit: "g",
+        recipe: "masa-napolitana-lote",
+        note: "Porción 180 g",
+      },
+      ...tops,
     ];
   }
   return [
-    { qty: 200, unit: "g", ingredient: "Porción masa americana" },
-    { qty: 120, unit: "g", ingredient: "Queso para borde", note: "Borde Americana" },
-    ...toppings,
+    {
+      qty: 200,
+      unit: "g",
+      recipe: "masa-americana-lote",
+      note: "Porción 200 g",
+    },
+    {
+      qty: 120,
+      unit: "g",
+      ingredient: "Queso para borde",
+      note: "Borde Americana",
+    },
+    ...tops,
   ];
 }
 
@@ -696,14 +727,15 @@ function buildSql() {
   }
 
   // Ingredients
-  for (const [name, unit] of INGREDIENTS) {
+  for (const [name, unit, categoryKey] of INGREDIENTS) {
     const slug = slugify(name);
+    const cat = categoryKey || "otros";
     out.push(`  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = '${slug}' limit 1;`);
     out.push(`  if v_ing_id is null then`);
-    out.push(`    insert into public.ingredients (tenant_id, name, slug, unit)`);
-    out.push(`    values (tid, '${esc(name)}', '${slug}', '${unit}');`);
+    out.push(`    insert into public.ingredients (tenant_id, name, slug, unit, category_key)`);
+    out.push(`    values (tid, '${esc(name)}', '${slug}', '${unit}', '${cat}');`);
     out.push(`  else`);
-    out.push(`    update public.ingredients set name = '${esc(name)}', unit = '${unit}', is_active = true, updated_at = now()`);
+    out.push(`    update public.ingredients set name = '${esc(name)}', unit = '${unit}', category_key = '${cat}', is_active = true, updated_at = now()`);
     out.push(`    where id = v_ing_id;`);
     out.push(`  end if;`);
   }
@@ -721,7 +753,7 @@ function buildSql() {
     out.push(`    delete from public.recipe_lines where recipe_id = v_recipe_id;`);
     out.push(`  end if;`);
     out.push(`  v_line_sort := 0;`);
-    for (const line of lines) {
+    for (const line of lines.map(nestPrepLine)) {
       out.push(`  v_line_sort := v_line_sort + 10;`);
       if (line.recipe) {
         out.push(`  select id into v_comp_id from public.recipes where tenant_id = tid and slug = '${line.recipe}' limit 1;`);
@@ -868,7 +900,13 @@ function buildSql() {
     "lim",
     PRICE.limonada,
     "limonadas",
-    "Limonadas de vino / tinto de verano.",
+    [
+      "En vaso (o jarra) alto, cargar hielo hasta más de la mitad.",
+      "Verter el vino indicado y el Sweet and Sour.",
+      "Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).",
+      "Completar con Canada Dry y revolver suave.",
+      "Decorar y servir de inmediato.",
+    ].join("\n"),
   );
   emitSimpleMenu(POSTRES, "Postres", "post", PRICE.postre, "postres", "Postre Liaco.");
   emitSimpleMenu(ADICIONES, "Adiciones", "adic", PRICE.adicion, "adiciones", "Extra / modificador.");

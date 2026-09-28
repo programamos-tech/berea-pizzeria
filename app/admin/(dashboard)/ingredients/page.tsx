@@ -8,6 +8,7 @@ import {
   spString,
 } from "@/lib/admin-inventory-filters";
 import { fetchAdminIngredients } from "@/lib/admin-menu-catalog";
+import { ingredientCategoryLabel } from "@/lib/ingredient-categories";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { formatCop } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -35,6 +36,7 @@ export default async function AdminIngredientsPage({
   const q = spString(sp, "q");
   const status = spString(sp, "status") || "all";
   const unit = spString(sp, "unit");
+  const category = spString(sp, "category");
   const [perm, supabase] = await Promise.all([
     loadAdminPermissions(),
     createSupabaseServerClient(),
@@ -48,8 +50,23 @@ export default async function AdminIngredientsPage({
   const units = [
     ...new Set(allIngredients.map((i) => i.unit).filter(Boolean)),
   ].sort((a, b) => a.localeCompare(b, "es"));
-  const ingredients = filterIngredients(allIngredients, { q, status, unit });
-  const hasFilters = Boolean(q || (status && status !== "all") || unit);
+  const categories = [
+    ...new Set(allIngredients.map((i) => i.category_key).filter(Boolean)),
+  ].sort((a, b) =>
+    ingredientCategoryLabel(a).localeCompare(
+      ingredientCategoryLabel(b),
+      "es",
+    ),
+  );
+  const ingredients = filterIngredients(allIngredients, {
+    q,
+    status,
+    unit,
+    category,
+  });
+  const hasFilters = Boolean(
+    q || (status && status !== "all") || unit || category,
+  );
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
@@ -105,7 +122,9 @@ export default async function AdminIngredientsPage({
         defaultQ={q}
         defaultStatus={status}
         defaultUnit={unit}
+        defaultCategory={category}
         units={units}
+        categories={categories}
       />
 
       {allIngredients.length === 0 ? (
@@ -151,8 +170,9 @@ export default async function AdminIngredientsPage({
                     <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                       {ing.name}
                     </p>
-                    <p className="mt-1 font-mono text-xs text-zinc-500">
-                      {ing.unit} · stock{" "}
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {ingredientCategoryLabel(ing.category_key)} · {ing.unit} ·
+                      stock{" "}
                       {Number(ing.stock_qty).toLocaleString("es-CO", {
                         maximumFractionDigits: 2,
                       })}
@@ -179,18 +199,20 @@ export default async function AdminIngredientsPage({
 
           {/* Desktop — estilo Menú */}
           <div className="hidden min-w-0 overflow-x-auto lg:block">
-            <table className="w-full min-w-[880px] table-fixed text-left text-sm">
+            <table className="w-full min-w-[980px] table-fixed text-left text-sm">
               <colgroup>
                 <col />
-                <col className="w-[6rem]" />
-                <col className="w-[7rem]" />
-                <col className="w-[8rem]" />
+                <col className="w-[9rem]" />
+                <col className="w-[5.5rem]" />
                 <col className="w-[6.5rem]" />
+                <col className="w-[7.5rem]" />
+                <col className="w-[6rem]" />
                 <col className="w-[9rem]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
                   <th className={thClass}>Nombre</th>
+                  <th className={thClass}>Categoría</th>
                   <th className={thClass}>Unidad</th>
                   <th className={`${thClass} text-right`}>Stock</th>
                   <th className={`${thClass} text-right`}>Costo unit.</th>
@@ -212,6 +234,9 @@ export default async function AdminIngredientsPage({
                       >
                         {ing.name}
                       </Link>
+                    </td>
+                    <td className={`${tdClass} text-xs text-zinc-600 dark:text-zinc-300`}>
+                      {ingredientCategoryLabel(ing.category_key)}
                     </td>
                     <td className={`${tdClass} font-mono text-xs text-zinc-600 dark:text-zinc-300`}>
                       {ing.unit}

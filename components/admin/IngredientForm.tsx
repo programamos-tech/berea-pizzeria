@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AdminFormSubmitButton } from "@/components/admin/AdminFormSubmitButton";
+import {
+  INGREDIENT_CATEGORY_PRESETS,
+  ingredientCategoryLabel,
+} from "@/lib/ingredient-categories";
 import { INGREDIENT_UNITS } from "@/lib/ingredient-units";
 import { formatCop } from "@/lib/money";
 import {
@@ -20,6 +24,7 @@ type Initial = {
   notes: string;
   unitCostCents: number | null;
   isActive: boolean;
+  categoryKey: string;
 };
 
 export function IngredientForm({
@@ -35,6 +40,9 @@ export function IngredientForm({
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [unit, setUnit] = useState(initial?.unit ?? "g");
+  const [categoryKey, setCategoryKey] = useState(
+    initial?.categoryKey ?? "otros",
+  );
   const [notes, setNotes] = useState(initial?.notes ?? "");
   const [costText, setCostText] = useState(
     initial?.unitCostCents != null && initial.unitCostCents > 0
@@ -80,6 +88,25 @@ export function IngredientForm({
               {INGREDIENT_UNITS.map((u) => (
                 <option key={u} value={u}>
                   {u}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="ing-category" className={labelClass}>
+              Categoría
+            </label>
+            <select
+              id="ing-category"
+              name="category_key"
+              value={categoryKey}
+              onChange={(e) => setCategoryKey(e.target.value)}
+              className={inputClass}
+            >
+              {INGREDIENT_CATEGORY_PRESETS.map((c) => (
+                <option key={c} value={c}>
+                  {ingredientCategoryLabel(c)}
                 </option>
               ))}
             </select>

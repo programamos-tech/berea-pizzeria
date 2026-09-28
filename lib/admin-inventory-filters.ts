@@ -10,20 +10,32 @@ export function spString(
 }
 
 export function filterIngredients<
-  T extends { name: string; is_active: boolean; unit: string },
+  T extends {
+    name: string;
+    is_active: boolean;
+    unit: string;
+    category_key?: string;
+  },
 >(
   rows: T[],
-  opts: { q: string; status: string; unit: string },
+  opts: { q: string; status: string; unit: string; category?: string },
 ): T[] {
   const q = opts.q.toLowerCase();
   const status = opts.status || "all";
   const unit = opts.unit.toLowerCase();
+  const category = (opts.category ?? "").toLowerCase();
 
   return rows.filter((row) => {
     if (q && !row.name.toLowerCase().includes(q)) return false;
     if (status === "active" && !row.is_active) return false;
     if (status === "inactive" && row.is_active) return false;
     if (unit && row.unit.toLowerCase() !== unit) return false;
+    if (
+      category &&
+      String(row.category_key ?? "").toLowerCase() !== category
+    ) {
+      return false;
+    }
     return true;
   });
 }

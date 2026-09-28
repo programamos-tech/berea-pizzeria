@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { IngredientDeleteConfirm } from "@/components/admin/IngredientDeleteConfirm";
 import { IngredientStockEntryButton } from "@/components/admin/IngredientStockEntryButton";
 import { fetchAdminIngredientById } from "@/lib/admin-menu-catalog";
+import { ingredientCategoryLabel } from "@/lib/ingredient-categories";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { formatCop } from "@/lib/money";
+import { recipeCategoryLabel, recipeKindLabel } from "@/lib/recipe-form";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -37,24 +39,105 @@ export default async function IngredientDetailPage({
 
   const { data: recipeRows } = await supabase
     .from("recipe_lines")
-    .select("recipe_id, recipes(id, name)")
+    .select("recipe_id, recipes(id, name, kind, category_key)")
     .eq("ingredient_id", id)
-    .limit(20);
+    .limit(80);
 
-  const recipeNames = [
-    ...new Set(
+  const recipes = [
+    ...new Map(
       (recipeRows ?? [])
         .map((row) => {
           const r = row.recipes as
-            | { id: string; name: string }
-            | { id: string; name: string }[]
+            | {
+                id: string;
+                name: string;
+                kind: string;
+                category_key: string;
+              }
+            | {
+                id: string;
+                name: string;
+                kind: string;
+                category_key: string;
+              }[]
             | null;
           const one = Array.isArray(r) ? r[0] : r;
-          return one?.name?.trim() || null;
+          if (!one?.id) return null;
+          return [
+            one.id,
+            {
+              id: one.id,
+              name: one.name?.trim() || "Receta",
+              kind: one.kind || "menu",
+              category_key: one.category_key || "",
+            },
+          ] as const;
         })
-        .filter((n): n is string => Boolean(n)),
-    ),
-  ];
+        .filter(
+          (
+            x,
+          ): x is readonly [
+            string,
+            {
+              id: string;
+              name: string;
+              kind: string;
+              category_key: string;
+            },
+          ] => Boolean(x),
+        ),
+    ).values(),
+  ].sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+  const recipeIds = recipes.map((r) => r.id);
+  const productsByRecipe = new Map<
+    string,
+    { id: string; name: string }[]
+  >();
+  if (recipeIds.length) {
+    const [{ data: directProducts }, { data: variantRows }] =
+      await Promise.all([
+        supabase
+          .from("products")
+          .select("id,name,recipe_id")
+          .in("recipe_id", recipeIds),
+        supabase
+          .from("product_recipe_variants")
+          .select("product_id,recipe_id,products(id,name)")
+          .in("recipe_id", recipeIds),
+      ]);
+    for (const p of directProducts ?? []) {
+      const rid = String(p.recipe_id ?? "");
+      if (!rid) continue;
+      const list = productsByRecipe.get(rid) ?? [];
+      if (!list.some((x) => x.id === p.id)) {
+        list.push({ id: String(p.id), name: String(p.name ?? "") });
+      }
+      productsByRecipe.set(rid, list);
+    }
+    for (const v of variantRows ?? []) {
+      const rid = String(v.recipe_id ?? "");
+      const prod = v.products as
+        | { id: string; name: string }
+        | { id: string; name: string }[]
+        | null;
+      const one = Array.isArray(prod) ? prod[0] : prod;
+      if (!rid || !one?.id) continue;
+      const list = productsByRecipe.get(rid) ?? [];
+      if (!list.some((x) => x.id === one.id)) {
+        list.push({ id: String(one.id), name: String(one.name ?? "") });
+      }
+      productsByRecipe.set(rid, list);
+    }
+  }
+
+  const products = [
+    ...new Map(
+      [...productsByRecipe.values()]
+        .flat()
+        .map((p) => [p.id, p] as const),
+    ).values(),
+  ].sort((a, b) => a.name.localeCompare(b.name, "es"));
 
   return (
     <div className="flex w-full min-w-0 max-w-2xl flex-col gap-4">
@@ -73,6 +156,9 @@ export default async function IngredientDetailPage({
           <h1 className="mt-1 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
             {ing.name}
           </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            {ingredientCategoryLabel(ing.category_key)}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {canStock ? (
@@ -128,6 +214,14 @@ export default async function IngredientDetailPage({
       <dl className="grid gap-4 rounded-xl border border-zinc-200/80 bg-white p-5 text-sm dark:border-zinc-800 dark:bg-zinc-950 sm:grid-cols-2">
         <div>
           <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            Categoría
+          </dt>
+          <dd className="mt-1 text-zinc-900 dark:text-zinc-100">
+            {ingredientCategoryLabel(ing.category_key)}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
             Unidad
           </dt>
           <dd className="mt-1 font-mono text-zinc-900 dark:text-zinc-100">
@@ -177,14 +271,49 @@ export default async function IngredientDetailPage({
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
           Usado en recetas
         </h2>
-        {recipeNames.length === 0 ? (
+        {recipes.length === 0 ? (
           <p className="mt-2 text-sm text-zinc-500">
             Ninguna receta usa este insumo. Se puede eliminar.
           </p>
         ) : (
-          <ul className="mt-2 list-inside list-disc text-sm text-zinc-700 dark:text-zinc-300">
-            {recipeNames.map((n) => (
-              <li key={n}>{n}</li>
+          <ul className="mt-2 space-y-2 text-sm">
+            {recipes.map((r) => (
+              <li key={r.id}>
+                <Link
+                  href={`/admin/recipes/${r.id}`}
+                  className="font-medium text-[var(--admin-coral-deep)] hover:underline"
+                >
+                  {r.name}
+                </Link>
+                <span className="ml-2 text-xs text-zinc-500">
+                  {recipeKindLabel(r.kind)} ·{" "}
+                  {recipeCategoryLabel(r.category_key)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="rounded-xl border border-zinc-200/80 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+          Productos del menú que lo usan
+        </h2>
+        {products.length === 0 ? (
+          <p className="mt-2 text-sm text-zinc-500">
+            Ningún ítem del menú enlaza (aún) a esas recetas.
+          </p>
+        ) : (
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {products.map((p) => (
+              <li key={p.id}>
+                <Link
+                  href={`/admin/products/${p.id}`}
+                  className="font-medium text-[var(--admin-coral-deep)] hover:underline"
+                >
+                  {p.name}
+                </Link>
+              </li>
             ))}
           </ul>
         )}

@@ -126,650 +126,650 @@ begin
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'harina' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Harina', 'harina', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Harina', 'harina', 'g', 'harinas');
   else
-    update public.ingredients set name = 'Harina', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Harina', unit = 'g', category_key = 'harinas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'agua' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Agua', 'agua', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Agua', 'agua', 'ml', 'basicos');
   else
-    update public.ingredients set name = 'Agua', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Agua', unit = 'ml', category_key = 'basicos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'levadura' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Levadura', 'levadura', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Levadura', 'levadura', 'g', 'harinas');
   else
-    update public.ingredients set name = 'Levadura', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Levadura', unit = 'g', category_key = 'harinas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'hielo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Hielo', 'hielo', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Hielo', 'hielo', 'g', 'basicos');
   else
-    update public.ingredients set name = 'Hielo', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Hielo', unit = 'g', category_key = 'basicos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'sal' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Sal', 'sal', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Sal', 'sal', 'g', 'basicos');
   else
-    update public.ingredients set name = 'Sal', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Sal', unit = 'g', category_key = 'basicos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'aceite-de-oliva' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Aceite de oliva', 'aceite-de-oliva', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Aceite de oliva', 'aceite-de-oliva', 'ml', 'salsas');
   else
-    update public.ingredients set name = 'Aceite de oliva', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Aceite de oliva', unit = 'ml', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'azucar' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Azúcar', 'azucar', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Azúcar', 'azucar', 'g', 'basicos');
   else
-    update public.ingredients set name = 'Azúcar', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Azúcar', unit = 'g', category_key = 'basicos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'leche-en-polvo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Leche en polvo', 'leche-en-polvo', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Leche en polvo', 'leche-en-polvo', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Leche en polvo', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Leche en polvo', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'esencia-de-queso' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Esencia de queso', 'esencia-de-queso', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Esencia de queso', 'esencia-de-queso', 'ml', 'lacteos');
   else
-    update public.ingredients set name = 'Esencia de queso', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Esencia de queso', unit = 'ml', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Orégano', 'oregano', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Orégano', 'oregano', 'g', 'especias');
   else
-    update public.ingredients set name = 'Orégano', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Orégano', unit = 'g', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'tomates-frescos' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Tomates frescos', 'tomates-frescos', 'lb');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Tomates frescos', 'tomates-frescos', 'lb', 'vegetales');
   else
-    update public.ingredients set name = 'Tomates frescos', unit = 'lb', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Tomates frescos', unit = 'lb', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'cebolla' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Cebolla', 'cebolla', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Cebolla', 'cebolla', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Cebolla', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Cebolla', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'ajo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Ajo', 'ajo', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Ajo', 'ajo', 'unidad', 'vegetales');
   else
-    update public.ingredients set name = 'Ajo', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Ajo', unit = 'unidad', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'albahaca' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Albahaca', 'albahaca', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Albahaca', 'albahaca', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Albahaca', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Albahaca', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'tomillo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Tomillo', 'tomillo', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Tomillo', 'tomillo', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Tomillo', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Tomillo', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'albahaca-fresca' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Albahaca fresca', 'albahaca-fresca', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Albahaca fresca', 'albahaca-fresca', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Albahaca fresca', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Albahaca fresca', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'margarina-astra' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Margarina Astra', 'margarina-astra', 'lb');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Margarina Astra', 'margarina-astra', 'lb', 'lacteos');
   else
-    update public.ingredients set name = 'Margarina Astra', unit = 'lb', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Margarina Astra', unit = 'lb', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'miel' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Miel', 'miel', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Miel', 'miel', 'g', 'salsas');
   else
-    update public.ingredients set name = 'Miel', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Miel', unit = 'g', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'picante-aji-basco' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Picante Ají Basco', 'picante-aji-basco', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Picante Ají Basco', 'picante-aji-basco', 'g', 'especias');
   else
-    update public.ingredients set name = 'Picante Ají Basco', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Picante Ají Basco', unit = 'g', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pepperoncino' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pepperoncino', 'pepperoncino', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pepperoncino', 'pepperoncino', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Pepperoncino', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pepperoncino', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'arequipe' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Arequipe', 'arequipe', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Arequipe', 'arequipe', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Arequipe', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Arequipe', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'vinagre-balsamico' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Vinagre balsámico', 'vinagre-balsamico', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Vinagre balsámico', 'vinagre-balsamico', 'ml', 'salsas');
   else
-    update public.ingredients set name = 'Vinagre balsámico', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Vinagre balsámico', unit = 'ml', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mayonesa' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Mayonesa', 'mayonesa', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Mayonesa', 'mayonesa', 'ml', 'salsas');
   else
-    update public.ingredients set name = 'Mayonesa', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Mayonesa', unit = 'ml', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'perejil-o-cilantro' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Perejil o cilantro', 'perejil-o-cilantro', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Perejil o cilantro', 'perejil-o-cilantro', 'g', 'especias');
   else
-    update public.ingredients set name = 'Perejil o cilantro', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Perejil o cilantro', unit = 'g', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'leche' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Leche', 'leche', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Leche', 'leche', 'ml', 'lacteos');
   else
-    update public.ingredients set name = 'Leche', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Leche', unit = 'ml', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Mozzarella', 'mozzarella', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Mozzarella', 'mozzarella', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Mozzarella', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Mozzarella', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-mozzarella' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso mozzarella', 'queso-mozzarella', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso mozzarella', 'queso-mozzarella', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Queso mozzarella', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso mozzarella', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'jamon-serrano' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Jamón serrano', 'jamon-serrano', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Jamón serrano', 'jamon-serrano', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Jamón serrano', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Jamón serrano', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'chorizo-espanol' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Chorizo español', 'chorizo-espanol', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Chorizo español', 'chorizo-espanol', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Chorizo español', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Chorizo español', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pepperoni' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pepperoni', 'pepperoni', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pepperoni', 'pepperoni', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Pepperoni', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pepperoni', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pollo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pollo', 'pollo', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pollo', 'pollo', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Pollo', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pollo', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'tocineta-salteada' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Tocineta salteada', 'tocineta-salteada', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Tocineta salteada', 'tocineta-salteada', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Tocineta salteada', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Tocineta salteada', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'maiz' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Maíz', 'maiz', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Maíz', 'maiz', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Maíz', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Maíz', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'chorizo-argentino-salteado' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Chorizo argentino salteado', 'chorizo-argentino-salteado', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Chorizo argentino salteado', 'chorizo-argentino-salteado', 'unidad', 'carnes');
   else
-    update public.ingredients set name = 'Chorizo argentino salteado', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Chorizo argentino salteado', unit = 'unidad', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'chorizo-argentino' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Chorizo argentino', 'chorizo-argentino', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Chorizo argentino', 'chorizo-argentino', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Chorizo argentino', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Chorizo argentino', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'parmesano' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Parmesano', 'parmesano', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Parmesano', 'parmesano', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Parmesano', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Parmesano', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-parmesano' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso parmesano', 'queso-parmesano', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso parmesano', 'queso-parmesano', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Queso parmesano', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso parmesano', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salami' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salami', 'salami', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salami', 'salami', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Salami', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salami', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'jalapenos' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Jalapeños', 'jalapenos', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Jalapeños', 'jalapenos', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Jalapeños', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Jalapeños', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pina-caramelizada' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Piña caramelizada', 'pina-caramelizada', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Piña caramelizada', 'pina-caramelizada', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Piña caramelizada', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Piña caramelizada', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-bbq' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salsa BBQ', 'salsa-bbq', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salsa BBQ', 'salsa-bbq', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Salsa BBQ', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salsa BBQ', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'puerro-crocante' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Puerro crocante', 'puerro-crocante', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Puerro crocante', 'puerro-crocante', 'al_gusto', 'vegetales');
   else
-    update public.ingredients set name = 'Puerro crocante', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Puerro crocante', unit = 'al_gusto', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-bechamel' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salsa bechamel', 'salsa-bechamel', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salsa bechamel', 'salsa-bechamel', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Salsa bechamel', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salsa bechamel', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'setas' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Setas', 'setas', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Setas', 'setas', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Setas', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Setas', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-azul' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso azul', 'queso-azul', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso azul', 'queso-azul', 'al_gusto', 'lacteos');
   else
-    update public.ingredients set name = 'Queso azul', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso azul', unit = 'al_gusto', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'jamon' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Jamón', 'jamon', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Jamón', 'jamon', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Jamón', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Jamón', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'tomate-cherry' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Tomate cherry', 'tomate-cherry', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Tomate cherry', 'tomate-cherry', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Tomate cherry', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Tomate cherry', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pesto' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pesto', 'pesto', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pesto', 'pesto', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Pesto', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pesto', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pollo-bbq' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pollo BBQ', 'pollo-bbq', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pollo BBQ', 'pollo-bbq', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Pollo BBQ', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pollo BBQ', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-crema' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso crema', 'queso-crema', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso crema', 'queso-crema', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Queso crema', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso crema', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'cebolla-avinada' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Cebolla avinada', 'cebolla-avinada', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Cebolla avinada', 'cebolla-avinada', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Cebolla avinada', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Cebolla avinada', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-pera' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso pera', 'queso-pera', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso pera', 'queso-pera', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Queso pera', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso pera', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mermelada-de-tomate-cherry' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Mermelada de tomate cherry', 'mermelada-de-tomate-cherry', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Mermelada de tomate cherry', 'mermelada-de-tomate-cherry', 'g', 'salsas');
   else
-    update public.ingredients set name = 'Mermelada de tomate cherry', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Mermelada de tomate cherry', unit = 'g', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pasta-lasana' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pasta lasaña', 'pasta-lasana', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pasta lasaña', 'pasta-lasana', 'g', 'panaderia');
   else
-    update public.ingredients set name = 'Pasta lasaña', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pasta lasaña', unit = 'g', category_key = 'panaderia', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'ragu-de-carne' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Ragú de carne', 'ragu-de-carne', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Ragú de carne', 'ragu-de-carne', 'g', 'carnes');
   else
-    update public.ingredients set name = 'Ragú de carne', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Ragú de carne', unit = 'g', category_key = 'carnes', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'champinones' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Champiñones', 'champinones', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Champiñones', 'champinones', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Champiñones', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Champiñones', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'pan-artesanal' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Pan artesanal', 'pan-artesanal', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Pan artesanal', 'pan-artesanal', 'unidad', 'panaderia');
   else
-    update public.ingredients set name = 'Pan artesanal', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Pan artesanal', unit = 'unidad', category_key = 'panaderia', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'papa-ripio' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Papa ripio', 'papa-ripio', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Papa ripio', 'papa-ripio', 'g', 'panaderia');
   else
-    update public.ingredients set name = 'Papa ripio', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Papa ripio', unit = 'g', category_key = 'panaderia', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'bocadillo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Bocadillo', 'bocadillo', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Bocadillo', 'bocadillo', 'g', 'panaderia');
   else
-    update public.ingredients set name = 'Bocadillo', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Bocadillo', unit = 'g', category_key = 'panaderia', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'vino-tinto' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Vino tinto', 'vino-tinto', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Vino tinto', 'vino-tinto', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Vino tinto', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Vino tinto', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'vino-rosado' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Vino rosado', 'vino-rosado', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Vino rosado', 'vino-rosado', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Vino rosado', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Vino rosado', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'vino-blanco' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Vino blanco', 'vino-blanco', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Vino blanco', 'vino-blanco', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Vino blanco', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Vino blanco', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'sweet-and-sour' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Sweet and Sour', 'sweet-and-sour', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Sweet and Sour', 'sweet-and-sour', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Sweet and Sour', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Sweet and Sour', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'jugo-de-naranja' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Jugo de naranja', 'jugo-de-naranja', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Jugo de naranja', 'jugo-de-naranja', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Jugo de naranja', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Jugo de naranja', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'manzana' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Manzana', 'manzana', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Manzana', 'manzana', 'unidad', 'vegetales');
   else
-    update public.ingredients set name = 'Manzana', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Manzana', unit = 'unidad', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'patilla' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Patilla', 'patilla', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Patilla', 'patilla', 'g', 'vegetales');
   else
-    update public.ingredients set name = 'Patilla', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Patilla', unit = 'g', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'lychee' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Lychee', 'lychee', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Lychee', 'lychee', 'unidad', 'vegetales');
   else
-    update public.ingredients set name = 'Lychee', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Lychee', unit = 'unidad', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'canada-dry' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Canada Dry', 'canada-dry', 'oz');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Canada Dry', 'canada-dry', 'oz', 'bebidas');
   else
-    update public.ingredients set name = 'Canada Dry', unit = 'oz', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Canada Dry', unit = 'oz', category_key = 'bebidas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'hierbabuena' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Hierbabuena', 'hierbabuena', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Hierbabuena', 'hierbabuena', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Hierbabuena', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Hierbabuena', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'romero' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Romero', 'romero', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Romero', 'romero', 'al_gusto', 'especias');
   else
-    update public.ingredients set name = 'Romero', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Romero', unit = 'al_gusto', category_key = 'especias', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'naranja' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Naranja', 'naranja', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Naranja', 'naranja', 'unidad', 'vegetales');
   else
-    update public.ingredients set name = 'Naranja', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Naranja', unit = 'unidad', category_key = 'vegetales', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'brownie-preparado' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Brownie preparado', 'brownie-preparado', 'unidad');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Brownie preparado', 'brownie-preparado', 'unidad', 'postres');
   else
-    update public.ingredients set name = 'Brownie preparado', unit = 'unidad', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Brownie preparado', unit = 'unidad', category_key = 'postres', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'helado-popsy-gourmet' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Helado Popsy Gourmet', 'helado-popsy-gourmet', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Helado Popsy Gourmet', 'helado-popsy-gourmet', 'g', 'postres');
   else
-    update public.ingredients set name = 'Helado Popsy Gourmet', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Helado Popsy Gourmet', unit = 'g', category_key = 'postres', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-de-arequipe' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salsa de arequipe', 'salsa-de-arequipe', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salsa de arequipe', 'salsa-de-arequipe', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Salsa de arequipe', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salsa de arequipe', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Porción masa napolitana', 'porcion-masa-napolitana', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Porción masa napolitana', 'porcion-masa-napolitana', 'g', 'preparaciones');
   else
-    update public.ingredients set name = 'Porción masa napolitana', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Porción masa napolitana', unit = 'g', category_key = 'preparaciones', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Porción masa americana', 'porcion-masa-americana', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Porción masa americana', 'porcion-masa-americana', 'g', 'preparaciones');
   else
-    update public.ingredients set name = 'Porción masa americana', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Porción masa americana', unit = 'g', category_key = 'preparaciones', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salsa napolitana', 'salsa-napolitana', 'ml');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salsa napolitana', 'salsa-napolitana', 'ml', 'salsas');
   else
-    update public.ingredients set name = 'Salsa napolitana', unit = 'ml', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salsa napolitana', unit = 'ml', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Mantequilla de ajo', 'mantequilla-de-ajo', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Mantequilla de ajo', 'mantequilla-de-ajo', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Mantequilla de ajo', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Mantequilla de ajo', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'miel-picante' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Miel picante', 'miel-picante', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Miel picante', 'miel-picante', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Miel picante', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Miel picante', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-tartara' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Salsa tártara', 'salsa-tartara', 'al_gusto');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Salsa tártara', 'salsa-tartara', 'al_gusto', 'salsas');
   else
-    update public.ingredients set name = 'Salsa tártara', unit = 'al_gusto', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Salsa tártara', unit = 'al_gusto', category_key = 'salsas', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then
-    insert into public.ingredients (tenant_id, name, slug, unit)
-    values (tid, 'Queso para borde', 'queso-para-borde', 'g');
+    insert into public.ingredients (tenant_id, name, slug, unit, category_key)
+    values (tid, 'Queso para borde', 'queso-para-borde', 'g', 'lacteos');
   else
-    update public.ingredients set name = 'Queso para borde', unit = 'g', is_active = true, updated_at = now()
+    update public.ingredients set name = 'Queso para borde', unit = 'g', category_key = 'lacteos', is_active = true, updated_at = now()
     where id = v_ing_id;
   end if;
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'polish-prefermento' limit 1;
@@ -811,7 +811,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Polish (prefermento)', 'Mezclar y dejar fermentar 2 horas afuera y 3 horas en nevera.', 0, 'COP', true, v_cat_id,
-      'PREP-POLISH-PREFERMENTO', 'Liaco', 0, 0, true, 19,
+      'PREP-POLISH-PREFERMENTO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -877,7 +877,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Masa napolitana (lote)', 'Incorporar polish; amasar 25 min hasta masa lisa. Embolar 180 g; madurar 48 h nevera.', 0, 'COP', true, v_cat_id,
-      'PREP-MASA-NAPOLITANA-LOTE', 'Liaco', 0, 0, true, 19,
+      'PREP-MASA-NAPOLITANA-LOTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -958,7 +958,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Masa americana (lote)', 'Activar levadura+azúcar 15 min. Amasar 5+5 min. Reposar 30 min. Embolar 200 g.', 0, 'COP', true, v_cat_id,
-      'PREP-MASA-AMERICANA-LOTE', 'Liaco', 0, 0, true, 19,
+      'PREP-MASA-AMERICANA-LOTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1024,7 +1024,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Salsa napolitana (lote)', 'Hornear 4 h; licuar; fuego bajo hasta rojo espeso.', 0, 'COP', true, v_cat_id,
-      'PREP-SALSA-NAPOLITANA-LOTE', 'Liaco', 0, 0, true, 19,
+      'PREP-SALSA-NAPOLITANA-LOTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1070,7 +1070,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Mantequilla de ajo', '1 cabeza ajo por libra de margarina; fuego lento hasta homogéneo.', 0, 'COP', true, v_cat_id,
-      'PREP-MANTEQUILLA-DE-AJO', 'Liaco', 0, 0, true, 19,
+      'PREP-MANTEQUILLA-DE-AJO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1121,7 +1121,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Miel picante', 'Mezclar miel + picante; pepperoncino al gusto.', 0, 'COP', true, v_cat_id,
-      'PREP-MIEL-PICANTE', 'Liaco', 0, 0, true, 19,
+      'PREP-MIEL-PICANTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1167,7 +1167,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Vinagre balsámico reducido', 'Mezclar hasta homogéneo.', 0, 'COP', true, v_cat_id,
-      'PREP-VINAGRE-BALSAMICO-REDUCIDO', 'Liaco', 0, 0, true, 19,
+      'PREP-VINAGRE-BALSAMICO-REDUCIDO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1233,7 +1233,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Salsa tártara', 'Licuar hasta cremosa sin grumos.', 0, 'COP', true, v_cat_id,
-      'PREP-SALSA-TARTARA', 'Liaco', 0, 0, true, 19,
+      'PREP-SALSA-TARTARA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1274,7 +1274,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Arequipe (acompañante)', 'Usar arequipe listo.', 0, 'COP', true, v_cat_id,
-      'PREP-AREQUIPE-ACOMPANANTE', 'Liaco', 0, 0, true, 19,
+      'PREP-AREQUIPE-ACOMPANANTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1315,7 +1315,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Aceite de oliva (acompañante)', 'Servir aceite de oliva.', 0, 'COP', true, v_cat_id,
-      'PREP-ACEITE-OLIVA-ACOMPANANTE', 'Liaco', 0, 0, true, 19,
+      'PREP-ACEITE-OLIVA-ACOMPANANTE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1340,15 +1340,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1392,20 +1392,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1448,7 +1448,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Di Carne', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-DICARNE', 'Liaco', 0, 0, true, 19,
+      'PIZ-DICARNE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-di-carne-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-di-carne-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1496,15 +1496,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1538,20 +1538,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1584,7 +1584,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Campagnola', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-CAMPAGNOLA', 'Liaco', 0, 0, true, 19,
+      'PIZ-CAMPAGNOLA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-campagnola-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-campagnola-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1632,15 +1632,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1679,20 +1679,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1730,7 +1730,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Pollo Español', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-POLLOESPANOL', 'Liaco', 0, 0, true, 19,
+      'PIZ-POLLOESPANOL', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-pollo-espanol-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-pollo-espanol-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1778,15 +1778,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1825,20 +1825,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1876,7 +1876,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Di Calabria', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-DICALABRIA', 'Liaco', 0, 0, true, 19,
+      'PIZ-DICALABRIA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-di-calabria-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-di-calabria-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -1924,15 +1924,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -1976,20 +1976,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2032,7 +2032,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Barbacoa', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-BARBACOA', 'Liaco', 0, 0, true, 19,
+      'PIZ-BARBACOA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-barbacoa-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-barbacoa-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2080,15 +2080,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2105,10 +2105,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'miel-picante' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Miel picante'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, 'Al gusto', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'miel-picante' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe miel-picante'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, 'Al gusto', v_line_sort);
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'pizza-tentacion-americana' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
@@ -2122,20 +2122,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2152,10 +2152,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'miel-picante' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Miel picante'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, 'Al gusto', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'miel-picante' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe miel-picante'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, 'Al gusto', v_line_sort);
   select id into v_cat_id from public.categories
     where tenant_id = tid and lower(trim(name)) = lower('Pizzas') limit 1;
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'pizza-tentacion-napolitana' limit 1;
@@ -2168,7 +2168,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Tentación', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-TENTACION', 'Liaco', 0, 0, true, 19,
+      'PIZ-TENTACION', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-tentacion-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-tentacion-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2216,15 +2216,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2253,20 +2253,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2294,7 +2294,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Primavera', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-PRIMAVERA', 'Liaco', 0, 0, true, 19,
+      'PIZ-PRIMAVERA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-primavera-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-primavera-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2342,15 +2342,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2389,20 +2389,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2440,7 +2440,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Pollo Bechamel', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-POLLOBECHAME', 'Liaco', 0, 0, true, 19,
+      'PIZ-POLLOBECHAME', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-pollo-bechamel-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-pollo-bechamel-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2488,15 +2488,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2530,20 +2530,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2576,7 +2576,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Liaco', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-LIACO', 'Liaco', 0, 0, true, 19,
+      'PIZ-LIACO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-liaco-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-liaco-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2624,15 +2624,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2661,20 +2661,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2702,7 +2702,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Pollo Tocineta', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-POLLOTOCINET', 'Liaco', 0, 0, true, 19,
+      'PIZ-POLLOTOCINET', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-pollo-tocineta-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-pollo-tocineta-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2750,15 +2750,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2792,20 +2792,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2838,7 +2838,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Tres Quesos', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-TRESQUESOS', 'Liaco', 0, 0, true, 19,
+      'PIZ-TRESQUESOS', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-tres-quesos-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-tres-quesos-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -2886,15 +2886,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2923,20 +2923,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -2964,7 +2964,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Pepperoni', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-PEPPERONI', 'Liaco', 0, 0, true, 19,
+      'PIZ-PEPPERONI', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-pepperoni-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-pepperoni-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3012,15 +3012,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3049,20 +3049,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3090,7 +3090,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Salami', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-SALAMI', 'Liaco', 0, 0, true, 19,
+      'PIZ-SALAMI', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-salami-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-salami-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3138,15 +3138,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3180,20 +3180,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3226,7 +3226,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Hawaiana', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-HAWAIANA', 'Liaco', 0, 0, true, 19,
+      'PIZ-HAWAIANA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-hawaiana-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-hawaiana-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3274,15 +3274,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3311,20 +3311,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3352,7 +3352,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Jamón & Queso', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-JAMONQUESO', 'Liaco', 0, 0, true, 19,
+      'PIZ-JAMONQUESO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-jamon-queso-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-jamon-queso-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3400,15 +3400,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3452,20 +3452,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3508,7 +3508,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Vegetariana', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-VEGETARIANA', 'Liaco', 0, 0, true, 19,
+      'PIZ-VEGETARIANA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-vegetariana-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-vegetariana-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3556,15 +3556,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3593,20 +3593,20 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-para-borde' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso para borde'; end if;
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 120, 'g', false, 'Borde Americana', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3634,7 +3634,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pizza Margarita', 'Variantes Napolitana (180 g) o Americana (200 g + 120 g queso borde). Precio placeholder.', 35000, 'COP', true, v_cat_id,
-      'PIZ-MARGARITA', 'Liaco', 0, 0, true, 19,
+      'PIZ-MARGARITA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[{"label":"Napolitana","key":"napolitana","recipe_slug":"pizza-margarita-napolitana"},{"label":"Americana","key":"americana","recipe_slug":"pizza-margarita-americana"}]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3682,15 +3682,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3743,7 +3743,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Il Forno', 'Precio placeholder — menú Liaco.', 28000, 'COP', true, v_cat_id,
-      'PANZ-ILFORNO', 'Liaco', 0, 0, true, 19,
+      'PANZ-ILFORNO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3767,15 +3767,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3818,7 +3818,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Supremo', 'Precio placeholder — menú Liaco.', 28000, 'COP', true, v_cat_id,
-      'PANZ-SUPREMO', 'Liaco', 0, 0, true, 19,
+      'PANZ-SUPREMO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3842,15 +3842,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 50, 'ml', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 50, 'ml', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3893,7 +3893,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Rústico', 'Precio placeholder — menú Liaco.', 28000, 'COP', true, v_cat_id,
-      'PANZ-RUSTICO', 'Liaco', 0, 0, true, 19,
+      'PANZ-RUSTICO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3917,10 +3917,10 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -3973,7 +3973,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Vesuvio', 'Precio placeholder — menú Liaco.', 28000, 'COP', true, v_cat_id,
-      'PANZ-VESUVIO', 'Liaco', 0, 0, true, 19,
+      'PANZ-VESUVIO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -3997,10 +3997,10 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-napolitana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa napolitana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 180, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-napolitana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-napolitana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 180, 'g', false, 'Porción 180 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mozzarella' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Mozzarella'; end if;
@@ -4053,7 +4053,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Mediterráneo', 'Precio placeholder — menú Liaco.', 28000, 'COP', true, v_cat_id,
-      'PANZ-MEDITERRANEO', 'Liaco', 0, 0, true, 19,
+      'PANZ-MEDITERRANEO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4102,10 +4102,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 3, 'unidad', false, '3 pedacitos', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   select id into v_cat_id from public.categories
     where tenant_id = tid and lower(trim(name)) = lower('Lasañas') limit 1;
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'las-lasana-de-carne' limit 1;
@@ -4118,7 +4118,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Lasaña de Carne', 'Precio placeholder — menú Liaco.', 32000, 'COP', true, v_cat_id,
-      'LAS-LASANADECARNE', 'Liaco', 0, 0, true, 19,
+      'LAS-LASANADECARNE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4172,10 +4172,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 3, 'unidad', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   select id into v_cat_id from public.categories
     where tenant_id = tid and lower(trim(name)) = lower('Lasañas') limit 1;
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'las-lasana-de-pollo-y-champinones' limit 1;
@@ -4188,7 +4188,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Lasaña de Pollo y Champiñones', 'Precio placeholder — menú Liaco.', 32000, 'COP', true, v_cat_id,
-      'LAS-LASANADEPOLLOY', 'Liaco', 0, 0, true, 19,
+      'LAS-LASANADEPOLLOY', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4247,10 +4247,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 3, 'unidad', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   select id into v_cat_id from public.categories
     where tenant_id = tid and lower(trim(name)) = lower('Lasañas') limit 1;
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'las-lasana-mixta' limit 1;
@@ -4263,7 +4263,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Lasaña Mixta', 'Precio placeholder — menú Liaco.', 32000, 'COP', true, v_cat_id,
-      'LAS-LASANAMIXTA', 'Liaco', 0, 0, true, 19,
+      'LAS-LASANAMIXTA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4287,15 +4287,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Orégano'; end if;
@@ -4327,10 +4327,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 10, 'g', false, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'salsa-tartara' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Salsa tártara'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'salsa-tartara' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe salsa-tartara'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-parmesano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso parmesano'; end if;
@@ -4348,7 +4348,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Bravissimo', 'Precio placeholder — menú Liaco.', 30000, 'COP', true, v_cat_id,
-      'STRB-BRAVISSIMO', 'Liaco', 0, 0, true, 19,
+      'STRB-BRAVISSIMO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4372,15 +4372,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Orégano'; end if;
@@ -4412,10 +4412,10 @@ begin
   insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
   values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'miel-picante' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Miel picante'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'miel-picante' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe miel-picante'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'queso-parmesano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Queso parmesano'; end if;
@@ -4433,7 +4433,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Diavolo', 'Precio placeholder — menú Liaco.', 30000, 'COP', true, v_cat_id,
-      'STRB-DIAVOLO', 'Liaco', 0, 0, true, 19,
+      'STRB-DIAVOLO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4457,15 +4457,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Orégano'; end if;
@@ -4513,7 +4513,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Bianco', 'Precio placeholder — menú Liaco.', 30000, 'COP', true, v_cat_id,
-      'STRB-BIANCO', 'Liaco', 0, 0, true, 19,
+      'STRB-BIANCO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4537,15 +4537,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Orégano'; end if;
@@ -4583,7 +4583,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Ananas', 'Precio placeholder — menú Liaco.', 30000, 'COP', true, v_cat_id,
-      'STRB-ANANAS', 'Liaco', 0, 0, true, 19,
+      'STRB-ANANAS', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4607,15 +4607,15 @@ begin
   end if;
   v_line_sort := 0;
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'porcion-masa-americana' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Porción masa americana'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 200, 'g', false, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'masa-americana-lote' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe masa-americana-lote'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 200, 'g', false, 'Porción 200 g', v_line_sort);
   v_line_sort := v_line_sort + 10;
-  select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
-  if v_ing_id is null then raise exception 'missing ingredient Mantequilla de ajo'; end if;
-  insert into public.recipe_lines (tenant_id, recipe_id, ingredient_id, quantity, unit, is_optional, note, sort_order)
-  values (tid, v_recipe_id, v_ing_id, 0, 'al_gusto', true, '', v_line_sort);
+  select id into v_comp_id from public.recipes where tenant_id = tid and slug = 'mantequilla-de-ajo' limit 1;
+  if v_comp_id is null then raise exception 'missing component recipe mantequilla-de-ajo'; end if;
+  insert into public.recipe_lines (tenant_id, recipe_id, component_recipe_id, quantity, unit, is_optional, note, sort_order)
+  values (tid, v_recipe_id, v_comp_id, 0, 'al_gusto', true, '', v_line_sort);
   v_line_sort := v_line_sort + 10;
   select id into v_ing_id from public.ingredients where tenant_id = tid and slug = 'oregano' limit 1;
   if v_ing_id is null then raise exception 'missing ingredient Orégano'; end if;
@@ -4648,7 +4648,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Dolce Amore', 'Precio placeholder — menú Liaco.', 30000, 'COP', true, v_cat_id,
-      'STRB-DOLCEAMORE', 'Liaco', 0, 0, true, 19,
+      'STRB-DOLCEAMORE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4662,11 +4662,19 @@ begin
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'lim-limonada-vino-tinto-y-manzana' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
-    values (tid, 'Limonada vino tinto y manzana', 'lim-limonada-vino-tinto-y-manzana', 'menu', 'limonadas', 1, 'porcion', 'Limonadas de vino / tinto de verano.')
+    values (tid, 'Limonada vino tinto y manzana', 'lim-limonada-vino-tinto-y-manzana', 'menu', 'limonadas', 1, 'porcion', 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.')
     returning id into v_recipe_id;
   else
     update public.recipes set name = 'Limonada vino tinto y manzana', kind = 'menu', category_key = 'limonadas',
-      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'Limonadas de vino / tinto de verano.',
+      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.',
       is_active = true, updated_at = now() where id = v_recipe_id;
     delete from public.recipe_lines where recipe_id = v_recipe_id;
   end if;
@@ -4723,7 +4731,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Limonada vino tinto y manzana', 'Precio placeholder — menú Liaco.', 18000, 'COP', true, v_cat_id,
-      'LIM-LIMONADAVINOTI', 'Liaco', 0, 0, true, 19,
+      'LIM-LIMONADAVINOTI', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4737,11 +4745,19 @@ begin
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'lim-limonada-vino-rosado-y-sandia' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
-    values (tid, 'Limonada vino rosado y sandía', 'lim-limonada-vino-rosado-y-sandia', 'menu', 'limonadas', 1, 'porcion', 'Limonadas de vino / tinto de verano.')
+    values (tid, 'Limonada vino rosado y sandía', 'lim-limonada-vino-rosado-y-sandia', 'menu', 'limonadas', 1, 'porcion', 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.')
     returning id into v_recipe_id;
   else
     update public.recipes set name = 'Limonada vino rosado y sandía', kind = 'menu', category_key = 'limonadas',
-      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'Limonadas de vino / tinto de verano.',
+      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.',
       is_active = true, updated_at = now() where id = v_recipe_id;
     delete from public.recipe_lines where recipe_id = v_recipe_id;
   end if;
@@ -4788,7 +4804,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Limonada vino rosado y sandía', 'Precio placeholder — menú Liaco.', 18000, 'COP', true, v_cat_id,
-      'LIM-LIMONADAVINORO', 'Liaco', 0, 0, true, 19,
+      'LIM-LIMONADAVINORO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4802,11 +4818,19 @@ begin
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'lim-limonada-vino-blanco-y-lychee' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
-    values (tid, 'Limonada vino blanco y lychee', 'lim-limonada-vino-blanco-y-lychee', 'menu', 'limonadas', 1, 'porcion', 'Limonadas de vino / tinto de verano.')
+    values (tid, 'Limonada vino blanco y lychee', 'lim-limonada-vino-blanco-y-lychee', 'menu', 'limonadas', 1, 'porcion', 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.')
     returning id into v_recipe_id;
   else
     update public.recipes set name = 'Limonada vino blanco y lychee', kind = 'menu', category_key = 'limonadas',
-      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'Limonadas de vino / tinto de verano.',
+      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.',
       is_active = true, updated_at = now() where id = v_recipe_id;
     delete from public.recipe_lines where recipe_id = v_recipe_id;
   end if;
@@ -4853,7 +4877,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Limonada vino blanco y lychee', 'Precio placeholder — menú Liaco.', 18000, 'COP', true, v_cat_id,
-      'LIM-LIMONADAVINOBL', 'Liaco', 0, 0, true, 19,
+      'LIM-LIMONADAVINOBL', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4867,11 +4891,19 @@ begin
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'lim-copa-tinto-de-verano' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
-    values (tid, 'Copa tinto de verano', 'lim-copa-tinto-de-verano', 'menu', 'limonadas', 1, 'porcion', 'Limonadas de vino / tinto de verano.')
+    values (tid, 'Copa tinto de verano', 'lim-copa-tinto-de-verano', 'menu', 'limonadas', 1, 'porcion', 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.')
     returning id into v_recipe_id;
   else
     update public.recipes set name = 'Copa tinto de verano', kind = 'menu', category_key = 'limonadas',
-      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'Limonadas de vino / tinto de verano.',
+      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.',
       is_active = true, updated_at = now() where id = v_recipe_id;
     delete from public.recipe_lines where recipe_id = v_recipe_id;
   end if;
@@ -4923,7 +4955,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Copa tinto de verano', 'Precio placeholder — menú Liaco.', 18000, 'COP', true, v_cat_id,
-      'LIM-COPATINTODEVER', 'Liaco', 0, 0, true, 19,
+      'LIM-COPATINTODEVER', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -4937,11 +4969,19 @@ begin
   select id into v_recipe_id from public.recipes where tenant_id = tid and slug = 'lim-jarra-tinto-de-verano-4-copas' limit 1;
   if v_recipe_id is null then
     insert into public.recipes (tenant_id, name, slug, kind, category_key, yield_qty, yield_unit, procedure_text)
-    values (tid, 'Jarra tinto de verano (4 copas)', 'lim-jarra-tinto-de-verano-4-copas', 'menu', 'limonadas', 1, 'porcion', 'Limonadas de vino / tinto de verano.')
+    values (tid, 'Jarra tinto de verano (4 copas)', 'lim-jarra-tinto-de-verano-4-copas', 'menu', 'limonadas', 1, 'porcion', 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.')
     returning id into v_recipe_id;
   else
     update public.recipes set name = 'Jarra tinto de verano (4 copas)', kind = 'menu', category_key = 'limonadas',
-      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'Limonadas de vino / tinto de verano.',
+      yield_qty = 1, yield_unit = 'porcion', procedure_text = 'En vaso (o jarra) alto, cargar hielo hasta más de la mitad.
+Verter el vino indicado y el Sweet and Sour.
+Agregar jugo o fruta según la ficha (naranja, sandía, lychee…).
+Completar con Canada Dry y revolver suave.
+Decorar y servir de inmediato.',
       is_active = true, updated_at = now() where id = v_recipe_id;
     delete from public.recipe_lines where recipe_id = v_recipe_id;
   end if;
@@ -4993,7 +5033,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Jarra tinto de verano (4 copas)', 'Precio placeholder — menú Liaco.', 55000, 'COP', true, v_cat_id,
-      'LIM-JARRATINTODEVE', 'Liaco', 0, 0, true, 19,
+      'LIM-JARRATINTODEVE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5043,7 +5083,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Brownie con helado y arequipe', 'Precio placeholder — menú Liaco.', 14000, 'COP', true, v_cat_id,
-      'POST-BROWNIECONHELA', 'Liaco', 0, 0, true, 19,
+      'POST-BROWNIECONHELA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5088,7 +5128,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Brownie', 'Precio placeholder — menú Liaco.', 14000, 'COP', true, v_cat_id,
-      'POST-BROWNIE', 'Liaco', 0, 0, true, 19,
+      'POST-BROWNIE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5128,7 +5168,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Helado Popsy Gourmet 60 g', 'Precio placeholder — menú Liaco.', 14000, 'COP', true, v_cat_id,
-      'POST-HELADOPOPSYGOU', 'Liaco', 0, 0, true, 19,
+      'POST-HELADOPOPSYGOU', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5168,7 +5208,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Queso para borde', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-QUESOPARABORDE', 'Liaco', 0, 0, true, 19,
+      'ADIC-QUESOPARABORDE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5208,7 +5248,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Pollo horneado', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-POLLOHORNEADO', 'Liaco', 0, 0, true, 19,
+      'ADIC-POLLOHORNEADO', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5248,7 +5288,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Tocineta salteada (extra)', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-TOCINETASALTEA', 'Liaco', 0, 0, true, 19,
+      'ADIC-TOCINETASALTEA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5288,7 +5328,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Piña caramelizada (extra)', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-PINACARAMELIZA', 'Liaco', 0, 0, true, 19,
+      'ADIC-PINACARAMELIZA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5343,7 +5383,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Mix de vegetales', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-MIXDEVEGETALES', 'Liaco', 0, 0, true, 19,
+      'ADIC-MIXDEVEGETALES', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5383,7 +5423,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Chorizo argentino (extra)', 'Precio placeholder — menú Liaco.', 7000, 'COP', true, v_cat_id,
-      'ADIC-CHORIZOARGENTI', 'Liaco', 0, 0, true, 19,
+      'ADIC-CHORIZOARGENTI', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5418,7 +5458,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Coca-Cola Original PET 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-COCACOLAORIGIN', 'Liaco', 0, 0, true, 19,
+      'BEB-COCACOLAORIGIN', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5453,7 +5493,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Coca-Cola Zero PET 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-COCACOLAZEROPE', 'Liaco', 0, 0, true, 19,
+      'BEB-COCACOLAZEROPE', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5488,7 +5528,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Kola Román PET 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-KOLAROMANPET40', 'Liaco', 0, 0, true, 19,
+      'BEB-KOLAROMANPET40', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5523,7 +5563,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Postobón PET 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-POSTOBONPET400', 'Liaco', 0, 0, true, 19,
+      'BEB-POSTOBONPET400', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5558,7 +5598,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Jugo Hit 500 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-JUGOHIT500ML', 'Liaco', 0, 0, true, 19,
+      'BEB-JUGOHIT500ML', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5593,7 +5633,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Té Hatsu 250 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-TEHATSU250ML', 'Liaco', 0, 0, true, 19,
+      'BEB-TEHATSU250ML', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5628,7 +5668,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Agua saborizada 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-AGUASABORIZADA', 'Liaco', 0, 0, true, 19,
+      'BEB-AGUASABORIZADA', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5663,7 +5703,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Canada Dry 400 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-CANADADRY400ML', 'Liaco', 0, 0, true, 19,
+      'BEB-CANADADRY400ML', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5698,7 +5738,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Bretaña 300 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-BRETANA300ML', 'Liaco', 0, 0, true, 19,
+      'BEB-BRETANA300ML', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else
@@ -5733,7 +5773,7 @@ begin
       stock_warehouse, stock_local, recipe_id, size_options
     ) values (
       tid, 'Agua 600 ml', 'Bebida embotellada. Precio placeholder.', 4500, 'COP', true, v_cat_id,
-      'BEB-AGUA600ML', 'Liaco', 0, 0, true, 19,
+      'BEB-AGUA600ML', 'Liaco', 0, 0, false, null,
       0, 0, v_recipe_id, '[]'::jsonb
     ) returning id into v_product_id;
   else

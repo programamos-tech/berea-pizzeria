@@ -4,19 +4,24 @@ import {
   adminFilterInputClass,
   adminFilterLabelClass,
 } from "@/lib/admin-ui";
+import { ingredientCategoryLabel } from "@/lib/ingredient-categories";
 
 type Props = {
   defaultQ: string;
   defaultStatus: string;
   defaultUnit: string;
+  defaultCategory: string;
   units: string[];
+  categories: string[];
 };
 
 export function IngredientFiltersBar({
   defaultQ,
   defaultStatus,
   defaultUnit,
+  defaultCategory,
   units,
+  categories,
 }: Props) {
   return (
     <form
@@ -24,7 +29,7 @@ export function IngredientFiltersBar({
       action="/admin/ingredients"
       className="grid gap-2 sm:grid-cols-2 lg:grid-cols-12 lg:items-end lg:gap-3"
     >
-      <div className="min-w-0 sm:col-span-2 lg:col-span-5">
+      <div className="min-w-0 sm:col-span-2 lg:col-span-4">
         <label htmlFor="ing-q" className={adminFilterLabelClass}>
           Nombre
         </label>
@@ -40,6 +45,25 @@ export function IngredientFiltersBar({
         />
       </div>
       <div className="min-w-0 lg:col-span-3">
+        <label htmlFor="ing-category" className={adminFilterLabelClass}>
+          Categoría
+        </label>
+        <select
+          id="ing-category"
+          name="category"
+          defaultValue={defaultCategory}
+          onChange={(e) => e.currentTarget.form?.requestSubmit()}
+          className={adminFilterInputClass}
+        >
+          <option value="">Todas</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {ingredientCategoryLabel(c)}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="min-w-0 lg:col-span-2">
         <label htmlFor="ing-status" className={adminFilterLabelClass}>
           Estado
         </label>
@@ -55,7 +79,7 @@ export function IngredientFiltersBar({
           <option value="inactive">Inactivos</option>
         </select>
       </div>
-      <div className="min-w-0 lg:col-span-4">
+      <div className="min-w-0 lg:col-span-3">
         <label htmlFor="ing-unit" className={adminFilterLabelClass}>
           Unidad
         </label>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AdminProductDetailToolbar } from "@/components/admin/AdminProductDetailToolbar";
+import { ProductRecipeBomSection } from "@/components/admin/ProductRecipeBomSection";
+import { fetchAdminRecipeDetail } from "@/lib/admin-menu-catalog";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCop, formatQuantityInputGrouping } from "@/lib/money";
 import {
@@ -19,6 +21,10 @@ import {
 } from "@/lib/storage-public-url";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
+import {
+  recipeCategoryLabel,
+  recipeKindLabel,
+} from "@/lib/recipe-form";
 
 export const dynamic = "force-dynamic";
 
@@ -71,6 +77,7 @@ export default async function AdminProductDetailPage({ params }: Props) {
     stock_quantity: number;
     image_path: string | null;
     category_id?: string | null;
+    recipe_id?: string | null;
     size_options?: unknown;
     size_value?: number | null;
     size_unit?: string | null;
@@ -81,6 +88,44 @@ export default async function AdminProductDetailPage({ params }: Props) {
     vat_percent?: number | null;
     is_published?: boolean | null;
   };
+
+  const recipeId =
+    raw.recipe_id && String(raw.recipe_id).trim()
+      ? String(raw.recipe_id)
+      : null;
+  const [recipeDetail, { data: variantRows }] = await Promise.all([
+    recipeId ? fetchAdminRecipeDetail(supabase, recipeId) : null,
+    supabase
+      .from("product_recipe_variants")
+      .select("id,variant_key,label,recipe_id,sort_order")
+      .eq("product_id", id)
+      .order("sort_order", { ascending: true }),
+  ]);
+
+  const variantRecipeIds = [
+    ...new Set(
+      (variantRows ?? [])
+        .map((v) => String(v.recipe_id ?? ""))
+        .filter(Boolean),
+    ),
+  ];
+  const variantNameById = new Map<string, string>();
+  if (variantRecipeIds.length) {
+    const { data: variantRecipes } = await supabase
+      .from("recipes")
+      .select("id,name")
+      .in("id", variantRecipeIds);
+    for (const r of variantRecipes ?? []) {
+      variantNameById.set(String(r.id), String(r.name ?? ""));
+    }
+  }
+  const variants = (variantRows ?? []).map((v) => ({
+    id: String(v.id),
+    variant_key: String(v.variant_key),
+    label: String(v.label),
+    recipe_id: String(v.recipe_id),
+    recipe_name: variantNameById.get(String(v.recipe_id)) ?? null,
+  }));
 
   let categoryName = "Sin categoría";
   if (raw.category_id) {
@@ -253,6 +298,23 @@ export default async function AdminProductDetailPage({ params }: Props) {
               </tbody>
             </table>
           </div>
+
+          <ProductRecipeBomSection
+            recipe={
+              recipeDetail
+                ? {
+                    id: String(recipeDetail.recipe.id),
+                    name: String(recipeDetail.recipe.name),
+                    kind: String(recipeDetail.recipe.kind),
+                    category_key: String(recipeDetail.recipe.category_key),
+                  }
+                : null
+            }
+            lines={(recipeDetail?.lines ?? []) as never[]}
+            variants={variants}
+            kindLabel={recipeKindLabel}
+            categoryLabel={recipeCategoryLabel}
+          />
         </section>
 
         <aside className="shrink-0 space-y-5 border-t border-zinc-200/70 pt-4 dark:border-zinc-800 lg:sticky lg:top-3 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0 dark:lg:border-zinc-800">
