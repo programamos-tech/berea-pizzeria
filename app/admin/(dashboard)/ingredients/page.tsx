@@ -29,34 +29,39 @@ export default async function AdminIngredientsPage() {
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-2 gap-y-3">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Insumos</h1>
+          <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Lo que compras · {ingredients.length} insumos. Usá{" "}
+            Insumos · lo que compras · {ingredients.length}. Usá{" "}
             <span className="font-medium text-zinc-700 dark:text-zinc-200">
               Entrada
             </span>{" "}
-            para registrar una compra y sumar stock.
+            para sumar stock.
           </p>
         </div>
-        <Link
-          href="/admin/ingredients"
-          className={adminToolbarIconBtnClass}
-          title="Recargar listado"
-          aria-label="Actualizar"
-        >
-          <RefreshCw className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
-        </Link>
+        <InventorySubnav
+          active="ingredients"
+          showProducts={canSeeProducts}
+          showKits={canSeeKits}
+          showIngredients
+          showRecipes
+          trailing={
+            <Link
+              href="/admin/ingredients"
+              className={adminToolbarIconBtnClass}
+              title="Recargar listado"
+              aria-label="Actualizar"
+            >
+              <RefreshCw
+                className="size-4 shrink-0"
+                strokeWidth={2.25}
+                aria-hidden
+              />
+            </Link>
+          }
+        />
       </header>
-
-      <InventorySubnav
-        active="ingredients"
-        showProducts={canSeeProducts}
-        showKits={canSeeKits}
-        showIngredients
-        showRecipes
-      />
 
       {ingredients.length === 0 ? (
         <p className="rounded-lg border border-zinc-200/80 bg-white px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">

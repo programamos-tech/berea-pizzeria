@@ -63,44 +63,45 @@ export default async function AdminKitsPage({
         </p>
       ) : null}
 
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-2 gap-y-3">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Kits</h1>
+          <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Combos del menú para tienda y mostrador
+            Kits · combos del menú para tienda y mostrador
           </p>
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <Link
-            href="/admin/kits"
-            className={adminToolbarIconBtnClass}
-            title="Recargar listado"
-            aria-label="Actualizar"
-          >
-            <RefreshCw
-              className="size-4 shrink-0"
-              strokeWidth={2.25}
-              aria-hidden
-            />
-          </Link>
-          {canEdit ? (
-            <Link
-              href="/admin/kits/nuevo"
-              className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
-            >
-              + Nuevo kit
-            </Link>
-          ) : null}
-        </div>
+        <InventorySubnav
+          active="kits"
+          showProducts={canSeeProducts}
+          showKits
+          showIngredients={canSeeProducts}
+          showRecipes={canSeeProducts}
+          trailing={
+            <>
+              <Link
+                href="/admin/kits"
+                className={adminToolbarIconBtnClass}
+                title="Recargar listado"
+                aria-label="Actualizar"
+              >
+                <RefreshCw
+                  className="size-4 shrink-0"
+                  strokeWidth={2.25}
+                  aria-hidden
+                />
+              </Link>
+              {canEdit ? (
+                <Link
+                  href="/admin/kits/nuevo"
+                  className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
+                >
+                  + Nuevo kit
+                </Link>
+              ) : null}
+            </>
+          }
+        />
       </header>
-
-      <InventorySubnav
-        active="kits"
-        showProducts={canSeeProducts}
-        showKits
-        showIngredients={canSeeProducts}
-        showRecipes={canSeeProducts}
-      />
 
       <section className="min-h-0 border-t border-zinc-200/70 pt-4 dark:border-zinc-800">
         {rows.length === 0 ? (

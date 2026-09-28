@@ -42,28 +42,30 @@ export default async function AdminRecipeDetailPage({
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
-      <header className="min-w-0">
-        <p className="mb-1 text-xs text-zinc-500">
-          <Link href="/admin/recipes" className="hover:underline">
-            Recetas
-          </Link>
-          <span className="mx-1.5">/</span>
-          <span>{recipe.name}</span>
-        </p>
-        <h1 className={adminPageTitleClass}>{recipe.name}</h1>
-        <p className={adminPageSubtitleClass}>
-          {recipe.kind === "prep" ? "Preparación" : "Menú"} ·{" "}
-          {recipe.category_key} · rinde {recipe.yield_qty} {recipe.yield_unit}
-        </p>
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-2 gap-y-3">
+        <div className="min-w-0">
+          <p className="mb-1 text-xs text-zinc-500">
+            <Link href="/admin/recipes" className="hover:underline">
+              Inventario · Recetas
+            </Link>
+            <span className="mx-1.5">/</span>
+            <span>{recipe.name}</span>
+          </p>
+          <h1 className={adminPageTitleClass}>{recipe.name}</h1>
+          <p className={adminPageSubtitleClass}>
+            {recipe.kind === "prep" ? "Preparación" : "Menú"} ·{" "}
+            {recipe.category_key} · rinde {recipe.yield_qty}{" "}
+            {recipe.yield_unit}
+          </p>
+        </div>
+        <InventorySubnav
+          active="recipes"
+          showProducts={canSeeProducts}
+          showKits={canSeeKits}
+          showIngredients
+          showRecipes
+        />
       </header>
-
-      <InventorySubnav
-        active="recipes"
-        showProducts={canSeeProducts}
-        showKits={canSeeKits}
-        showIngredients
-        showRecipes
-      />
 
       {recipe.procedure_text ? (
         <section className="rounded-xl border border-zinc-200/80 bg-white px-4 py-3 text-sm text-zinc-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">

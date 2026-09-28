@@ -295,54 +295,55 @@ export default async function AdminProductsPage({
   return (
     <>
       <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
-        <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
+        <header className="flex shrink-0 flex-wrap items-start justify-between gap-2 gap-y-3">
           <div className="min-w-0">
-            <h1 className={adminPageTitleClass}>Menú</h1>
+            <h1 className={adminPageTitleClass}>Inventario</h1>
             <p className={adminPageSubtitleClass}>
-              Ítems vendibles · stock de{" "}
+              Menú · lo que vendes · stock de{" "}
               {authPerm?.branchContext?.active.name ?? "la sucursal"}
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {canManageCategories ? (
-              <Link
-                href={categoriesOpenHref}
-                scroll={false}
-                className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnIdleClass}`}
-              >
-                Categorías
-              </Link>
-            ) : null}
-            <Link
-              href="/admin/products"
-              className={adminToolbarIconBtnClass}
-              title="Quitar filtros y recargar"
-              aria-label="Actualizar"
-            >
-              <RefreshCw
-                className="size-4 shrink-0"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-            </Link>
-            {canCreateProduct ? (
-              <Link
-                href="/admin/products/new"
-                className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
-              >
-                + Nuevo ítem del menú
-              </Link>
-            ) : null}
-          </div>
+          <InventorySubnav
+            active="products"
+            showProducts
+            showKits={canSeeKits}
+            showIngredients={canSeeMenuCatalog}
+            showRecipes={canSeeMenuCatalog}
+            trailing={
+              <>
+                {canManageCategories ? (
+                  <Link
+                    href={categoriesOpenHref}
+                    scroll={false}
+                    className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnIdleClass}`}
+                  >
+                    Categorías
+                  </Link>
+                ) : null}
+                <Link
+                  href="/admin/products"
+                  className={adminToolbarIconBtnClass}
+                  title="Quitar filtros y recargar"
+                  aria-label="Actualizar"
+                >
+                  <RefreshCw
+                    className="size-4 shrink-0"
+                    strokeWidth={2.25}
+                    aria-hidden
+                  />
+                </Link>
+                {canCreateProduct ? (
+                  <Link
+                    href="/admin/products/new"
+                    className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
+                  >
+                    + Nuevo ítem del menú
+                  </Link>
+                ) : null}
+              </>
+            }
+          />
         </header>
-
-        <InventorySubnav
-          active="products"
-          showProducts
-          showKits={canSeeKits}
-          showIngredients={canSeeMenuCatalog}
-          showRecipes={canSeeMenuCatalog}
-        />
 
         <div className="flex min-h-0 flex-col gap-4">
           {queryError ? (

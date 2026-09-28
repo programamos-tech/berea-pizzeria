@@ -33,30 +33,35 @@ export default async function AdminRecipesPage() {
 
   return (
     <div className="flex w-full min-w-0 max-w-none flex-col gap-4">
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
+      <header className="flex shrink-0 flex-wrap items-start justify-between gap-2 gap-y-3">
         <div className="min-w-0">
-          <h1 className={adminPageTitleClass}>Recetas</h1>
+          <h1 className={adminPageTitleClass}>Inventario</h1>
           <p className={adminPageSubtitleClass}>
-            Cómo se arma · {recipes.length} ({prep} prep · {menu} menú)
+            Recetas · cómo se arma · {recipes.length} ({prep} prep · {menu} menú)
           </p>
         </div>
-        <Link
-          href="/admin/recipes"
-          className={adminToolbarIconBtnClass}
-          title="Recargar listado"
-          aria-label="Actualizar"
-        >
-          <RefreshCw className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
-        </Link>
+        <InventorySubnav
+          active="recipes"
+          showProducts={canSeeProducts}
+          showKits={canSeeKits}
+          showIngredients
+          showRecipes
+          trailing={
+            <Link
+              href="/admin/recipes"
+              className={adminToolbarIconBtnClass}
+              title="Recargar listado"
+              aria-label="Actualizar"
+            >
+              <RefreshCw
+                className="size-4 shrink-0"
+                strokeWidth={2.25}
+                aria-hidden
+              />
+            </Link>
+          }
+        />
       </header>
-
-      <InventorySubnav
-        active="recipes"
-        showProducts={canSeeProducts}
-        showKits={canSeeKits}
-        showIngredients
-        showRecipes
-      />
 
       {recipes.length === 0 ? (
         <p className="rounded-lg border border-zinc-200/80 bg-white px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
