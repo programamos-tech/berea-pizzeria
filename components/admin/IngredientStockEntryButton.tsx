@@ -1,18 +1,25 @@
 "use client";
 
+import { Package } from "lucide-react";
 import { useState, useTransition } from "react";
 import { addIngredientStockEntry } from "@/app/actions/admin/ingredients";
+
+const actionBtnClass =
+  "inline-flex size-8 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100";
 
 export function IngredientStockEntryButton({
   ingredientId,
   ingredientName,
   unit,
   stockQty,
+  variant = "label",
 }: {
   ingredientId: string;
   ingredientName: string;
   unit: string;
   stockQty: number;
+  /** `icon` = Menú-style action; `label` = text Entrada button. */
+  variant?: "label" | "icon";
 }) {
   const [open, setOpen] = useState(false);
   const [qty, setQty] = useState("");
@@ -45,12 +52,18 @@ export function IngredientStockEntryButton({
     });
   }
 
-  return (
-    <div className="flex items-center justify-end gap-2">
-      <span className="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">
-        {Number(stock).toLocaleString("es-CO", { maximumFractionDigits: 2 })}{" "}
-        {unit}
-      </span>
+  const trigger =
+    variant === "icon" ? (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={actionBtnClass}
+        title="Entrada de stock"
+        aria-label="Entrada"
+      >
+        <Package className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+      </button>
+    ) : (
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -58,6 +71,21 @@ export function IngredientStockEntryButton({
       >
         Entrada
       </button>
+    );
+
+  return (
+    <>
+      {variant === "label" ? (
+        <div className="flex items-center justify-end gap-2">
+          <span className="font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-300">
+            {Number(stock).toLocaleString("es-CO", { maximumFractionDigits: 2 })}{" "}
+            {unit}
+          </span>
+          {trigger}
+        </div>
+      ) : (
+        trigger
+      )}
 
       {open ? (
         <div
@@ -149,6 +177,6 @@ export function IngredientStockEntryButton({
           </form>
         </div>
       ) : null}
-    </div>
+    </>
   );
 }

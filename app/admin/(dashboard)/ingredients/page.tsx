@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
-import { IngredientStockEntryButton } from "@/components/admin/IngredientStockEntryButton";
+import { IngredientTableActions } from "@/components/admin/IngredientTableActions";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
 import { fetchAdminIngredients } from "@/lib/admin-menu-catalog";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
+import { formatCop } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   adminPageSubtitleClass,
   adminPageTitleClass,
+  adminToolbarBtnActiveClass,
+  adminToolbarBtnBaseClass,
   adminToolbarIconBtnClass,
 } from "@/lib/admin-ui";
 
@@ -15,9 +18,15 @@ export const dynamic = "force-dynamic";
 
 const thClass =
   "pb-3 pr-5 text-left text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500";
-const tdClass = "py-3 pr-5 align-middle text-sm text-zinc-800 dark:text-zinc-100";
+const tdClass = "py-3.5 pr-5 align-middle text-sm text-zinc-800 dark:text-zinc-100";
 
-export default async function AdminIngredientsPage() {
+export default async function AdminIngredientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const deleted = sp.deleted === "1" || sp.deleted === "true";
   const [perm, supabase] = await Promise.all([
     loadAdminPermissions(),
     createSupabaseServerClient(),
@@ -25,6 +34,8 @@ export default async function AdminIngredientsPage() {
   const canSeeProducts = Boolean(perm?.permissions.inventario_ver);
   const canSeeKits = Boolean(perm?.permissions.kits_ver);
   const canStock = Boolean(perm?.permissions.stock_actualizar);
+  const canCreate = Boolean(perm?.permissions.productos_crear);
+  const canEdit = Boolean(perm?.permissions.productos_editar);
   const ingredients = await fetchAdminIngredients(supabase);
 
   return (
@@ -44,81 +55,177 @@ export default async function AdminIngredientsPage() {
           showIngredients
           showRecipes
           trailing={
-            <Link
-              href="/admin/ingredients"
-              className={adminToolbarIconBtnClass}
-              title="Recargar listado"
-              aria-label="Actualizar"
-            >
-              <RefreshCw
-                className="size-4 shrink-0"
-                strokeWidth={2.25}
-                aria-hidden
-              />
-            </Link>
+            <>
+              <Link
+                href="/admin/ingredients"
+                className={adminToolbarIconBtnClass}
+                title="Recargar listado"
+                aria-label="Actualizar"
+              >
+                <RefreshCw
+                  className="size-4 shrink-0"
+                  strokeWidth={2.25}
+                  aria-hidden
+                />
+              </Link>
+              {canCreate ? (
+                <Link
+                  href="/admin/ingredients/new"
+                  className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
+                >
+                  + Nuevo insumo
+                </Link>
+              ) : null}
+            </>
           }
         />
       </header>
 
-      {ingredients.length === 0 ? (
-        <p className="rounded-lg border border-zinc-200/80 bg-white px-4 py-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
-          No hay insumos. Ejecuta el seed del menú Liaco.
+      {deleted ? (
+        <p className="text-sm text-emerald-700 dark:text-emerald-400">
+          Insumo eliminado.
         </p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                <th className={thClass}>Nombre</th>
-                <th className={thClass}>Unidad</th>
-                <th className={thClass}>Stock</th>
-                <th className={thClass}>Estado</th>
-                <th className={`${thClass} text-right`}>Compra</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ingredients.map((ing) => (
-                <tr
-                  key={ing.id}
-                  className="border-b border-zinc-50 last:border-0 dark:border-zinc-900"
-                >
-                  <td className={`${tdClass} font-medium`}>{ing.name}</td>
-                  <td className={tdClass}>
-                    <span className="font-mono text-xs text-zinc-600 dark:text-zinc-300">
-                      {ing.unit}
-                    </span>
-                  </td>
-                  <td className={`${tdClass} font-mono text-xs tabular-nums`}>
-                    {Number(ing.stock_qty).toLocaleString("es-CO", {
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                  <td className={tdClass}>
-                    {ing.is_active ? (
-                      <span className="text-emerald-700 dark:text-emerald-400">
-                        Activo
-                      </span>
-                    ) : (
-                      <span className="text-zinc-400">Inactivo</span>
-                    )}
-                  </td>
-                  <td className={`${tdClass} text-right`}>
-                    {canStock ? (
-                      <IngredientStockEntryButton
-                        ingredientId={ing.id}
-                        ingredientName={ing.name}
-                        unit={ing.unit}
-                        stockQty={ing.stock_qty}
-                      />
-                    ) : (
-                      <span className="text-xs text-zinc-400">Sin permiso</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      ) : null}
+
+      {ingredients.length === 0 ? (
+        <div className="py-8 text-center">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Aún no hay insumos.
+          </p>
+          {canCreate ? (
+            <Link
+              href="/admin/ingredients/new"
+              className="mt-3 inline-block text-sm font-medium text-zinc-800 underline-offset-2 hover:underline dark:text-zinc-200"
+            >
+              Crear el primero
+            </Link>
+          ) : null}
         </div>
+      ) : (
+        <>
+          {/* Móvil */}
+          <ul
+            role="list"
+            className="divide-y divide-zinc-100 lg:hidden dark:divide-zinc-800"
+          >
+            {ingredients.map((ing) => (
+              <li key={ing.id} className="min-w-0 py-4">
+                <div className="flex items-start justify-between gap-4">
+                  <Link
+                    href={`/admin/ingredients/${ing.id}`}
+                    className="min-w-0 flex-1 no-underline"
+                  >
+                    <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                      {ing.name}
+                    </p>
+                    <p className="mt-1 font-mono text-xs text-zinc-500">
+                      {ing.unit} · stock{" "}
+                      {Number(ing.stock_qty).toLocaleString("es-CO", {
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {ing.is_active ? "Activo" : "Inactivo"}
+                      {ing.unit_cost_cents != null
+                        ? ` · ${formatCop(ing.unit_cost_cents)} / ${ing.unit}`
+                        : ""}
+                    </p>
+                  </Link>
+                  <IngredientTableActions
+                    ingredientId={ing.id}
+                    ingredientName={ing.name}
+                    unit={ing.unit}
+                    stockQty={ing.stock_qty}
+                    canEdit={canEdit}
+                    canStock={canStock}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop — estilo Menú */}
+          <div className="hidden min-w-0 overflow-x-auto lg:block">
+            <table className="w-full min-w-[880px] table-fixed text-left text-sm">
+              <colgroup>
+                <col />
+                <col className="w-[6rem]" />
+                <col className="w-[7rem]" />
+                <col className="w-[8rem]" />
+                <col className="w-[6.5rem]" />
+                <col className="w-[9rem]" />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
+                  <th className={thClass}>Nombre</th>
+                  <th className={thClass}>Unidad</th>
+                  <th className={`${thClass} text-right`}>Stock</th>
+                  <th className={`${thClass} text-right`}>Costo unit.</th>
+                  <th className={thClass}>Estado</th>
+                  <th className={`${thClass} pr-2 text-right`}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ingredients.map((ing) => (
+                  <tr
+                    key={ing.id}
+                    className="border-b border-zinc-100/80 last:border-0 transition hover:bg-zinc-50/50 dark:border-zinc-800/80 dark:hover:bg-zinc-900/40"
+                  >
+                    <td className={`${tdClass} min-w-0 overflow-hidden`}>
+                      <Link
+                        href={`/admin/ingredients/${ing.id}`}
+                        className="block truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                        title={ing.name}
+                      >
+                        {ing.name}
+                      </Link>
+                    </td>
+                    <td className={`${tdClass} font-mono text-xs text-zinc-600 dark:text-zinc-300`}>
+                      {ing.unit}
+                    </td>
+                    <td
+                      className={`${tdClass} text-right font-mono text-xs tabular-nums font-semibold text-zinc-900 dark:text-zinc-50`}
+                    >
+                      {Number(ing.stock_qty).toLocaleString("es-CO", {
+                        maximumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td
+                      className={`${tdClass} text-right text-xs tabular-nums text-zinc-600 dark:text-zinc-300`}
+                    >
+                      {ing.unit_cost_cents != null
+                        ? formatCop(ing.unit_cost_cents)
+                        : "—"}
+                    </td>
+                    <td className={tdClass}>
+                      {ing.is_active ? (
+                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 ring-1 ring-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800/60">
+                          Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 ring-1 ring-zinc-200/90 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
+                          Inactivo
+                        </span>
+                      )}
+                    </td>
+                    <td className={`${tdClass} pr-2 text-right`}>
+                      <div className="flex justify-end">
+                        <IngredientTableActions
+                          ingredientId={ing.id}
+                          ingredientName={ing.name}
+                          unit={ing.unit}
+                          stockQty={ing.stock_qty}
+                          canEdit={canEdit}
+                          canStock={canStock}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

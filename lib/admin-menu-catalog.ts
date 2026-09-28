@@ -8,6 +8,7 @@ export type AdminIngredientRow = {
   notes: string;
   is_active: boolean;
   stock_qty: number;
+  unit_cost_cents: number | null;
 };
 
 export type AdminRecipeRow = {
@@ -23,29 +24,9 @@ export type AdminRecipeRow = {
   lines_count: number;
 };
 
-export async function fetchAdminIngredients(
-  supabase: SupabaseClient,
-): Promise<AdminIngredientRow[]> {
-  const { data, error } = await supabase
-    .from("ingredients")
-    .select("id,name,slug,unit,notes,is_active,stock_qty")
-    .order("name", { ascending: true });
-  if (error) {
-    // Compat: columna stock_qty aún no migrada
-    const fallback = await supabase
-      .from("ingredients")
-      .select("id,name,slug,unit,notes,is_active")
-      .order("name", { ascending: true });
-    if (fallback.error) {
-      console.error("fetchAdminIngredients", error.message);
-      return [];
-    }
-    return (fallback.data ?? []).map((row) => ({
-      ...(row as Omit<AdminIngredientRow, "stock_qty">),
-      stock_qty: 0,
-    }));
-  }
-  return (data ?? []).map((row) => ({
+function mapIngredientRow(row: Record<string, unknown>): AdminIngredientRow {
+  const costRaw = row.unit_cost_cents;
+  return {
     id: String(row.id),
     name: String(row.name),
     slug: String(row.slug),
@@ -53,7 +34,67 @@ export async function fetchAdminIngredients(
     notes: String(row.notes ?? ""),
     is_active: Boolean(row.is_active),
     stock_qty: Math.max(0, Number(row.stock_qty ?? 0)),
-  }));
+    unit_cost_cents:
+      costRaw == null || costRaw === ""
+        ? null
+        : Math.max(0, Math.floor(Number(costRaw))),
+  };
+}
+
+export async function fetchAdminIngredients(
+  supabase: SupabaseClient,
+): Promise<AdminIngredientRow[]> {
+  const { data, error } = await supabase
+    .from("ingredients")
+    .select("id,name,slug,unit,notes,is_active,stock_qty,unit_cost_cents")
+    .order("name", { ascending: true });
+  if (error) {
+    const fallback = await supabase
+      .from("ingredients")
+      .select("id,name,slug,unit,notes,is_active,stock_qty")
+      .order("name", { ascending: true });
+    if (fallback.error) {
+      const minimal = await supabase
+        .from("ingredients")
+        .select("id,name,slug,unit,notes,is_active")
+        .order("name", { ascending: true });
+      if (minimal.error) {
+        console.error("fetchAdminIngredients", error.message);
+        return [];
+      }
+      return (minimal.data ?? []).map((row) =>
+        mapIngredientRow({ ...row, stock_qty: 0, unit_cost_cents: null }),
+      );
+    }
+    return (fallback.data ?? []).map((row) =>
+      mapIngredientRow({ ...row, unit_cost_cents: null }),
+    );
+  }
+  return (data ?? []).map((row) => mapIngredientRow(row as Record<string, unknown>));
+}
+
+export async function fetchAdminIngredientById(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<AdminIngredientRow | null> {
+  const { data, error } = await supabase
+    .from("ingredients")
+    .select("id,name,slug,unit,notes,is_active,stock_qty,unit_cost_cents")
+    .eq("id", id)
+    .maybeSingle();
+  if (error || !data) {
+    const fallback = await supabase
+      .from("ingredients")
+      .select("id,name,slug,unit,notes,is_active,stock_qty")
+      .eq("id", id)
+      .maybeSingle();
+    if (fallback.error || !fallback.data) return null;
+    return mapIngredientRow({
+      ...fallback.data,
+      unit_cost_cents: null,
+    });
+  }
+  return mapIngredientRow(data as Record<string, unknown>);
 }
 
 export async function fetchAdminRecipes(
