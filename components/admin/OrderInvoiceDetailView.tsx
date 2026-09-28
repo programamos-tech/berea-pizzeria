@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Armchair, Bike } from "lucide-react";
 import {
   OrderInvoicePrintButton,
   OrderInvoiceStatusSelect,
@@ -407,7 +408,7 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
           ) : null}
         </div>
       ) : null}
-      <header className="flex flex-wrap items-center justify-between gap-2 gap-y-2 print:hidden">
+      <header className="print:hidden">
         <div className="min-w-0">
           <p className="text-[11px] text-zinc-500">
             <Link
@@ -419,9 +420,32 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
             <span className="mx-1.5 text-zinc-400">/</span>
             {docNoun} #{invoiceRef}
           </p>
-          <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
-            {docNoun} #{invoiceRef}
-          </h1>
+          <div className="mt-0.5 flex items-center justify-between gap-3">
+            <h1 className="min-w-0 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
+              {docNoun} #{invoiceRef}
+            </h1>
+            <Link
+              href={ventasListHref}
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+              title="Volver"
+              aria-label={isPedido ? "Volver a pedidos" : "Volver a ventas"}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                className="size-4"
+                aria-hidden
+              >
+                <path
+                  d="m15 18-6-6 6-6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
+          </div>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-zinc-500">
             <span className="inline-flex items-center gap-1.5">
               <IconClock className={metaIconClass} />
@@ -519,36 +543,19 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
             </p>
           ) : null}
           {isPedido ? (
-            <p className="mt-2 text-sm font-medium text-[var(--admin-coral)]">
-              {serviceType === "domicilio"
-                ? "Domicilio"
-                : mesaLabel
-                  ? `Mesa ${mesaLabel}`
-                  : "En el lugar"}
-            </p>
+            serviceType === "domicilio" ? (
+              <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[var(--admin-coral)] px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm">
+                <Bike className="size-4 shrink-0" strokeWidth={2.4} aria-hidden />
+                Domicilio
+              </span>
+            ) : (
+              <span className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-teal-700 px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm dark:bg-teal-600">
+                <Armchair className="size-4 shrink-0" strokeWidth={2.4} aria-hidden />
+                {mesaLabel ? `Mesa ${mesaLabel}` : "En el lugar"}
+              </span>
+            )
           ) : null}
         </div>
-        <Link
-          href={ventasListHref}
-          className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-          title="Volver"
-          aria-label={isPedido ? "Volver a pedidos" : "Volver a ventas"}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            className="size-4"
-            aria-hidden
-          >
-            <path
-              d="m15 18-6-6 6-6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </Link>
       </header>
 
       {isLetterLayout ? (
