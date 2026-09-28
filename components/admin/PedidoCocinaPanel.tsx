@@ -68,14 +68,12 @@ export function PedidoCocinaPanel({
   createdAt,
   initialKitchenStatus,
   serviceType,
-  mesaLabel,
   lineRecipes,
 }: {
   orderId: string;
   createdAt: string;
   initialKitchenStatus: KitchenStatus;
   serviceType: "domicilio" | "en_el_lugar" | null;
-  mesaLabel: string | null;
   lineRecipes: PedidoLineRecipe[];
 }) {
   const [status, setStatus] = useState<KitchenStatus>(initialKitchenStatus);
@@ -103,15 +101,6 @@ export function PedidoCocinaPanel({
     });
   }
 
-  const placeLabel =
-    serviceType === "domicilio"
-      ? "Domicilio"
-      : mesaLabel
-        ? `Mesa ${mesaLabel}`
-        : serviceType === "en_el_lugar"
-          ? "En el lugar"
-          : null;
-
   return (
     <section className="print:hidden rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -125,11 +114,6 @@ export function PedidoCocinaPanel({
           <p className="mt-0.5 text-xs text-zinc-500">
             {kitchenStatusHint(status)}
           </p>
-          {placeLabel ? (
-            <p className="mt-2.5 inline-flex items-center rounded-lg bg-[color-mix(in_srgb,var(--admin-coral)_12%,transparent)] px-3 py-1.5 text-sm font-semibold text-[var(--admin-coral)]">
-              {placeLabel}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">

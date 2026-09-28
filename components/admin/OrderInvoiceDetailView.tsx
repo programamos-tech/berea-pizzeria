@@ -699,7 +699,6 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
               createdAt={createdAt}
               initialKitchenStatus={kitchenStatus}
               serviceType={serviceType}
-              mesaLabel={mesaLabel}
               lineRecipes={lineRecipes}
             />
           </div>
