@@ -49,7 +49,7 @@ function PedidoCronometro({ startedAt }: { startedAt: string }) {
   const start = new Date(startedAt).getTime();
   const elapsed = Number.isFinite(start) ? now - start : 0;
   return (
-    <div className="flex items-baseline gap-2">
+    <div className="flex items-baseline justify-end gap-2">
       <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
         Cronómetro
       </span>
@@ -114,8 +114,8 @@ export function PedidoCocinaPanel({
 
   return (
     <section className="print:hidden rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
             Cocina
           </p>
@@ -125,43 +125,47 @@ export function PedidoCocinaPanel({
           <p className="mt-0.5 text-xs text-zinc-500">
             {kitchenStatusHint(status)}
           </p>
+          {placeLabel ? (
+            <p className="mt-2.5 inline-flex items-center rounded-lg bg-[color-mix(in_srgb,var(--admin-coral)_12%,transparent)] px-3 py-1.5 text-sm font-semibold text-[var(--admin-coral)]">
+              {placeLabel}
+            </p>
+          ) : null}
         </div>
-        <PedidoCronometro startedAt={createdAt} />
-      </div>
 
-      {placeLabel ? (
-        <p className="mt-3 inline-flex items-center rounded-lg bg-[color-mix(in_srgb,var(--admin-coral)_12%,transparent)] px-3 py-1.5 text-sm font-semibold text-[var(--admin-coral)]">
-          {placeLabel}
-        </p>
-      ) : null}
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {KITCHEN_STATUSES.map((s) => {
-          const active = status === s;
-          return (
-            <button
-              key={s}
-              type="button"
-              disabled={pending}
-              onClick={() => setKitchen(s)}
-              className={[
-                "rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm",
-                active
-                  ? "bg-[var(--admin-coral)] text-white shadow-sm"
-                  : "border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800",
-                pending ? "opacity-70" : "",
-              ].join(" ")}
+        <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
+          <PedidoCronometro startedAt={createdAt} />
+          <div className="flex flex-wrap gap-1.5 sm:justify-end">
+            {KITCHEN_STATUSES.map((s) => {
+              const active = status === s;
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  disabled={pending}
+                  onClick={() => setKitchen(s)}
+                  className={[
+                    "rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:text-xs",
+                    active
+                      ? "bg-[var(--admin-coral)] text-white shadow-sm"
+                      : "border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800",
+                    pending ? "opacity-70" : "",
+                  ].join(" ")}
+                >
+                  {kitchenStatusLabel(s, serviceType)}
+                </button>
+              );
+            })}
+          </div>
+          {error ? (
+            <p
+              className="max-w-xs text-right text-sm text-red-600 dark:text-red-400"
+              role="alert"
             >
-              {kitchenStatusLabel(s, serviceType)}
-            </button>
-          );
-        })}
+              {error}
+            </p>
+          ) : null}
+        </div>
       </div>
-      {error ? (
-        <p className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
-          {error}
-        </p>
-      ) : null}
 
       <div className="mt-5 border-t border-zinc-100 pt-4 dark:border-zinc-800">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
