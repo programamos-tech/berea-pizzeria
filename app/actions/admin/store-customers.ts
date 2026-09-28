@@ -25,7 +25,17 @@ export type QuickStoreCustomerRow = {
 
 export type CreateQuickStoreCustomerResult =
   | { ok: true; customer: QuickStoreCustomerRow }
-  | { ok: false; code: "auth" | "forbidden" | "name" | "duplicate_document" | "db" };
+  | {
+      ok: false;
+      code:
+        | "auth"
+        | "forbidden"
+        | "name"
+        | "phone"
+        | "address"
+        | "duplicate_document"
+        | "db";
+    };
 
 async function customerExistsWithDocumentId(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -41,9 +51,11 @@ async function customerExistsWithDocumentId(
   return Boolean(data?.id);
 }
 
-/** Alta mínima desde POS (sin redirect); para modal en nueva factura. */
+/** Alta mínima desde POS (sin redirect); para modal en nueva factura / pedido. */
 export async function createQuickStoreCustomer(input: {
   name: string;
+  phone: string;
+  shipping_address: string;
   document_id?: string;
 }): Promise<CreateQuickStoreCustomerResult> {
   const perm = await loadAdminPermissions();
@@ -52,8 +64,12 @@ export async function createQuickStoreCustomer(input: {
 
   const supabase = await createSupabaseServerClient();
   const name = String(input.name ?? "").trim();
+  const phone = String(input.phone ?? "").trim();
+  const shippingAddress = String(input.shipping_address ?? "").trim();
   const documentId = String(input.document_id ?? "").trim();
   if (!name) return { ok: false, code: "name" };
+  if (phone.length < 7) return { ok: false, code: "phone" };
+  if (shippingAddress.length < 3) return { ok: false, code: "address" };
 
   if (documentId && (await customerExistsWithDocumentId(supabase, documentId))) {
     return { ok: false, code: "duplicate_document" };
@@ -64,9 +80,9 @@ export async function createQuickStoreCustomer(input: {
     .insert({
       name,
       email: null,
-      phone: null,
+      phone,
       document_id: documentId || null,
-      shipping_address: null,
+      shipping_address: shippingAddress,
       shipping_city: null,
       shipping_postal_code: null,
       source: "manual",
@@ -86,9 +102,11 @@ export async function createQuickStoreCustomer(input: {
     actionType: "customer_created",
     entityType: "customer",
     entityId: customerId,
-    summary: `Nuevo cliente: ${name}${documentId ? ` · Doc. ${documentId}` : ""}`,
+    summary: `Nuevo cliente: ${name}${phone ? ` · ${phone}` : ""}${documentId ? ` · Doc. ${documentId}` : ""}`,
     metadata: {
       source: "pos_quick",
+      phone,
+      shipping_address: shippingAddress,
       ...(documentId ? { document_id: documentId } : {}),
     },
   });

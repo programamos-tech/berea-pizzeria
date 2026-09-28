@@ -494,6 +494,8 @@ export function NewInvoiceForm({
   const customerSearchInputRef = useRef<HTMLInputElement>(null);
   const [quickModalOpen, setQuickModalOpen] = useState(false);
   const [quickName, setQuickName] = useState("");
+  const [quickPhone, setQuickPhone] = useState("");
+  const [quickAddress, setQuickAddress] = useState("");
   const [quickDocument, setQuickDocument] = useState("");
   const [quickError, setQuickError] = useState<string | null>(null);
   const [quickPending, setQuickPending] = useState(false);
@@ -628,6 +630,8 @@ export function NewInvoiceForm({
     setQuickModalOpen(false);
     setQuickError(null);
     setQuickName("");
+    setQuickPhone("");
+    setQuickAddress("");
     setQuickDocument("");
   }, []);
 
@@ -844,9 +848,26 @@ export function NewInvoiceForm({
     e.preventDefault();
     if (quickPending) return;
     setQuickError(null);
+    const nameTrim = quickName.trim();
+    const phoneTrim = quickPhone.trim();
+    const addressTrim = quickAddress.trim();
+    if (!nameTrim) {
+      setQuickError("El nombre es obligatorio.");
+      return;
+    }
+    if (phoneTrim.length < 7) {
+      setQuickError("El teléfono / WhatsApp es obligatorio.");
+      return;
+    }
+    if (addressTrim.length < 3) {
+      setQuickError("La dirección es obligatoria.");
+      return;
+    }
     setQuickPending(true);
     const res = await createQuickStoreCustomer({
-      name: quickName,
+      name: nameTrim,
+      phone: phoneTrim,
+      shipping_address: addressTrim,
       document_id: quickDocument,
     });
     setQuickPending(false);
@@ -859,11 +880,16 @@ export function NewInvoiceForm({
         setQuickError("Ya existe un cliente con esa cédula o documento.");
       } else if (res.code === "name") {
         setQuickError("El nombre es obligatorio.");
+      } else if (res.code === "phone") {
+        setQuickError("El teléfono / WhatsApp es obligatorio.");
+      } else if (res.code === "address") {
+        setQuickError("La dirección es obligatoria.");
       } else {
         setQuickError(adminCreateFailedMessage("customer"));
       }
       return;
     }
+    setCustomerMode("other");
     setCustomer({
       id: res.customer.id,
       name: res.customer.name,
@@ -873,6 +899,8 @@ export function NewInvoiceForm({
     });
     setCustomerQuery("");
     setCustomerHits([]);
+    profileAppliedForIdRef.current = null;
+    void loadCustomerProfile(res.customer.id);
     closeQuickCustomerModal();
   }
 
@@ -2634,8 +2662,8 @@ export function NewInvoiceForm({
                       </button>
                     </div>
                     <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                      Nombre y cédula para facturar ya. La factura en curso no se
-                      pierde.
+                      Nombre, dirección y WhatsApp para el pedido. El pedido en
+                      curso no se pierde.
                     </p>
                     <form onSubmit={submitQuickCustomer} className="mt-5 space-y-4">
                       {quickError ? (
@@ -2656,11 +2684,46 @@ export function NewInvoiceForm({
                           className={inputClass}
                           placeholder="Nombre del cliente"
                           autoComplete="name"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="quick-customer-address" className={labelClass}>
+                          Dirección{" "}
+                          <span className="text-red-600 dark:text-red-400">*</span>
+                        </label>
+                        <input
+                          id="quick-customer-address"
+                          value={quickAddress}
+                          onChange={(e) => setQuickAddress(e.target.value)}
+                          className={inputClass}
+                          placeholder="Calle, barrio, referencias"
+                          autoComplete="street-address"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="quick-customer-phone" className={labelClass}>
+                          Teléfono / WhatsApp{" "}
+                          <span className="text-red-600 dark:text-red-400">*</span>
+                        </label>
+                        <input
+                          id="quick-customer-phone"
+                          value={quickPhone}
+                          onChange={(e) => setQuickPhone(e.target.value)}
+                          className={inputClass}
+                          placeholder="Ej. 300 123 4567"
+                          autoComplete="tel"
+                          inputMode="tel"
+                          required
                         />
                       </div>
                       <div>
                         <label htmlFor="quick-customer-doc" className={labelClass}>
-                          Cédula / documento
+                          Cédula / documento{" "}
+                          <span className="font-normal normal-case tracking-normal text-zinc-400">
+                            (opcional)
+                          </span>
                         </label>
                         <input
                           id="quick-customer-doc"
@@ -2681,7 +2744,12 @@ export function NewInvoiceForm({
                         </button>
                         <button
                           type="submit"
-                          disabled={quickPending}
+                          disabled={
+                            quickPending ||
+                            !quickName.trim() ||
+                            quickPhone.trim().length < 7 ||
+                            quickAddress.trim().length < 3
+                          }
                           className="rounded-lg border border-[var(--admin-coral)] bg-[var(--admin-coral)] px-4 py-2.5 text-sm font-medium text-white transition hover:border-[var(--admin-coral-hover)] hover:bg-[var(--admin-coral-hover)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {quickPending ? "Guardando…" : "Crear y usar"}
@@ -2693,7 +2761,7 @@ export function NewInvoiceForm({
                           className="font-medium text-zinc-700 underline decoration-zinc-300 underline-offset-2 hover:text-zinc-900 dark:text-zinc-300 dark:decoration-zinc-600 dark:hover:text-zinc-100"
                           onClick={closeQuickCustomerModal}
                         >
-                          Ficha completa con direcciones y más datos
+                          Ficha completa con más datos
                         </Link>
                       </p>
                     </form>
