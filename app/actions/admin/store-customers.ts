@@ -56,6 +56,8 @@ export async function createQuickStoreCustomer(input: {
   name: string;
   phone: string;
   shipping_address: string;
+  /** Punto de referencia opcional (customers.shipping_reference + customer_addresses.reference). */
+  shipping_reference?: string;
   document_id?: string;
 }): Promise<CreateQuickStoreCustomerResult> {
   const perm = await loadAdminPermissions();
@@ -66,6 +68,7 @@ export async function createQuickStoreCustomer(input: {
   const name = String(input.name ?? "").trim();
   const phone = String(input.phone ?? "").trim();
   const shippingAddress = String(input.shipping_address ?? "").trim();
+  const shippingReference = String(input.shipping_reference ?? "").trim();
   const documentId = String(input.document_id ?? "").trim();
   if (!name) return { ok: false, code: "name" };
   if (phone.length < 7) return { ok: false, code: "phone" };
@@ -83,6 +86,7 @@ export async function createQuickStoreCustomer(input: {
       phone,
       document_id: documentId || null,
       shipping_address: shippingAddress,
+      shipping_reference: shippingReference || null,
       shipping_city: null,
       shipping_postal_code: null,
       source: "manual",
@@ -93,6 +97,19 @@ export async function createQuickStoreCustomer(input: {
   if (insertErr || !cust) return { ok: false, code: "db" };
 
   const customerId = (cust as { id: string }).id;
+
+  const { error: addrErr } = await supabase.from("customer_addresses").insert({
+    customer_id: customerId,
+    label: "Principal",
+    address_line: shippingAddress,
+    reference: shippingReference,
+    sort_order: 0,
+  });
+  if (addrErr) {
+    await supabase.from("customers").delete().eq("id", customerId);
+    return { ok: false, code: "db" };
+  }
+
   if (!(await verifyInsertedRowInDev(supabase, "customers", customerId))) {
     return { ok: false, code: "db" };
   }
@@ -107,6 +124,7 @@ export async function createQuickStoreCustomer(input: {
       source: "pos_quick",
       phone,
       shipping_address: shippingAddress,
+      ...(shippingReference ? { shipping_reference: shippingReference } : {}),
       ...(documentId ? { document_id: documentId } : {}),
     },
   });

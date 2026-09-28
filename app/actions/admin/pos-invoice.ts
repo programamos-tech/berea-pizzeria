@@ -86,6 +86,8 @@ export type PosInvoicePayload = {
   creditTransferCents?: number;
   shippingAddress: string | null;
   shippingPhone: string | null;
+  /** Punto de referencia de domicilio (opcional). */
+  shippingReference?: string | null;
   /** Token de un solo uso para evitar doble factura por doble clic. */
   submissionId?: string | null;
 };
@@ -532,6 +534,12 @@ export async function createPosInvoiceAction(formData: FormData) {
         ? String(customerRow.phone).trim() || null
         : null;
 
+  const shippingReference =
+    payload.shippingReference != null &&
+    String(payload.shippingReference).trim().length > 0
+      ? String(payload.shippingReference).trim()
+      : null;
+
   const wompiRef = isPedido
     ? `POS:pedido:${serviceType}`
     : isQuotation
@@ -584,6 +592,7 @@ export async function createPosInvoiceAction(formData: FormData) {
         wompi_reference: "POS:quotation",
         shipping_address: shippingAddress,
         shipping_phone: shippingPhone,
+        shipping_reference: shippingReference,
         pos_mixed_cash_cents: null,
         pos_mixed_transfer_cents: null,
         status: "quotation",
@@ -621,6 +630,7 @@ export async function createPosInvoiceAction(formData: FormData) {
           : wompiRef,
         shipping_address: shippingAddress,
         shipping_phone: shippingPhone,
+        shipping_reference: shippingReference,
         ...(serviceType ? { service_type: serviceType } : {}),
         ...(!skipsSettlement && paymentMethod === "mixed"
           ? {

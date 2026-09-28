@@ -113,7 +113,13 @@ type CustomerHit = {
 
 type ShipOption =
   | { kind: "pickup"; id: "pickup"; label: string; detail: string }
-  | { kind: "address"; id: string; label: string; detail: string };
+  | {
+      kind: "address";
+      id: string;
+      label: string;
+      detail: string;
+      reference?: string | null;
+    };
 
 const PICKUP_SHIP_OPTION: Extract<ShipOption, { kind: "pickup" }> = {
   kind: "pickup",
@@ -496,6 +502,7 @@ export function NewInvoiceForm({
   const [quickName, setQuickName] = useState("");
   const [quickPhone, setQuickPhone] = useState("");
   const [quickAddress, setQuickAddress] = useState("");
+  const [quickReference, setQuickReference] = useState("");
   const [quickDocument, setQuickDocument] = useState("");
   const [quickError, setQuickError] = useState<string | null>(null);
   const [quickPending, setQuickPending] = useState(false);
@@ -602,7 +609,6 @@ export function NewInvoiceForm({
     const firstFree = diningTables.find((t) => !t.occupied);
     return firstFree?.id ?? "";
   });
-  const [customerMode, setCustomerMode] = useState<"final" | "other">("final");
   const [requestElectronicInvoice, setRequestElectronicInvoice] =
     useState(false);
   const [guestName, setGuestName] = useState("");
@@ -632,6 +638,7 @@ export function NewInvoiceForm({
     setQuickName("");
     setQuickPhone("");
     setQuickAddress("");
+    setQuickReference("");
     setQuickDocument("");
   }, []);
 
@@ -770,6 +777,8 @@ export function NewInvoiceForm({
   useEffect(() => {
     if (editQuotation) return;
     if (!initialCustomerId) return;
+    // Pedidos: no preseleccionar Cliente Final; el cajero busca o crea.
+    if (documentKind === "pedido") return;
     let cancelled = false;
     profileAppliedForIdRef.current = null;
     setShipOptions([PICKUP_SHIP_OPTION]);
@@ -813,7 +822,7 @@ export function NewInvoiceForm({
     return () => {
       cancelled = true;
     };
-  }, [initialCustomerId, applyPosProfile]);
+  }, [initialCustomerId, applyPosProfile, documentKind, editQuotation]);
 
   useEffect(() => {
     if (!customer) {
@@ -868,6 +877,7 @@ export function NewInvoiceForm({
       name: nameTrim,
       phone: phoneTrim,
       shipping_address: addressTrim,
+      shipping_reference: quickReference.trim() || undefined,
       document_id: quickDocument,
     });
     setQuickPending(false);
@@ -889,7 +899,6 @@ export function NewInvoiceForm({
       }
       return;
     }
-    setCustomerMode("other");
     setCustomer({
       id: res.customer.id,
       name: res.customer.name,
@@ -1356,12 +1365,22 @@ export function NewInvoiceForm({
     );
   }
 
+  const clientShippingReference = useMemo(() => {
+    if (selectedShipOption?.kind === "address") {
+      return selectedShipOption.reference?.trim() || null;
+    }
+    const first = savedAddressOptions[0];
+    return first?.reference?.trim() || null;
+  }, [selectedShipOption, savedAddressOptions]);
+
   const payloadJson = useMemo(() => {
     if (!customer) return "";
     let address: string | null = null;
+    let shippingReference: string | null = null;
     if (documentKind === "pedido") {
       if (serviceType === "domicilio") {
         address = clientAddressText || customer.name || "Domicilio";
+        shippingReference = clientShippingReference;
       } else {
         address = "En el lugar";
       }
@@ -1373,6 +1392,7 @@ export function NewInvoiceForm({
         address = "Retiro en tienda";
       } else {
         address = [opt.label, opt.detail].filter(Boolean).join(" — ");
+        shippingReference = opt.reference?.trim() || null;
       }
     }
     const phone = customer.phone?.trim() || null;
@@ -1432,6 +1452,7 @@ export function NewInvoiceForm({
         : {}),
       shippingAddress: address,
       shippingPhone: phone,
+      shippingReference,
       submissionId,
     });
   }, [
@@ -1445,6 +1466,7 @@ export function NewInvoiceForm({
     guestName,
     requestElectronicInvoice,
     clientAddressText,
+    clientShippingReference,
     editingQuotation,
     editQuotation?.orderId,
     mixedCashCents,
@@ -1878,153 +1900,88 @@ export function NewInvoiceForm({
               </h2>
               {documentKind === "pedido" && !editingQuotation ? (
                 <>
-                  <div className={segmentTrackClass}>
-                    {(
-                      [
-                        { id: "final" as const, label: "Cliente Final" },
-                        { id: "other" as const, label: "Cliente diferente" },
-                      ] as const
-                    ).map((tab) => {
-                      const active = customerMode === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => {
-                            setCustomerMode(tab.id);
-                            if (tab.id === "final" && initialCustomerId) {
-                              setCustomerQuery("");
-                              setCustomerHits([]);
-                              void fetch(
-                                `/api/admin/customers/${initialCustomerId}/pos-profile`,
-                                { cache: "no-store" },
-                              )
-                                .then(async (res) => {
-                                  if (!res.ok) return;
-                                  const json = (await res.json()) as {
-                                    shipOptions?: ShipOption[];
-                                    customer?: {
-                                      id: string;
-                                      name: string;
-                                      email?: string | null;
-                                      phone?: string | null;
-                                      document_id?: string | null;
-                                      customer_kind?: string | null;
-                                      wholesale_discount_percent?: number | null;
-                                    };
-                                  };
-                                  const c = json.customer;
-                                  if (!c?.id) return;
-                                  applyPosProfile(json);
-                                  profileAppliedForIdRef.current = c.id;
-                                  setCustomer({
-                                    id: c.id,
-                                    name: c.name,
-                                    email: c.email ?? null,
-                                    phone: c.phone ?? null,
-                                    document_id: c.document_id ?? null,
-                                  });
-                                })
-                                .catch(() => {});
-                            } else if (tab.id === "other") {
-                              clearCustomer();
-                            }
-                          }}
-                          className={[
-                            "flex flex-1 items-center justify-center rounded-md px-2 py-2 text-center text-xs font-semibold transition sm:text-sm",
-                            active ? segmentBtnActive : segmentBtnIdle,
-                          ].join(" ")}
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
+                    <div className="relative min-w-0 flex-1">
+                      {customer && customerQuery.trim().length === 0 ? (
+                        <div
+                          className={`${inputClass} flex items-center gap-2 pr-2`}
                         >
-                          {tab.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {customerMode === "other" ? (
-                    <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                      <div className="relative min-w-0 flex-1">
-                        {customer && customerQuery.trim().length === 0 ? (
-                          <div
-                            className={`${inputClass} flex items-center gap-2 pr-2`}
+                          <Link
+                            href={`/admin/customers/${customer.id}`}
+                            className="min-w-0 flex-1 truncate font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
                           >
-                            <Link
-                              href={`/admin/customers/${customer.id}`}
-                              className="min-w-0 flex-1 truncate font-medium text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
-                            >
-                              {customer.name}
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={clearCustomer}
-                              className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800"
-                              aria-label="Quitar cliente"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <input
-                              ref={customerSearchInputRef}
-                              value={customerQuery}
-                              onChange={(e) => setCustomerQuery(e.target.value)}
-                              onKeyDown={onCustomerSearchKeyDown}
-                              placeholder="Buscar por nombre, cédula, email o teléfono"
-                              className={inputClass}
-                              autoComplete="off"
-                            />
-                            {customerQuery.trim().length > 0 ? (
-                              <div className="absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
-                                {customerLoading ? (
-                                  <p className="px-3 py-2 text-sm text-zinc-500">
-                                    Buscando…
-                                  </p>
-                                ) : customerHits.length === 0 ? (
-                                  <p className="px-3 py-2 text-sm text-zinc-500">
-                                    Sin resultados.
-                                  </p>
-                                ) : (
-                                  customerHits.map((c) => (
-                                    <button
-                                      key={c.id}
-                                      type="button"
-                                      onClick={() => selectCustomer(c)}
-                                      className="flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                    >
-                                      <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                        {c.name}
-                                      </span>
-                                      <span className="text-xs text-zinc-500">
-                                        {[c.document_id, c.email, c.phone]
-                                          .filter(Boolean)
-                                          .join(" · ")}
-                                      </span>
-                                    </button>
-                                  ))
-                                )}
-                              </div>
-                            ) : null}
-                          </>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setQuickError(null);
-                          setQuickModalOpen(true);
-                        }}
-                        className={`${btnIdle} shrink-0 px-3 py-2.5`}
-                      >
-                        + Nuevo cliente
-                      </button>
+                            {customer.name}
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={clearCustomer}
+                            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800"
+                            aria-label="Quitar cliente"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <input
+                            ref={customerSearchInputRef}
+                            value={customerQuery}
+                            onChange={(e) => setCustomerQuery(e.target.value)}
+                            onKeyDown={onCustomerSearchKeyDown}
+                            placeholder="Buscar por nombre, cédula, email o teléfono"
+                            className={inputClass}
+                            autoComplete="off"
+                          />
+                          {customerQuery.trim().length > 0 ? (
+                            <div className="absolute z-20 mt-1 max-h-52 w-full overflow-auto rounded-lg border border-zinc-200 bg-white py-1 shadow-md dark:border-zinc-700 dark:bg-zinc-900">
+                              {customerLoading ? (
+                                <p className="px-3 py-2 text-sm text-zinc-500">
+                                  Buscando…
+                                </p>
+                              ) : customerHits.length === 0 ? (
+                                <p className="px-3 py-2 text-sm text-zinc-500">
+                                  Sin resultados.
+                                </p>
+                              ) : (
+                                customerHits.map((c) => (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => selectCustomer(c)}
+                                    className="flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                  >
+                                    <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                      {c.name}
+                                    </span>
+                                    <span className="text-xs text-zinc-500">
+                                      {[c.document_id, c.email, c.phone]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                    </span>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          ) : null}
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-                      {customer
-                        ? `Usando ${customer.name}.`
-                        : "Se usará Cliente Final al confirmar."}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuickError(null);
+                        setQuickModalOpen(true);
+                      }}
+                      className={`${btnIdle} shrink-0 px-3 py-2.5`}
+                    >
+                      + Nuevo cliente
+                    </button>
+                  </div>
+                  {!customer ? (
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      Buscá un cliente o creá uno rápido para continuar.
                     </p>
-                  )}
+                  ) : null}
                   <label className="mt-4 flex cursor-pointer items-start gap-2.5 text-sm text-zinc-700 dark:text-zinc-300">
                     <input
                       type="checkbox"
@@ -2382,6 +2339,14 @@ export function NewInvoiceForm({
                           ? "Este cliente no tiene dirección guardada."
                           : "Elegí un cliente para ver su dirección.")}
                     </p>
+                    {clientShippingReference ? (
+                      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                          Punto de referencia:
+                        </span>{" "}
+                        {clientShippingReference}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -2662,8 +2627,7 @@ export function NewInvoiceForm({
                       </button>
                     </div>
                     <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                      Nombre, dirección y WhatsApp para el pedido. El pedido en
-                      curso no se pierde.
+                      Nombre, dirección y WhatsApp para el pedido.
                     </p>
                     <form onSubmit={submitQuickCustomer} className="mt-5 space-y-4">
                       {quickError ? (
@@ -2697,9 +2661,25 @@ export function NewInvoiceForm({
                           value={quickAddress}
                           onChange={(e) => setQuickAddress(e.target.value)}
                           className={inputClass}
-                          placeholder="Calle, barrio, referencias"
+                          placeholder="Calle, barrio"
                           autoComplete="street-address"
                           required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="quick-customer-reference" className={labelClass}>
+                          Punto de referencia{" "}
+                          <span className="font-normal normal-case tracking-normal text-zinc-400">
+                            (opcional)
+                          </span>
+                        </label>
+                        <input
+                          id="quick-customer-reference"
+                          value={quickReference}
+                          onChange={(e) => setQuickReference(e.target.value)}
+                          className={inputClass}
+                          placeholder="Ej. casa verde, frente al parque"
+                          autoComplete="off"
                         />
                       </div>
                       <div>

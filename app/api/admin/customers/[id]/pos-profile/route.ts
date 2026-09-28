@@ -3,7 +3,13 @@ import { requireAdminApiSession } from "@/lib/admin-api";
 
 type PosShipOption =
   | { kind: "pickup"; id: "pickup"; label: string; detail: string }
-  | { kind: "address"; id: string; label: string; detail: string };
+  | {
+      kind: "address";
+      id: string;
+      label: string;
+      detail: string;
+      reference?: string | null;
+    };
 
 export async function GET(
   _request: Request,
@@ -24,7 +30,7 @@ export async function GET(
     supabase
       .from("customers")
       .select(
-        "id,name,email,phone,document_id,shipping_address,customer_kind,wholesale_discount_percent",
+        "id,name,email,phone,document_id,shipping_address,shipping_reference,customer_kind,wholesale_discount_percent",
       )
       .eq("id", customerId)
       .maybeSingle(),
@@ -42,7 +48,17 @@ export async function GET(
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
 
-  const customer = customerRes.data;
+  const customer = customerRes.data as {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+    document_id: string | null;
+    shipping_address: string | null;
+    shipping_reference?: string | null;
+    customer_kind: string | null;
+    wholesale_discount_percent: number | null;
+  };
   const rows = addressesRes.data ?? [];
 
   const shipOptions: PosShipOption[] = [
@@ -61,16 +77,23 @@ export async function GET(
       id: r.id as string,
       label: String(r.label ?? "Dirección"),
       detail: line || "Sin detalle",
+      reference: r.reference != null ? String(r.reference).trim() || null : null,
     });
   }
 
   const ship = customer.shipping_address?.trim();
+  const shipRef =
+    customer.shipping_reference != null
+      ? String(customer.shipping_reference).trim()
+      : "";
   if (rows.length === 0 && ship) {
+    const detail = [ship, shipRef].filter(Boolean).join(" · ");
     shipOptions.push({
       kind: "address",
       id: "primary-shipping",
       label: "Principal",
-      detail: ship,
+      detail,
+      reference: shipRef || null,
     });
   }
 
