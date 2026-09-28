@@ -18,7 +18,7 @@ function isRetriableSelectError(err: { message?: string; code?: string } | null)
     m.includes("Could not find") ||
     m.includes("Could not find a relationship") ||
     /column .* does not exist/i.test(m) ||
-    (/column/i.test(m) && /reference|cost_cents|category_id|stock_warehouse|stock_local|categories|has_vat|vat_percent/i.test(m))
+    (/column/i.test(m) && /reference|menu_number|cost_cents|category_id|stock_warehouse|stock_local|categories|has_vat|vat_percent/i.test(m))
   );
 }
 
@@ -27,8 +27,10 @@ function isRetriableSelectError(err: { message?: string; code?: string } | null)
  * Plain `string[]` (not `as const`) avoids supabase-js union explosion (TS2590).
  */
 const PRODUCT_SELECT_ATTEMPTS: readonly string[] = [
+  "id,name,reference,menu_number,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id,categories(id,name)",
+  "id,name,reference,menu_number,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id",
+  "id,name,reference,menu_number,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,categories(id,name)",
   "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id,categories(id,name)",
-  "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,recipe_id",
   "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,categories(id,name)",
   "id,name,reference,price_cents,cost_cents,cost_gross_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id",
   "id,name,reference,price_cents,has_vat,vat_percent,stock_quantity,stock_warehouse,stock_local,is_published,image_path,created_at,category_id,categories(id,name)",
@@ -95,8 +97,12 @@ export async function fetchAdminProductsList(
 
     let query = supabase.from("products").select(sel, { count: "estimated" });
 
-    // Listar por código de referencia ascendente (01, 02, …).
-    if (sel.includes("reference")) {
+    // Listar por número de menú (1, 2, …); fallback a reference / created_at.
+    if (sel.includes("menu_number")) {
+      query = query
+        .order("menu_number", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: true });
+    } else if (sel.includes("reference")) {
       query = query
         .order("reference", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: true });

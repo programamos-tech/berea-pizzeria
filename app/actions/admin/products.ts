@@ -42,6 +42,28 @@ async function loadTenantStorefrontConfig() {
   return data?.storefront_config ?? null;
 }
 
+/** Siguiente `menu_number` estable por tenant (1, 2, 3…). */
+async function allocateNextMenuNumber(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  tenantId: string,
+): Promise<number | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("menu_number")
+    .eq("tenant_id", tenantId)
+    .not("menu_number", "is", null)
+    .order("menu_number", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    if (/menu_number/i.test(error.message)) return null;
+    console.error("allocateNextMenuNumber", error.message);
+    return null;
+  }
+  const max = Math.max(0, Math.floor(Number(data?.menu_number ?? 0)));
+  return max + 1;
+}
+
 async function loadCatalogFieldsForActor() {
   return parseProductCatalogFields(await loadTenantStorefrontConfig());
 }
@@ -247,7 +269,7 @@ function isSchemaColumnError(err: { message?: string; code?: string } | null) {
   if (/column .* does not exist/i.test(m)) return true;
   if (
     /column/i.test(m) &&
-    /reference|brand|cost_cents|cost_gross_cents|stock_warehouse|stock_local|category_id|size_value|size_unit|size_options|has_expiration|expiration_date|colors|fragrance_options|fragrance_option_images|has_vat|vat_percent/i.test(m)
+    /reference|menu_number|brand|cost_cents|cost_gross_cents|stock_warehouse|stock_local|category_id|size_value|size_unit|size_options|has_expiration|expiration_date|colors|fragrance_options|fragrance_option_images|has_vat|vat_percent/i.test(m)
   ) {
     return true;
   }
@@ -318,6 +340,7 @@ export async function createProduct(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/admin/login");
   await assertActionPermission("productos_crear");
+  const perm = await loadAdminPermissions();
 
   const name = String(formData.get("name") ?? "").trim();
   const reference = String(formData.get("reference") ?? "").trim();
@@ -344,6 +367,9 @@ export async function createProduct(formData: FormData) {
   const vat_percent = has_vat ? SALE_VAT_PERCENT : null;
   const colors = parseColorsFromFormData(formData);
   const fragrance_options = parseFragranceOptionsFromFormData(formData);
+  const menu_number = perm?.tenantId
+    ? await allocateNextMenuNumber(supabase, perm.tenantId)
+    : null;
 
   if (!name) {
     redirect("/admin/products/new?error=name");
@@ -385,6 +411,7 @@ export async function createProduct(formData: FormData) {
     brand,
     cost_cents,
     cost_gross_cents,
+    ...(menu_number != null ? { menu_number } : {}),
   };
 
   const { size_options: _omitSizeExt, ...extendedRowNoSizeOptions } =

@@ -42,6 +42,10 @@ import {
 } from "@/lib/admin-ui";
 import { fetchMenuItemKindsByProductIds } from "@/lib/recipe-cost-estimate";
 import type { MenuItemKind } from "@/lib/menu-item-kind";
+import {
+  formatMenuNumber,
+  formatMenuNumberLabel,
+} from "@/lib/menu-number";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +76,7 @@ type RawAdminProductRow = {
   id: string;
   name: string;
   reference?: string | null;
+  menu_number?: number | null;
   price_cents: number;
   cost_cents?: number | null;
   cost_gross_cents?: number | null;
@@ -87,7 +92,10 @@ type RawAdminProductRow = {
 type AdminProductRowModel = {
   id: string;
   name: string;
-  code: string;
+  /** Número corto de menú (listado). */
+  menuNumberLabel: string;
+  /** Label para acciones / modales. */
+  referenceLabel: string;
   categoryName: string;
   publicPriceCents: number;
   /** Stock del punto (local). */
@@ -109,11 +117,17 @@ function normalizeAdminProductRow(
     effectiveHasVat(storefrontConfig, raw.has_vat),
     raw.vat_percent,
   );
+  const menuNumberLabel = formatMenuNumber(raw.menu_number);
+  const legacyRef =
+    (raw.reference && String(raw.reference).trim()) || shortSku(raw.id);
   return {
     id: raw.id,
     name: raw.name,
-    code:
-      (raw.reference && String(raw.reference).trim()) || shortSku(raw.id),
+    menuNumberLabel,
+    referenceLabel:
+      menuNumberLabel !== "—"
+        ? formatMenuNumberLabel(raw.menu_number)
+        : legacyRef,
     categoryName: category?.name?.trim() || "—",
     publicPriceCents,
     stock_local: stockLocal,
@@ -419,7 +433,7 @@ export default async function AdminProductsPage({
                           className="min-w-0 flex-1 no-underline"
                         >
                           <p className="font-mono text-[11px] tabular-nums text-zinc-500">
-                            {p.code}
+                            {p.menuNumberLabel}
                           </p>
                           <p className="mt-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {p.name}
@@ -449,7 +463,7 @@ export default async function AdminProductsPage({
                         <ProductTableActions
                           productId={p.id}
                           productName={p.name}
-                          referenceLabel={p.code}
+                          referenceLabel={p.referenceLabel}
                           stockLocal={p.stock_local}
                           canEdit={canEditProduct}
                           canStock={canStockUpdate}
@@ -462,9 +476,9 @@ export default async function AdminProductsPage({
 
                 {/* Desktop */}
                 <div className="hidden min-w-0 overflow-x-auto lg:block">
-                  <table className="w-full min-w-[1040px] table-fixed text-left text-sm">
+                  <table className="w-full min-w-[960px] table-fixed text-left text-sm">
                     <colgroup>
-                      <col className="w-[9.5rem]" />
+                      <col className="w-[5rem]" />
                       <col />
                       <col className="w-[14%]" />
                       <col className="w-[6.5rem]" />
@@ -474,8 +488,8 @@ export default async function AdminProductsPage({
                     </colgroup>
                     <thead>
                       <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
-                        <th className={`${thClass} w-[9.5rem]`}>Referencia</th>
-                        <th className={thClass}>Ítem del menú</th>
+                        <th className={`${thClass} w-[5rem]`}>Referencia</th>
+                        <th className={thClass}>Nombre</th>
                         <th className={thClass}>Categoría</th>
                         <th className={`${thClass} w-[6.5rem] text-right`}>Stock</th>
                         <th className={thClass}>Estado del stock</th>
@@ -490,11 +504,9 @@ export default async function AdminProductsPage({
                           className="border-b border-zinc-100/80 last:border-0 transition hover:bg-zinc-50/50 dark:border-zinc-800/80 dark:hover:bg-zinc-900/40"
                         >
                           <td
-                            className={`${tdClass} w-[9.5rem] max-w-[9.5rem] overflow-hidden font-mono text-xs tabular-nums text-zinc-600 dark:text-zinc-400`}
+                            className={`${tdClass} w-[5rem] font-mono text-sm tabular-nums text-zinc-700 dark:text-zinc-300`}
                           >
-                            <span className="block truncate" title={p.code}>
-                              {p.code}
-                            </span>
+                            {p.menuNumberLabel}
                           </td>
                           <td className={`${tdClass} min-w-0 overflow-hidden`}>
                             <div className="flex min-w-0 items-center gap-2">
@@ -532,7 +544,7 @@ export default async function AdminProductsPage({
                               <ProductTableActions
                                 productId={p.id}
                                 productName={p.name}
-                                referenceLabel={p.code}
+                                referenceLabel={p.referenceLabel}
                                 stockLocal={p.stock_local}
                                 canEdit={canEditProduct}
                                 canStock={canStockUpdate}
