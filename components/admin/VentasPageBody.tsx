@@ -205,10 +205,10 @@ export function VentasPageShell({
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-2 gap-y-2">
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>
-            Ventas
+            Pedidos
           </h1>
           <p className={adminPageSubtitleClass}>
-            Facturas de mostrador y pedidos en línea
+            Pedidos del salón y domicilio
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
@@ -217,7 +217,7 @@ export function VentasPageShell({
             href="/admin/ventas/nueva"
             className={`${adminToolbarBtnBaseClass} ${adminToolbarBtnActiveClass}`}
           >
-            + Nueva factura
+            + Nuevo pedido
           </Link>
         </div>
       </header>

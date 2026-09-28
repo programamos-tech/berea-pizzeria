@@ -75,6 +75,16 @@ type ProductHit = {
   vat_percent?: number | null;
 };
 
+export type DiningTableOption = {
+  id: string;
+  name: string;
+  code: string;
+  seats: number;
+  occupied: boolean;
+};
+
+export type PosServiceType = "domicilio" | "en_el_lugar";
+
 type KitHit = {
   id: string;
   name: string;
@@ -314,7 +324,7 @@ export function NewInvoiceHeader({
             href="/admin/ventas"
             className="hover:text-zinc-800 dark:hover:text-zinc-200"
           >
-            Ventas
+            Pedidos
           </Link>
           <span className="mx-1.5 text-zinc-400">/</span>
           {editing && editQuotation ? (
@@ -329,13 +339,13 @@ export function NewInvoiceHeader({
               Editar
             </>
           ) : (
-            "Nueva factura"
+            "Nuevo pedido"
           )}
         </p>
         <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-2xl">
           {editing && editQuotation
             ? `Editar cotización #${editQuotation.invoiceRef}`
-            : "Nueva factura"}
+            : "Nuevo pedido"}
         </h1>
         {editing ? (
           <p className="mt-1 text-sm text-zinc-500">
@@ -350,8 +360,8 @@ export function NewInvoiceHeader({
             : "/admin/ventas"
         }
         className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg border border-zinc-300 bg-white text-zinc-700 transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
-        title={editing ? "Volver a la cotización" : "Volver a ventas"}
-        aria-label={editing ? "Volver a la cotización" : "Volver a ventas"}
+        title={editing ? "Volver a la cotización" : "Volver a pedidos"}
+        aria-label={editing ? "Volver a la cotización" : "Volver a pedidos"}
       >
         <svg
           viewBox="0 0 24 24"
@@ -395,10 +405,18 @@ function errorMessage(code: string | undefined): string | null {
       return "Kits está apagado en Configuración. Quitá los combos de la factura.";
     case "price_floor":
       return POS_PRICE_NOT_ALLOWED_MESSAGE;
+    case "service_type":
+      return "Elegí si el pedido es domicilio o en el lugar.";
+    case "mesa_required":
+      return "Para un pedido en el lugar, asigná una mesa.";
+    case "mesa_occupied":
+      return "Esa mesa ya tiene un pedido abierto. Elegí otra o cerrá el actual.";
+    case "mesa_invalid":
+      return "La mesa seleccionada no es válida.";
     case "db":
       return adminCreateFailedMessage("sale");
     default:
-      return "Ocurrió un error al confirmar la factura.";
+      return "Ocurrió un error al confirmar el pedido.";
   }
 }
 
@@ -408,7 +426,7 @@ function ConfirmInvoiceButton({
   editingQuotation,
 }: {
   disabled: boolean;
-  documentKind: "sale" | "quotation";
+  documentKind: "sale" | "quotation" | "pedido";
   editingQuotation?: boolean;
 }) {
   return (
@@ -422,7 +440,9 @@ function ConfirmInvoiceButton({
         ? "Guardar cambios"
         : documentKind === "quotation"
           ? "Guardar cotización"
-          : "Confirmar factura"}
+          : documentKind === "pedido"
+            ? "Crear pedido"
+            : "Confirmar factura"}
     </AdminFormSubmitButton>
   );
 }
@@ -453,6 +473,7 @@ export function NewInvoiceForm({
   canUseKits = true,
   pricePolicy = LIST_PRICE_ONLY_POLICY,
   chargeVat = true,
+  diningTables = [],
 }: {
   initialError?: string;
   initialCustomerId?: string;
@@ -461,6 +482,7 @@ export function NewInvoiceForm({
   canUseKits?: boolean;
   pricePolicy?: PosPricePolicy;
   chargeVat?: boolean;
+  diningTables?: DiningTableOption[];
 }) {
   const canEditLinePrice = pricePolicy.allowHigher || pricePolicy.allowBelow;
   const editingQuotation = Boolean(editQuotation);
@@ -566,8 +588,19 @@ export function NewInvoiceForm({
     })),
   );
   const [payment, setPayment] = useState<PaymentTab>("cash");
-  const [documentKind, setDocumentKind] = useState<"sale" | "quotation">(
-    editingQuotation ? "quotation" : "sale",
+  const [documentKind, setDocumentKind] = useState<
+    "sale" | "quotation" | "pedido"
+  >(editingQuotation ? "quotation" : "pedido");
+  const [serviceType, setServiceType] = useState<PosServiceType>("en_el_lugar");
+  const [diningTableId, setDiningTableId] = useState<string>(() => {
+    const firstFree = diningTables.find((t) => !t.occupied);
+    return firstFree?.id ?? "";
+  });
+  const skipsStockGate =
+    documentKind === "quotation" || documentKind === "pedido";
+  const availableTables = useMemo(
+    () => diningTables.filter((t) => !t.occupied),
+    [diningTables],
   );
 
   useEffect(() => {
@@ -1043,12 +1076,18 @@ export function NewInvoiceForm({
 
   /** Efectivo y transferencia no exigen campos extra; el monto en efectivo es solo ayuda para el vuelto. */
   const paymentOk =
-    documentKind === "quotation" ||
+    skipsStockGate ||
     (payment === "mixed"
       ? mixedOk
       : payment === "credit"
         ? creditDownOk && !creditCustomerBlocked
         : true);
+
+  const mesaOk =
+    documentKind !== "pedido" ||
+    serviceType === "domicilio" ||
+    (Boolean(diningTableId) &&
+      availableTables.some((t) => t.id === diningTableId));
 
   const canSubmit =
     customer !== null &&
@@ -1056,9 +1095,11 @@ export function NewInvoiceForm({
     (totalCents > 0 || (pricePolicy.allowBelow && totalCents === 0)) &&
     shipChoice !== null &&
     shipChoice !== "" &&
-    (documentKind === "quotation" || !cartStockExceeded) &&
+    (skipsStockGate || !cartStockExceeded) &&
     paymentOk &&
-    !priceBlocked;
+    !priceBlocked &&
+    (documentKind !== "pedido" || Boolean(serviceType)) &&
+    mesaOk;
 
   function selectCustomer(c: CustomerHit) {
     setCustomer(c);
@@ -1081,9 +1122,11 @@ export function NewInvoiceForm({
     if (e.key !== "Enter") return;
     e.preventDefault();
     if (productLoading) return;
-    const first = productHits.find(
-      (p) => Number(p.stock_local ?? p.stock_quantity ?? 0) >= 1,
-    );
+    const first = skipsStockGate
+      ? productHits[0]
+      : productHits.find(
+          (p) => Number(p.stock_local ?? p.stock_quantity ?? 0) >= 1,
+        );
     if (first) addProduct(first);
   }
 
@@ -1091,7 +1134,9 @@ export function NewInvoiceForm({
     if (e.key !== "Enter") return;
     e.preventDefault();
     if (kitLoading) return;
-    const first = kitHits.find((k) => k.available && k.max_stock >= 1);
+    const first = skipsStockGate
+      ? kitHits[0]
+      : kitHits.find((k) => k.available && k.max_stock >= 1);
     if (first) addKit(first);
   }
 
@@ -1106,12 +1151,12 @@ export function NewInvoiceForm({
   function addProduct(p: ProductHit) {
     setLines((prev) => {
       const stock = Number(p.stock_local ?? p.stock_quantity ?? 0);
-      if (stock < 1) return prev;
+      if (!skipsStockGate && stock < 1) return prev;
       let sum = 0;
       for (const l of prev) {
         if (l.product.id === p.id) sum += l.quantity;
       }
-      if (sum + 1 > stock) return prev;
+      if (!skipsStockGate && sum + 1 > stock) return prev;
       return [
         ...prev,
         {
@@ -1138,7 +1183,9 @@ export function NewInvoiceForm({
       for (const l of prev) {
         if (l.product.id === line.product.id && l.key !== key) usedElsewhere += l.quantity;
       }
-      const maxQty = Math.max(1, stock - usedElsewhere);
+      const maxQty = skipsStockGate
+        ? 999
+        : Math.max(1, stock - usedElsewhere);
       const next = Math.max(1, Math.min(maxQty, Math.floor(q)));
       return prev.map((l) => (l.key === key ? { ...l, quantity: next } : l));
     });
@@ -1149,13 +1196,13 @@ export function NewInvoiceForm({
   }
 
   function addKit(k: KitHit) {
-    if (!k.available || k.max_stock < 1) return;
+    if (!skipsStockGate && (!k.available || k.max_stock < 1)) return;
     setKitLines((prev) => {
       let sum = 0;
       for (const l of prev) {
         if (l.kit.id === k.id) sum += l.quantity;
       }
-      if (sum + 1 > k.max_stock) return prev;
+      if (!skipsStockGate && sum + 1 > k.max_stock) return prev;
       const idx = prev.findIndex((l) => l.kit.id === k.id);
       if (idx >= 0) {
         return prev.map((l, i) =>
@@ -1179,7 +1226,9 @@ export function NewInvoiceForm({
       for (const l of prev) {
         if (l.kit.id === line.kit.id && l.key !== key) usedElsewhere += l.quantity;
       }
-      const maxQty = Math.max(1, line.kit.max_stock - usedElsewhere);
+      const maxQty = skipsStockGate
+        ? 999
+        : Math.max(1, line.kit.max_stock - usedElsewhere);
       const next = Math.max(1, Math.min(maxQty, Math.floor(q)));
       return prev.map((l) => (l.key === key ? { ...l, quantity: next } : l));
     });
@@ -1263,6 +1312,9 @@ export function NewInvoiceForm({
       })),
       paymentMethod: payment,
       documentKind: editingQuotation ? "quotation" : documentKind,
+      serviceType: documentKind === "pedido" ? serviceType : null,
+      diningTableId:
+        documentKind === "pedido" && diningTableId ? diningTableId : null,
       ...(payment === "mixed"
         ? {
             mixedCashCents: mixedCashCents,
@@ -1285,6 +1337,8 @@ export function NewInvoiceForm({
     kitLines,
     payment,
     documentKind,
+    serviceType,
+    diningTableId,
     editingQuotation,
     editQuotation?.orderId,
     mixedCashCents,
@@ -1342,12 +1396,13 @@ export function NewInvoiceForm({
                   ) : (
                     productHits.map((p) => {
                       const stock = Number(p.stock_local ?? p.stock_quantity ?? 0);
+                      const blocked = !skipsStockGate && stock < 1;
                       return (
                         <button
                           key={p.id}
                           type="button"
                           onClick={() => addProduct(p)}
-                          disabled={stock < 1}
+                          disabled={blocked}
                           className="flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition hover:bg-zinc-50/80 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-zinc-800/90"
                         >
                           <span className="font-medium text-zinc-900 dark:text-zinc-100">
@@ -1356,7 +1411,9 @@ export function NewInvoiceForm({
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
                             {p.reference ? `${p.reference} · ` : null}
                             {formatCop(unitFinalCents(p, customerWholesalePct, chargeVat))}
-                            {stock < 6 ? ` · Stock tienda: ${stock}` : null}
+                            {stock < 6
+                              ? ` · Stock tienda: ${stock}${skipsStockGate && stock < 1 ? " (pedido sin stock)" : ""}`
+                              : null}
                           </span>
                         </button>
                       );
@@ -1391,7 +1448,9 @@ export function NewInvoiceForm({
                         key={k.id}
                         type="button"
                         onClick={() => addKit(k)}
-                        disabled={!k.available || k.max_stock < 1}
+                        disabled={
+                          !skipsStockGate && (!k.available || k.max_stock < 1)
+                        }
                         className="flex w-full flex-col items-start gap-0.5 px-3 py-2.5 text-left text-sm transition hover:bg-zinc-50/80 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-zinc-800/90"
                       >
                         <span className="font-medium text-zinc-900 dark:text-zinc-100">
@@ -1439,7 +1498,9 @@ export function NewInvoiceForm({
                       usedElsewhere += l.quantity;
                     }
                   }
-                  const maxQtyThisLine = Math.max(1, stock - usedElsewhere);
+                  const maxQtyThisLine = skipsStockGate
+                    ? 999
+                    : Math.max(1, stock - usedElsewhere);
                   const priced =
                     pricingByKey.get(line.key) ?? linePricing(line, w, pricePolicy, chargeVat);
                   const lineTotal = priced.unitFinal * line.quantity;
@@ -1621,7 +1682,9 @@ export function NewInvoiceForm({
                       usedElsewhere += l.quantity;
                     }
                   }
-                  const maxQtyThisLine = Math.max(1, line.kit.max_stock - usedElsewhere);
+                  const maxQtyThisLine = skipsStockGate
+                    ? 999
+                    : Math.max(1, line.kit.max_stock - usedElsewhere);
                   const lineTotal = line.kit.price_cents * line.quantity;
                   return (
                     <li key={line.key} className="py-4">
@@ -1677,11 +1740,14 @@ export function NewInvoiceForm({
                   );
                 })}
               </ul>
-              {cartStockExceeded ? (
+              {cartStockExceeded && !skipsStockGate ? (
                 <p className="mt-3 text-sm text-red-600 dark:text-red-400">
-                  {documentKind === "quotation"
-                    ? "Hay líneas sin stock suficiente. Podés guardar la cotización; al facturar se validará el inventario."
-                    : "La cantidad supera el stock disponible. Ajustá cantidades o quitá líneas."}
+                  La cantidad supera el stock disponible. Ajustá cantidades o quitá líneas.
+                </p>
+              ) : null}
+              {cartStockExceeded && documentKind === "pedido" ? (
+                <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">
+                  Algunos ítems no tienen stock en tienda. El pedido se abre igual; el inventario se valida al cobrar.
                 </p>
               ) : null}
               </>
@@ -1880,7 +1946,7 @@ export function NewInvoiceForm({
             </section>
 
             <section className={`${sectionClass} order-5 xl:order-none`}>
-              <h2 className={sectionTitle}>Tipo de documento</h2>
+              <h2 className={sectionTitle}>Tipo de pedido</h2>
               {editingQuotation ? (
                 <p className="mt-3 text-sm text-amber-700 dark:text-amber-300">
                   Estás editando una cotización. Al guardar se actualiza la misma
@@ -1892,26 +1958,33 @@ export function NewInvoiceForm({
                 {(
                   [
                     {
-                      id: "sale" as const,
-                      label: "Venta",
-                      hint: "Cobra y descuenta stock",
+                      id: "en_el_lugar" as const,
+                      label: "En el lugar",
+                      hint: "Mesa del salón",
                     },
                     {
-                      id: "quotation" as const,
-                      label: "Cotización",
-                      hint: "Pre-factura sin cobro",
+                      id: "domicilio" as const,
+                      label: "Domicilio",
+                      hint: "Para llevar / entrega",
                     },
                   ] as const
                 ).map((tab) => {
-                  const active = documentKind === tab.id;
+                  const active = serviceType === tab.id;
                   return (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => {
-                        setDocumentKind(tab.id);
-                        if (tab.id === "quotation" && payment === "credit") {
-                          setPayment("cash");
+                        setDocumentKind("pedido");
+                        setServiceType(tab.id);
+                        if (tab.id === "en_el_lugar") {
+                          setShipChoice("pickup");
+                          if (
+                            !diningTableId ||
+                            !availableTables.some((t) => t.id === diningTableId)
+                          ) {
+                            setDiningTableId(availableTables[0]?.id ?? "");
+                          }
                         }
                       }}
                       className={[
@@ -1927,11 +2000,50 @@ export function NewInvoiceForm({
                   );
                 })}
               </div>
-              {documentKind === "quotation" ? (
-                <p className="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Queda como pre-factura: sin descontar stock ni registrar cobro.
-                </p>
-              ) : null}
+              <div className="mt-4">
+                <label className={labelClass}>
+                  Mesa
+                  {serviceType === "en_el_lugar" ? (
+                    <span className="text-red-600 dark:text-red-400"> *</span>
+                  ) : (
+                    <span className="font-normal text-zinc-400"> (opcional)</span>
+                  )}
+                </label>
+                <select
+                  value={diningTableId}
+                  onChange={(e) => setDiningTableId(e.target.value)}
+                  className={inputClass}
+                  required={serviceType === "en_el_lugar"}
+                >
+                  {serviceType === "domicilio" ? (
+                    <option value="">Sin mesa</option>
+                  ) : (
+                    <option value="" disabled>
+                      Elegí una mesa
+                    </option>
+                  )}
+                  {diningTables.map((t) => (
+                    <option
+                      key={t.id}
+                      value={t.id}
+                      disabled={t.occupied}
+                    >
+                      {t.name}
+                      {t.code ? ` · ${t.code}` : ""}
+                      {t.seats > 0 ? ` · ${t.seats} puestos` : ""}
+                      {t.occupied ? " · Ocupada" : ""}
+                    </option>
+                  ))}
+                </select>
+                {serviceType === "en_el_lugar" && availableTables.length === 0 ? (
+                  <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-300">
+                    No hay mesas libres. Liberá una en el mapa del salón o elegí domicilio.
+                  </p>
+                ) : null}
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
+                El pedido queda abierto sin cobro ni descuento de stock. El cobro se hace después.
+              </p>
                 </>
               )}
             </section>
@@ -2138,7 +2250,11 @@ export function NewInvoiceForm({
                   </div>
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
                     <dt className="font-medium text-zinc-800 dark:text-zinc-200">
-                      {documentKind === "quotation" ? "Total cotizado" : "Total a cobrar"}
+                      {documentKind === "quotation"
+                        ? "Total cotizado"
+                        : documentKind === "pedido"
+                          ? "Total del pedido"
+                          : "Total a cobrar"}
                     </dt>
                     <dd className="text-xl font-semibold tabular-nums tracking-tight text-zinc-900 dark:text-zinc-50">
                       {formatCop(totalCents)}
@@ -2148,9 +2264,13 @@ export function NewInvoiceForm({
               <p className="mt-4 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
                 {editingQuotation
                   ? "Los cambios reemplazan la cotización actual. Después podés facturarla desde el detalle."
-                  : documentKind === "quotation"
-                    ? "Se guarda como cotización (pre-factura) sin cobro ni descuento de stock."
-                    : "Verificá cliente, productos y pago antes de confirmar."}
+                  : documentKind === "pedido"
+                    ? serviceType === "en_el_lugar"
+                      ? "Se abre el pedido en la mesa elegida, sin cobro ni descuento de stock."
+                      : "Se abre el pedido a domicilio, sin cobro ni descuento de stock."
+                    : documentKind === "quotation"
+                      ? "Se guarda como cotización (pre-factura) sin cobro ni descuento de stock."
+                      : "Verificá cliente, productos y pago antes de confirmar."}
               </p>
               <ConfirmInvoiceButton
                 disabled={!canSubmit}

@@ -57,12 +57,18 @@ export type PosInvoiceLinePayload = {
   chargedUnitCents?: number | null;
 };
 
+export type PosServiceType = "domicilio" | "en_el_lugar";
+
 export type PosInvoicePayload = {
   customerId: string;
   lines: PosInvoiceLinePayload[];
   kitLines?: PosInvoiceKitLinePayload[];
-  /** venta = factura cobrada; quotation = cotización / pre-factura. */
-  documentKind?: "sale" | "quotation";
+  /** venta = cobrada; quotation = cotización; pedido = abierto (sin cobro). */
+  documentKind?: "sale" | "quotation" | "pedido";
+  /** domicilio | en_el_lugar — requerido para documentKind pedido. */
+  serviceType?: PosServiceType | null;
+  /** Mesa del salón (requerida si serviceType = en_el_lugar). */
+  diningTableId?: string | null;
   /** Editar cotización existente (solo con documentKind quotation). */
   quotationOrderId?: string | null;
   paymentMethod: "cash" | "transfer" | "mixed" | "credit";
@@ -167,17 +173,62 @@ export async function createPosInvoiceAction(formData: FormData) {
 
   const quotationOrderId = String(payload.quotationOrderId ?? "").trim();
   const isEditingQuotation = quotationOrderId.length > 0;
-  const documentKind =
-    isEditingQuotation || payload.documentKind === "quotation"
+  const documentKind: "sale" | "quotation" | "pedido" = isEditingQuotation
+    ? "quotation"
+    : payload.documentKind === "quotation"
       ? "quotation"
-      : "sale";
+      : payload.documentKind === "pedido"
+        ? "pedido"
+        : "sale";
   const isQuotation = documentKind === "quotation";
+  const isPedido = documentKind === "pedido";
+  /** Pedido abierto o cotización: sin caja ni descuento de stock. */
+  const skipsSettlement = isQuotation || isPedido;
+  const serviceTypeRaw = String(payload.serviceType ?? "").trim();
+  const serviceType: PosServiceType | null =
+    serviceTypeRaw === "domicilio" || serviceTypeRaw === "en_el_lugar"
+      ? serviceTypeRaw
+      : null;
+  const diningTableId = String(payload.diningTableId ?? "").trim();
+
   function redirectFail(code: string): never {
     redirectError(code, isEditingQuotation ? quotationOrderId : undefined);
   }
 
+  if (isPedido) {
+    if (!serviceType) redirectFail("service_type");
+    if (serviceType === "en_el_lugar" && !diningTableId) {
+      redirectFail("mesa_required");
+    }
+  }
+
+  /** Mesa validada antes de crear el pedido (en el lugar). */
+  let pedidoDiningTable: { id: string; branch_id: string } | null = null;
+  if (isPedido && serviceType === "en_el_lugar" && diningTableId) {
+    const { data: table, error: tableErr } = await supabase
+      .from("dining_tables")
+      .select("id,branch_id,is_active")
+      .eq("id", diningTableId)
+      .maybeSingle();
+    if (tableErr || !table || !table.is_active) redirectFail("mesa_invalid");
+
+    const { data: existingOpen } = await supabase
+      .from("dining_table_sessions")
+      .select("id")
+      .eq("dining_table_id", diningTableId)
+      .eq("status", "open")
+      .maybeSingle();
+
+    if (existingOpen?.id) redirectFail("mesa_occupied");
+
+    pedidoDiningTable = {
+      id: String(table.id),
+      branch_id: String(table.branch_id),
+    };
+  }
+
   if (
-    !isQuotation &&
+    !skipsSettlement &&
     payload.paymentMethod === "credit" &&
     !accountAllowsCredit(perm.permissions)
   ) {
@@ -239,7 +290,7 @@ export async function createPosInvoiceAction(formData: FormData) {
 
   const paymentMethod = payload.paymentMethod;
   if (
-    !isQuotation &&
+    !skipsSettlement &&
     paymentMethod !== "cash" &&
     paymentMethod !== "transfer" &&
     paymentMethod !== "mixed" &&
@@ -252,9 +303,9 @@ export async function createPosInvoiceAction(formData: FormData) {
 
   const [, actorSession, existingQuotationRes, customerRes, kitsLoaded, tenantCfgRes] =
     await Promise.all([
-      // Cotización no exige caja abierta; la venta sí.
-      isQuotation ? Promise.resolve() : assertCashRegisterOpenForStaff(),
-      isQuotation ? Promise.resolve(null) : fetchOpenCashSession(supabase),
+      // Pedido/cotización no exige caja abierta; la venta sí.
+      skipsSettlement ? Promise.resolve() : assertCashRegisterOpenForStaff(),
+      skipsSettlement ? Promise.resolve(null) : fetchOpenCashSession(supabase),
       isEditingQuotation
         ? supabase
             .from("orders")
@@ -290,7 +341,7 @@ export async function createPosInvoiceAction(formData: FormData) {
   if (cErr || !customer) redirectFail("customer");
   const customerRow = customer;
   if (
-    !isQuotation &&
+    !skipsSettlement &&
     paymentMethod === "credit" &&
     isDefaultPosCustomerName(String(customerRow.name ?? ""))
   ) {
@@ -311,7 +362,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     if (kitsById.size !== kitIds.length) redirectFail("products");
     for (const kl of kitLines) {
       const kit = kitsById.get(kl.kitId)!;
-      if (!isQuotation) {
+      if (!skipsSettlement) {
         if (!kitIsAvailable(kit, "pos")) redirectFail("stock");
         const maxK = maxKitsAvailableFromItems(kit.items ?? [], "pos");
         if (maxK < kl.quantity) redirectFail("stock");
@@ -364,7 +415,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     for (const [pid, qty] of qtyByProduct) {
       const p = productById.get(pid);
       if (!p) redirectFail("products");
-      if (!isQuotation) {
+      if (!skipsSettlement) {
         const stock = Number(p.stock_local ?? 0);
         if (stock < qty) redirectFail("stock");
       }
@@ -467,15 +518,17 @@ export async function createPosInvoiceAction(formData: FormData) {
         ? String(customerRow.phone).trim() || null
         : null;
 
-  const wompiRef = isQuotation
-    ? "POS:quotation"
-    : paymentMethod === "credit"
-      ? POS_CREDIT_REF
-      : `POS:${paymentMethod}`;
+  const wompiRef = isPedido
+    ? `POS:pedido:${serviceType}`
+    : isQuotation
+      ? "POS:quotation"
+      : paymentMethod === "credit"
+        ? POS_CREDIT_REF
+        : `POS:${paymentMethod}`;
 
   let posMixedCashCents: number | null = null;
   let posMixedTransferCents: number | null = null;
-  if (!isQuotation && paymentMethod === "mixed") {
+  if (!skipsSettlement && paymentMethod === "mixed") {
     const cash = Math.floor(Number(payload.mixedCashCents ?? 0));
     const transfer = Math.floor(Number(payload.mixedTransferCents ?? 0));
     if (
@@ -493,7 +546,7 @@ export async function createPosInvoiceAction(formData: FormData) {
 
   let creditCashCents = 0;
   let creditTransferCents = 0;
-  if (!isQuotation && paymentMethod === "credit") {
+  if (!skipsSettlement && paymentMethod === "credit") {
     creditCashCents = Math.max(0, Math.floor(Number(payload.creditCashCents ?? 0)));
     creditTransferCents = Math.max(
       0,
@@ -538,7 +591,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     const { data: orderRow, error: oErr } = await supabase
       .from("orders")
       .insert({
-        status: isQuotation ? "quotation" : "paid",
+        status: isPedido ? "pending" : isQuotation ? "quotation" : "paid",
         customer_name: String(customerRow.name ?? "Cliente"),
         customer_email: customerEmail,
         customer_id: customerId,
@@ -547,13 +600,14 @@ export async function createPosInvoiceAction(formData: FormData) {
         wompi_reference: wompiRef,
         shipping_address: shippingAddress,
         shipping_phone: shippingPhone,
-        ...(!isQuotation && paymentMethod === "mixed"
+        ...(serviceType ? { service_type: serviceType } : {}),
+        ...(!skipsSettlement && paymentMethod === "mixed"
           ? {
               pos_mixed_cash_cents: posMixedCashCents,
               pos_mixed_transfer_cents: posMixedTransferCents,
             }
           : {}),
-        ...(!isQuotation && cashRegisterSessionId
+        ...(!skipsSettlement && cashRegisterSessionId
           ? { cash_register_session_id: cashRegisterSessionId }
           : {}),
       })
@@ -565,6 +619,34 @@ export async function createPosInvoiceAction(formData: FormData) {
     }
 
     orderId = String(orderRow!.id);
+  }
+
+  if (isPedido && serviceType === "en_el_lugar" && pedidoDiningTable) {
+    const { data: existingOpen } = await supabase
+      .from("dining_table_sessions")
+      .select("id")
+      .eq("dining_table_id", pedidoDiningTable.id)
+      .eq("status", "open")
+      .maybeSingle();
+
+    if (existingOpen?.id) {
+      await supabase.from("orders").delete().eq("id", orderId);
+      redirectFail("mesa_occupied");
+    }
+
+    const { error: sessErr } = await supabase
+      .from("dining_table_sessions")
+      .insert({
+        dining_table_id: pedidoDiningTable.id,
+        branch_id: pedidoDiningTable.branch_id,
+        status: "open",
+        order_id: orderId,
+        note: "Pedido en el lugar",
+      });
+    if (sessErr) {
+      await supabase.from("orders").delete().eq("id", orderId);
+      redirectFail("db");
+    }
   }
 
   const productItemRows = lines.map((l) => {
@@ -590,7 +672,7 @@ export async function createPosInvoiceAction(formData: FormData) {
       product_name_snapshot: String(p.name ?? "Producto"),
       line_discount_percent: pctForCalc,
       line_discount_amount_cents: pctForCalc != null ? 0 : amtForCalc,
-      stock_deducted_local: isQuotation ? 0 : l.quantity,
+      stock_deducted_local: skipsSettlement ? 0 : l.quantity,
       stock_deducted_warehouse: 0,
       kit_component_deductions: null,
     };
@@ -600,7 +682,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     const kit = kitsById.get(kl.kitId)!;
     const items = kit.items ?? [];
     const unitKit = resolveKitSalePriceCents(kit, items, "pos");
-    const deductions = isQuotation
+    const deductions = skipsSettlement
       ? null
       : buildKitPosComponentDeductions(kit, kl.quantity);
     return {
@@ -691,7 +773,7 @@ export async function createPosInvoiceAction(formData: FormData) {
       );
       return {
         kitName: String(kit.name ?? "Kit"),
-        deductions: isQuotation
+        deductions: skipsSettlement
           ? []
           : buildKitPosComponentDeductions(kit, kl.quantity),
         productNames,
@@ -700,7 +782,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     stockByProductId,
   });
 
-  if (!isQuotation) {
+  if (!skipsSettlement) {
     const stockResult = await decrementPosStockLocal(
       supabase,
       orderId,
@@ -713,7 +795,7 @@ export async function createPosInvoiceAction(formData: FormData) {
     }
   }
 
-  if (!isQuotation && paymentMethod === "credit") {
+  if (!skipsSettlement && paymentMethod === "credit") {
     const payRows = [
       ...(creditCashCents > 0
         ? [{ amountCents: creditCashCents, paymentMethod: "cash" as const }]
@@ -746,17 +828,21 @@ export async function createPosInvoiceAction(formData: FormData) {
     entityId: orderId,
     summary: isEditingQuotation
       ? `Cotización actualizada · ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`
-      : isQuotation
-        ? `Cotización a ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`
-        : `Venta a ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`,
+      : isPedido
+        ? `Pedido (${serviceType === "en_el_lugar" ? "en el lugar" : "domicilio"}) · ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`
+        : isQuotation
+          ? `Cotización a ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`
+          : `Venta a ${String(customerRow.name ?? "Cliente")} · ${totalFormatted}`,
     metadata: {
       customer_id: customerId,
       document_kind: documentKind,
+      service_type: serviceType,
+      dining_table_id: diningTableId || null,
       edited_quotation: isEditingQuotation,
       subtotal_cents: subtotalCents,
       vat_cents: vatCents,
       total_cents: totalCents,
-      payment_method: isQuotation ? null : paymentMethod,
+      payment_method: skipsSettlement ? null : paymentMethod,
       ...(paymentMethod === "mixed" && posMixedCashCents != null
         ? {
             mixed_cash_cents: posMixedCashCents,
@@ -772,18 +858,19 @@ export async function createPosInvoiceAction(formData: FormData) {
       line_items: lines.length,
       kit_lines: kitLines.length,
       submission_id: submissionId || null,
-      ...(isQuotation ? {} : activityStockTraceToMetadata(stockTrace)),
+      ...(skipsSettlement ? {} : activityStockTraceToMetadata(stockTrace)),
     },
   });
   revalidatePath("/admin/ventas");
+  revalidatePath("/admin");
   revalidatePath("/admin/creditos");
   revalidatePath("/admin/caja");
   revalidatePath(`/admin/orders/${orderId}`);
-  if (!isQuotation && paymentMethod === "credit") {
+  if (!skipsSettlement && paymentMethod === "credit") {
     revalidatePath(`/admin/creditos/${orderId}`);
   }
   redirect(
-    !isQuotation && paymentMethod === "credit"
+    !skipsSettlement && paymentMethod === "credit"
       ? `/admin/creditos/${orderId}`
       : `/admin/orders/${orderId}${isEditingQuotation ? "?updated=1" : ""}`,
   );

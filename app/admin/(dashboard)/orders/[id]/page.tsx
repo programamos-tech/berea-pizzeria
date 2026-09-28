@@ -19,7 +19,7 @@ export default async function AdminOrderDetailPage({ params, searchParams }: Pro
       orderId={id}
       searchParams={sp}
       listHref={safeAdminVentasListReturnPath(sp.returnTo)}
-      listLabel="Ventas"
+      listLabel="Pedidos"
       creditVariant="summary"
       canRegisterCredit={Boolean(perm?.permissions.creditos_abonar)}
       canUseCredit={accountAllowsCredit(perm?.permissions ?? {})}

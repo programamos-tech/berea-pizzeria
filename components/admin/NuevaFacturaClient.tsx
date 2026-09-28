@@ -1,6 +1,10 @@
 "use client";
 
-import { NewInvoiceForm, NewInvoiceHeader } from "@/components/admin/NewInvoiceForm";
+import {
+  NewInvoiceForm,
+  NewInvoiceHeader,
+  type DiningTableOption,
+} from "@/components/admin/NewInvoiceForm";
 import type { QuotationEditDraft } from "@/lib/load-quotation-edit-draft";
 import type { PosPricePolicy } from "@/lib/product-vat-price";
 
@@ -12,6 +16,7 @@ export function NuevaFacturaClient({
   canUseKits = true,
   pricePolicy,
   chargeVat = true,
+  diningTables = [],
 }: {
   initialError?: string;
   initialCustomerId?: string;
@@ -20,6 +25,7 @@ export function NuevaFacturaClient({
   canUseKits?: boolean;
   pricePolicy?: PosPricePolicy;
   chargeVat?: boolean;
+  diningTables?: DiningTableOption[];
 }) {
   return (
     <>
@@ -32,6 +38,7 @@ export function NuevaFacturaClient({
         canUseKits={canUseKits}
         pricePolicy={pricePolicy}
         chargeVat={chargeVat}
+        diningTables={diningTables}
       />
     </>
   );

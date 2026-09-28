@@ -2,6 +2,7 @@
 
 import nextDynamic from "next/dynamic";
 import { NuevaFacturaLoading } from "@/components/admin/NuevaFacturaLoading";
+import type { DiningTableOption } from "@/components/admin/NewInvoiceForm";
 import type { QuotationEditDraft } from "@/lib/load-quotation-edit-draft";
 import type { PosPricePolicy } from "@/lib/product-vat-price";
 
@@ -26,6 +27,7 @@ export function NuevaFacturaPageClient({
   canUseKits = true,
   pricePolicy,
   chargeVat = true,
+  diningTables = [],
 }: {
   initialError?: string;
   initialCustomerId?: string;
@@ -34,6 +36,7 @@ export function NuevaFacturaPageClient({
   canUseKits?: boolean;
   pricePolicy?: PosPricePolicy;
   chargeVat?: boolean;
+  diningTables?: DiningTableOption[];
 }) {
   return (
     <NuevaFacturaClient
@@ -44,6 +47,7 @@ export function NuevaFacturaPageClient({
       canUseKits={canUseKits}
       pricePolicy={pricePolicy}
       chargeVat={chargeVat}
+      diningTables={diningTables}
     />
   );
 }

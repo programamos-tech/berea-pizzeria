@@ -63,7 +63,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
       },
       {
         href: "/admin/ventas",
-        label: "Ventas",
+        label: "Pedidos",
         icon: (
           <Icon>
             <path d="M6 3h12v18l-2-1-2 1-2-1-2 1-2-1-2 1V3Z" />

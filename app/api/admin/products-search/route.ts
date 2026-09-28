@@ -28,8 +28,9 @@ export async function GET(request: Request) {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id,name,reference,price_cents,stock_quantity,stock_local,has_vat,vat_percent",
+      "id,name,reference,price_cents,stock_quantity,stock_local,has_vat,vat_percent,is_published",
     )
+    .eq("is_published", true)
     .or(orFilter)
     .order("name")
     .limit(24);

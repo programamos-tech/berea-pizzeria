@@ -4,6 +4,8 @@ import {
 } from "@/lib/admin-account-modules";
 import { AdminNewPageShell } from "@/components/admin/AdminNewPageShell";
 import { NuevaFacturaPageClient } from "@/components/admin/NuevaFacturaPageClient";
+import type { DiningTableOption } from "@/components/admin/NewInvoiceForm";
+import { fetchDiningTablesBoard } from "@/lib/admin-dining-tables";
 import { loadQuotationEditDraft } from "@/lib/load-quotation-edit-draft";
 import { findDefaultPosCustomerId } from "@/lib/pos-default-customer";
 import {
@@ -44,6 +46,18 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
   const pricePolicy = posPricePolicyFromConfig(tenant?.storefront_config);
   const chargeVat = tenantChargesVat(tenant?.storefront_config);
 
+  const board = await fetchDiningTablesBoard(
+    supabase,
+    perm.branchContext.active.id,
+  );
+  const diningTables: DiningTableOption[] = board.all.map((t) => ({
+    id: t.id,
+    name: t.name,
+    code: t.code,
+    seats: t.seats,
+    occupied: Boolean(t.openSession),
+  }));
+
   if (quotationId) {
     const loaded = await loadQuotationEditDraft(supabase, quotationId);
     if (!loaded.ok) {
@@ -65,6 +79,7 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
           canUseKits={canUseKits}
           pricePolicy={pricePolicy}
           chargeVat={chargeVat}
+          diningTables={diningTables}
         />
       </AdminNewPageShell>
     );
@@ -87,6 +102,7 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
         canUseKits={canUseKits}
         pricePolicy={pricePolicy}
         chargeVat={chargeVat}
+        diningTables={diningTables}
       />
     </AdminNewPageShell>
   );
