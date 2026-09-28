@@ -750,19 +750,6 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                                 Ref. {ref}
                               </span>
                             ) : null}
-                            {isPedido
-                              ? (() => {
-                                  const lr = lineRecipes.find(
-                                    (r) => r.lineId === line.id,
-                                  );
-                                  if (!lr?.recipe) return null;
-                                  return (
-                                    <span className="mt-1 block text-xs font-medium text-[var(--admin-coral)]">
-                                      Receta disponible en panel Cocina
-                                    </span>
-                                  );
-                                })()
-                              : null}
                           </td>
                           <td className="py-3 pr-4 text-right tabular-nums text-zinc-700 dark:text-zinc-300">
                             {line.quantity}
