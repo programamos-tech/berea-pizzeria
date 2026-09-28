@@ -2,6 +2,7 @@ import { NewProductForm, NewProductHeader } from "@/components/admin/NewProductF
 import { AdminNewPageShell } from "@/components/admin/AdminNewPageShell";
 import { adminCreateFailedMessage } from "@/lib/admin-create-failed-messages";
 import { parseProductCatalogFields } from "@/lib/product-catalog-fields";
+import { tenantChargesVat } from "@/lib/product-vat-price";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -28,6 +29,7 @@ export default async function NewProductPage({
     .eq("id", perm.tenantId)
     .maybeSingle();
   const catalogFields = parseProductCatalogFields(tenant?.storefront_config);
+  const chargeVat = tenantChargesVat(tenant?.storefront_config);
 
   return (
     <AdminNewPageShell>
@@ -47,7 +49,11 @@ export default async function NewProductPage({
         </p>
       ) : null}
 
-      <NewProductForm categories={cats} catalogFields={catalogFields} />
+      <NewProductForm
+        categories={cats}
+        catalogFields={catalogFields}
+        chargeVat={chargeVat}
+      />
     </AdminNewPageShell>
   );
 }

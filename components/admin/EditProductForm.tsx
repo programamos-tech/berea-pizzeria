@@ -74,6 +74,8 @@ type Props = {
   initial: Initial;
   currentImageUrl: string | null;
   catalogFields?: ProductCatalogFields;
+  /** Cuenta cobra IVA (`storefront_config.charge_vat`). */
+  chargeVat?: boolean;
 };
 
 export function EditProductHeader({
@@ -176,6 +178,7 @@ export function EditProductForm({
   initial,
   currentImageUrl,
   catalogFields = defaultProductCatalogFields(),
+  chargeVat = true,
 }: Props) {
   const [name, setName] = useState(initial.name);
   const [reference, setReference] = useState(initial.reference);
@@ -188,7 +191,7 @@ export function EditProductForm({
   const [isPublished, setIsPublished] = useState(initial.isPublished);
   const [hasExpiration, setHasExpiration] = useState(initial.hasExpiration);
   const [expirationDate, setExpirationDate] = useState(initial.expirationDate);
-  const [hasVat, setHasVat] = useState(initial.hasVat);
+  const [hasVat, setHasVat] = useState(chargeVat && initial.hasVat);
   const [fileLabel, setFileLabel] = useState("Ningún archivo seleccionado");
 
   const categoryLabel =
@@ -405,6 +408,8 @@ export function EditProductForm({
             </div>
             </>
             ) : null}
+            {chargeVat ? (
+            <>
             <label className="flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200">
               <input
                 type="checkbox"
@@ -422,6 +427,8 @@ export function EditProductForm({
                 name="vat_percent"
                 value={String(SALE_VAT_PERCENT)}
               />
+            ) : null}
+            </>
             ) : null}
             <label className="flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200 sm:col-span-2">
               <input
@@ -442,6 +449,7 @@ export function EditProductForm({
         <section>
           <h2 className={sectionTitle}>Información financiera</h2>
           <div className="mt-4 space-y-3">
+            {chargeVat ? (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className={filterLabelClass}>
@@ -465,6 +473,25 @@ export function EditProductForm({
                 />
               </div>
             </div>
+            ) : (
+            <div>
+              <label className={filterLabelClass}>
+                Costo{" "}
+                <span className="text-red-600 dark:text-red-400">*</span>
+              </label>
+              <ProductMoneyInput
+                name="cost_cents"
+                value={costCents}
+                onChange={setCostCents}
+                required
+              />
+              <input
+                type="hidden"
+                name="cost_gross_cents"
+                value={String(Math.max(0, Math.floor(costCents)))}
+              />
+            </div>
+            )}
             <div>
               <label className={filterLabelClass}>
                 Precio de venta{" "}
@@ -522,17 +549,19 @@ export function EditProductForm({
 
           <ul className="mt-3 space-y-1.5 text-sm">
             <li className="flex justify-between text-zinc-500">
-              <span>Costo s/IVA</span>
+              <span>{chargeVat ? "Costo s/IVA" : "Costo"}</span>
               <span className="tabular-nums text-zinc-800 dark:text-zinc-200">
                 {formatCop(costCents)}
               </span>
             </li>
+            {chargeVat ? (
             <li className="flex justify-between text-zinc-500">
               <span>Costo c/IVA</span>
               <span className="tabular-nums text-zinc-800 dark:text-zinc-200">
                 {formatCop(costGrossCents)}
               </span>
             </li>
+            ) : null}
           </ul>
 
           <p className="mt-4 text-[11px] leading-relaxed text-zinc-500">

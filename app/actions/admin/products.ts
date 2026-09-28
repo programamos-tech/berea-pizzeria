@@ -325,7 +325,6 @@ export async function createProduct(formData: FormData) {
   const brand = String(formData.get("brand") ?? "").trim();
   const price_cents = parseMoneyCents(formData.get("price_cents"));
   const cost_cents = parseMoneyCents(formData.get("cost_cents"));
-  const cost_gross_cents = parseMoneyCents(formData.get("cost_gross_cents"));
   const stockWarehouse = parseNonNegInt(formData.get("stock_warehouse"));
   const stockLocal = parseNonNegInt(formData.get("stock_local"));
   const isPublished = formData.get("is_published") === "on";
@@ -338,6 +337,9 @@ export async function createProduct(formData: FormData) {
     ? parseExpirationDate(formData.get("expiration_date"))
     : null;
   const chargeVat = tenantChargesVat(await loadTenantStorefrontConfig());
+  const cost_gross_cents = chargeVat
+    ? parseMoneyCents(formData.get("cost_gross_cents"))
+    : cost_cents;
   const has_vat = chargeVat && formData.get("has_vat") === "on";
   const vat_percent = has_vat ? SALE_VAT_PERCENT : null;
   const colors = parseColorsFromFormData(formData);
@@ -506,7 +508,6 @@ export async function updateProduct(productId: string, formData: FormData) {
   const brand = String(formData.get("brand") ?? "").trim();
   const price_cents = parseMoneyCents(formData.get("price_cents"));
   const cost_cents = parseMoneyCents(formData.get("cost_cents"));
-  const cost_gross_cents = parseMoneyCents(formData.get("cost_gross_cents"));
   const stockWarehouse = parseNonNegInt(formData.get("stock_warehouse"));
   const stockLocal = parseNonNegInt(formData.get("stock_local"));
   const isPublished = formData.get("is_published") === "on";
@@ -519,6 +520,9 @@ export async function updateProduct(productId: string, formData: FormData) {
     ? parseExpirationDate(formData.get("expiration_date"))
     : null;
   const chargeVat = tenantChargesVat(await loadTenantStorefrontConfig());
+  const cost_gross_cents = chargeVat
+    ? parseMoneyCents(formData.get("cost_gross_cents"))
+    : cost_cents;
   const has_vat = chargeVat && formData.get("has_vat") === "on";
   const vat_percent = has_vat ? SALE_VAT_PERCENT : null;
   const colors = parseColorsFromFormData(formData);

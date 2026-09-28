@@ -39,9 +39,12 @@ const summaryInset =
 export function NewProductForm({
   categories,
   catalogFields = defaultProductCatalogFields(),
+  chargeVat = true,
 }: {
   categories: ProductCategoryOption[];
   catalogFields?: ProductCatalogFields;
+  /** Cuenta cobra IVA (`storefront_config.charge_vat`). */
+  chargeVat?: boolean;
 }) {
   const [name, setName] = useState("");
   const [reference, setReference] = useState("");
@@ -54,7 +57,7 @@ export function NewProductForm({
   const [priceCents, setPriceCents] = useState(0);
   const [hasExpiration, setHasExpiration] = useState(false);
   const [expirationDate, setExpirationDate] = useState("");
-  const [hasVat, setHasVat] = useState(true);
+  const [hasVat, setHasVat] = useState(chargeVat);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [fileLabel, setFileLabel] = useState("Ningún archivo seleccionado");
 
@@ -282,6 +285,7 @@ export function NewProductForm({
                 </>
                 ) : null}
               </div>
+              {chargeVat ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200">
                   <input
@@ -312,6 +316,7 @@ export function NewProductForm({
                   ) : null}
                 </div>
               </div>
+              ) : null}
             </div>
           </section>
 
@@ -354,6 +359,7 @@ export function NewProductForm({
           <section className={cardClass}>
             <h2 className={sectionTitle}>Información financiera</h2>
             <div className="mt-5 space-y-4">
+              {chargeVat ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className={labelClass}>
@@ -379,6 +385,24 @@ export function NewProductForm({
                   </p>
                 </div>
               </div>
+              ) : (
+              <div>
+                <label className={labelClass}>
+                  Costo <span className="text-red-600 dark:text-red-400">*</span>
+                </label>
+                <ProductMoneyInput
+                  name="cost_cents"
+                  value={costCents}
+                  onChange={setCostCents}
+                  required
+                />
+                <input
+                  type="hidden"
+                  name="cost_gross_cents"
+                  value={String(Math.max(0, Math.floor(costCents)))}
+                />
+              </div>
+              )}
               <div>
                 <label className={labelClass}>
                   Precio de venta <span className="text-red-600 dark:text-red-400">*</span>

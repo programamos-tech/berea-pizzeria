@@ -14,7 +14,7 @@ import {
 import { storagePublicObjectUrl } from "@/lib/storage-public-url";
 import { parseProductCatalogFields } from "@/lib/product-catalog-fields";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
-import { SALE_VAT_PERCENT } from "@/lib/product-vat-price";
+import { SALE_VAT_PERCENT, tenantChargesVat } from "@/lib/product-vat-price";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
 
 export const dynamic = "force-dynamic";
@@ -154,6 +154,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
         categories={cats}
         currentImageUrl={img}
         catalogFields={parseProductCatalogFields(tenant?.storefront_config)}
+        chargeVat={tenantChargesVat(tenant?.storefront_config)}
         initial={{
           name: p.name,
           reference: p.reference ?? "",
