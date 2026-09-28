@@ -1,4 +1,5 @@
 import { Blocks, Package, Printer, Tag, type LucideIcon } from "lucide-react";
+import { ChargeVatSettings } from "@/components/admin/ChargeVatSettings";
 import { PosPriceSettings } from "@/components/admin/HigherSalePriceSettings";
 import { InvoiceLayoutSettings } from "@/components/admin/InvoiceLayoutSettings";
 import { KitsModuleSettings } from "@/components/admin/KitsModuleSettings";
@@ -7,7 +8,10 @@ import { SettingsSection } from "@/components/admin/SettingsSection";
 import { parseProductCatalogFields } from "@/lib/product-catalog-fields";
 import { adminPageSubtitleClass, adminPageTitleClass } from "@/lib/admin-ui";
 import { parseInvoiceLayout } from "@/lib/invoice-layout";
-import { posPricePolicyFromConfig } from "@/lib/product-vat-price";
+import {
+  posPricePolicyFromConfig,
+  tenantChargesVat,
+} from "@/lib/product-vat-price";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -52,6 +56,7 @@ export default async function AdminConfiguracionPage({
   const invoiceLayout = parseInvoiceLayout(tenant?.storefront_config);
   const productFields = parseProductCatalogFields(tenant?.storefront_config);
   const pricePolicy = posPricePolicyFromConfig(tenant?.storefront_config);
+  const chargeVat = tenantChargesVat(tenant?.storefront_config);
 
   return (
     <div className="flex flex-col gap-5 lg:gap-6">
@@ -103,13 +108,16 @@ export default async function AdminConfiguracionPage({
             id="ventas"
             icon={Tag}
             title="Ventas y precios"
-            description="Qué tanto puede el vendedor cambiar el precio de lista al facturar."
+            description="IVA y qué tanto puede el vendedor cambiar el precio de lista al facturar."
           >
-            <PosPriceSettings
-              allowBelow={pricePolicy.allowBelow}
-              allowHigher={pricePolicy.allowHigher}
-              canEdit={canEdit}
-            />
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+              <ChargeVatSettings enabled={chargeVat} canEdit={canEdit} />
+              <PosPriceSettings
+                allowBelow={pricePolicy.allowBelow}
+                allowHigher={pricePolicy.allowHigher}
+                canEdit={canEdit}
+              />
+            </div>
           </SettingsSection>
 
           <SettingsSection

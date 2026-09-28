@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
+import { IngredientStockEntryButton } from "@/components/admin/IngredientStockEntryButton";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
 import { fetchAdminIngredients } from "@/lib/admin-menu-catalog";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
@@ -23,6 +24,7 @@ export default async function AdminIngredientsPage() {
   ]);
   const canSeeProducts = Boolean(perm?.permissions.inventario_ver);
   const canSeeKits = Boolean(perm?.permissions.kits_ver);
+  const canStock = Boolean(perm?.permissions.stock_actualizar);
   const ingredients = await fetchAdminIngredients(supabase);
 
   return (
@@ -31,7 +33,11 @@ export default async function AdminIngredientsPage() {
         <div className="min-w-0">
           <h1 className={adminPageTitleClass}>Insumos</h1>
           <p className={adminPageSubtitleClass}>
-            Lo que compras · {ingredients.length} insumos
+            Lo que compras · {ingredients.length} insumos. Usá{" "}
+            <span className="font-medium text-zinc-700 dark:text-zinc-200">
+              Entrada
+            </span>{" "}
+            para registrar una compra y sumar stock.
           </p>
         </div>
         <Link
@@ -63,8 +69,9 @@ export default async function AdminIngredientsPage() {
               <tr className="border-b border-zinc-100 dark:border-zinc-800">
                 <th className={thClass}>Nombre</th>
                 <th className={thClass}>Unidad</th>
-                <th className={thClass}>Slug</th>
+                <th className={thClass}>Stock</th>
                 <th className={thClass}>Estado</th>
+                <th className={`${thClass} text-right`}>Compra</th>
               </tr>
             </thead>
             <tbody>
@@ -79,7 +86,11 @@ export default async function AdminIngredientsPage() {
                       {ing.unit}
                     </span>
                   </td>
-                  <td className={`${tdClass} text-zinc-500`}>{ing.slug}</td>
+                  <td className={`${tdClass} font-mono text-xs tabular-nums`}>
+                    {Number(ing.stock_qty).toLocaleString("es-CO", {
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
                   <td className={tdClass}>
                     {ing.is_active ? (
                       <span className="text-emerald-700 dark:text-emerald-400">
@@ -87,6 +98,18 @@ export default async function AdminIngredientsPage() {
                       </span>
                     ) : (
                       <span className="text-zinc-400">Inactivo</span>
+                    )}
+                  </td>
+                  <td className={`${tdClass} text-right`}>
+                    {canStock ? (
+                      <IngredientStockEntryButton
+                        ingredientId={ing.id}
+                        ingredientName={ing.name}
+                        unit={ing.unit}
+                        stockQty={ing.stock_qty}
+                      />
+                    ) : (
+                      <span className="text-xs text-zinc-400">Sin permiso</span>
                     )}
                   </td>
                 </tr>

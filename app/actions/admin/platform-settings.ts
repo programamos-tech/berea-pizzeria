@@ -155,6 +155,63 @@ const POS_PRICE_FLAG_KEYS: Record<PosPriceFlag, string> = {
   below: "pos_allow_below_price",
 };
 
+export async function updateChargeVatAction(
+  enabled: boolean,
+): Promise<{ ok: true } | { ok: false }> {
+  const session = await requireAdminSession();
+  if (session.jobRole !== "owner" && !session.isPlatformOperator) {
+    return { ok: false };
+  }
+
+  let service: ReturnType<typeof createSupabaseServiceClient>;
+  try {
+    service = createSupabaseServiceClient();
+  } catch {
+    return { ok: false };
+  }
+
+  const { data: tenant } = await service
+    .from("tenants")
+    .select("storefront_config")
+    .eq("id", session.tenantId)
+    .maybeSingle();
+  if (!tenant) return { ok: false };
+
+  const current =
+    tenant.storefront_config &&
+    typeof tenant.storefront_config === "object" &&
+    !Array.isArray(tenant.storefront_config)
+      ? (tenant.storefront_config as Record<string, unknown>)
+      : {};
+
+  const { data: updated, error } = await service
+    .from("tenants")
+    .update({
+      storefront_config: {
+        ...current,
+        charge_vat: enabled,
+      },
+    })
+    .eq("id", session.tenantId)
+    .select("id")
+    .maybeSingle();
+  if (error || !updated?.id) return { ok: false };
+
+  // Al apagar IVA, alinear el catálogo para que fichas/reportes no muestren 19 %.
+  if (!enabled) {
+    await service
+      .from("products")
+      .update({ has_vat: false, vat_percent: null })
+      .eq("tenant_id", session.tenantId);
+  }
+
+  revalidatePath("/admin", "layout");
+  revalidatePath("/admin/configuracion");
+  revalidatePath("/admin/products");
+  revalidatePath("/admin/ventas/nueva");
+  return { ok: true };
+}
+
 export async function updatePosPriceFlagAction(
   flag: PosPriceFlag,
   enabled: boolean,

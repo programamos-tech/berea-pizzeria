@@ -754,7 +754,7 @@ function buildSql() {
     out.push(`      stock_warehouse, stock_local, recipe_id, size_options`);
     out.push(`    ) values (`);
     out.push(`      tid, '${esc(name)}', '${esc(description)}', ${priceCents}, 'COP', true, v_cat_id,`);
-    out.push(`      '${esc(reference)}', 'Liaco', 0, 0, true, 19,`);
+    out.push(`      '${esc(reference)}', 'Liaco', 0, 0, false, null,`);
     out.push(`      0, 0, v_recipe_id, ${sizeJson}`);
     out.push(`    ) returning id into v_product_id;`);
     out.push(`  else`);

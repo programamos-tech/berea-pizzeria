@@ -124,12 +124,24 @@ type CartLine = {
   chargedGrossRaw: string;
 };
 
-function unitFinalCents(product: ProductHit, wholesalePct: number): number {
+function productChargesVat(product: ProductHit, chargeVat: boolean): boolean {
+  return chargeVat && Boolean(product.has_vat);
+}
+
+function unitFinalCents(
+  product: ProductHit,
+  wholesalePct: number,
+  chargeVat: boolean,
+): number {
   const net = unitPriceAfterWholesaleCents(
     Number(product.price_cents ?? 0),
     wholesalePct,
   );
-  return unitPriceGrossCents(net, product.has_vat, product.vat_percent);
+  return unitPriceGrossCents(
+    net,
+    productChargesVat(product, chargeVat),
+    product.vat_percent,
+  );
 }
 
 const LIST_PRICE_ONLY_POLICY: PosPricePolicy = {
@@ -145,10 +157,16 @@ function catalogLineNetCents(line: CartLine, wholesalePct: number): number {
 }
 
 /** Cobrar vacío o igual al de lista → `null` (precio de catálogo). */
-function lineChargedUnitCents(line: CartLine, wholesalePct: number): number | null {
+function lineChargedUnitCents(
+  line: CartLine,
+  wholesalePct: number,
+  chargeVat: boolean,
+): number | null {
   const typed = parseCopChargedPesosOrNull(line.chargedGrossRaw);
   if (typed == null) return null;
-  return typed === unitFinalCents(line.product, wholesalePct) ? null : typed;
+  return typed === unitFinalCents(line.product, wholesalePct, chargeVat)
+    ? null
+    : typed;
 }
 
 function effectiveLineDiscountPercent(line: CartLine): number | null {
@@ -161,18 +179,19 @@ function linePricing(
   line: CartLine,
   wholesalePct: number,
   policy: PosPricePolicy,
+  chargeVat: boolean,
   discount?: { percent: number | null; amountCents: number },
 ) {
   return computePosProductLineAmounts({
     priceCatalog: Number(line.product.price_cents ?? 0),
-    hasVat: Boolean(line.product.has_vat),
+    hasVat: productChargesVat(line.product, chargeVat),
     wholesalePct,
     quantity: line.quantity,
-    chargedUnitCents: lineChargedUnitCents(line, wholesalePct),
+    chargedUnitCents: lineChargedUnitCents(line, wholesalePct, chargeVat),
     discountPercent: discount ? discount.percent : effectiveLineDiscountPercent(line),
     discountAmountCents: discount
       ? discount.amountCents
-      : effectiveLineDiscountAmountCents(line, wholesalePct, policy),
+      : effectiveLineDiscountAmountCents(line, wholesalePct, policy, chargeVat),
     policy,
   });
 }
@@ -181,19 +200,23 @@ function lineNetBeforeDiscount(
   line: CartLine,
   wholesalePct: number,
   policy: PosPricePolicy,
+  chargeVat: boolean,
 ): number {
-  return linePricing(line, wholesalePct, policy, { percent: null, amountCents: 0 })
-    .lineNetBefore;
+  return linePricing(line, wholesalePct, policy, chargeVat, {
+    percent: null,
+    amountCents: 0,
+  }).lineNetBefore;
 }
 
 function effectiveLineDiscountAmountCents(
   line: CartLine,
   wholesalePct: number,
   policy: PosPricePolicy,
+  chargeVat: boolean,
 ): number {
   if (line.discountMode !== "amount") return 0;
   const raw = parseCopInputDigitsToInt(line.discountAmountRaw);
-  const maxNet = lineNetBeforeDiscount(line, wholesalePct, policy);
+  const maxNet = lineNetBeforeDiscount(line, wholesalePct, policy, chargeVat);
   return Math.min(Math.max(0, raw), maxNet);
 }
 
@@ -429,6 +452,7 @@ export function NewInvoiceForm({
   canUseCredit = true,
   canUseKits = true,
   pricePolicy = LIST_PRICE_ONLY_POLICY,
+  chargeVat = true,
 }: {
   initialError?: string;
   initialCustomerId?: string;
@@ -436,6 +460,7 @@ export function NewInvoiceForm({
   canUseCredit?: boolean;
   canUseKits?: boolean;
   pricePolicy?: PosPricePolicy;
+  chargeVat?: boolean;
 }) {
   const canEditLinePrice = pricePolicy.allowHigher || pricePolicy.allowBelow;
   const editingQuotation = Boolean(editQuotation);
@@ -916,10 +941,10 @@ export function NewInvoiceForm({
   const pricingByKey = useMemo(() => {
     const m = new Map<string, ReturnType<typeof linePricing>>();
     for (const line of lines) {
-      m.set(line.key, linePricing(line, customerWholesalePct, pricePolicy));
+      m.set(line.key, linePricing(line, customerWholesalePct, pricePolicy, chargeVat));
     }
     return m;
-  }, [lines, customerWholesalePct, pricePolicy]);
+  }, [lines, customerWholesalePct, pricePolicy, chargeVat]);
 
   const subtotalCents = useMemo(() => {
     let s = kitSubtotalCents;
@@ -1222,8 +1247,8 @@ export function NewInvoiceForm({
         const amt =
           pct != null
             ? 0
-            : effectiveLineDiscountAmountCents(l, customerWholesalePct, pricePolicy);
-        const chargedUnitCents = lineChargedUnitCents(l, customerWholesalePct);
+            : effectiveLineDiscountAmountCents(l, customerWholesalePct, pricePolicy, chargeVat);
+        const chargedUnitCents = lineChargedUnitCents(l, customerWholesalePct, chargeVat);
         return {
           productId: l.product.id,
           quantity: l.quantity,
@@ -1330,7 +1355,7 @@ export function NewInvoiceForm({
                           </span>
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
                             {p.reference ? `${p.reference} · ` : null}
-                            {formatCop(unitFinalCents(p, customerWholesalePct))}
+                            {formatCop(unitFinalCents(p, customerWholesalePct, chargeVat))}
                             {stock < 6 ? ` · Stock tienda: ${stock}` : null}
                           </span>
                         </button>
@@ -1416,7 +1441,7 @@ export function NewInvoiceForm({
                   }
                   const maxQtyThisLine = Math.max(1, stock - usedElsewhere);
                   const priced =
-                    pricingByKey.get(line.key) ?? linePricing(line, w, pricePolicy);
+                    pricingByKey.get(line.key) ?? linePricing(line, w, pricePolicy, chargeVat);
                   const lineTotal = priced.unitFinal * line.quantity;
                   const unitCatalogGross = priced.catalogGross;
                   const unitLineGross = priced.unitFinal;
@@ -1450,8 +1475,8 @@ export function NewInvoiceForm({
                             ) : (
                               <span>{formatCop(unitCatalogGross)} c/u</span>
                             )}
-                            {line.product.has_vat
-                              ? ` · IVA ${String(saleVatPercentLabel(line.product.has_vat) ?? 0).replace(/\.0+$/, "")}%`
+                            {productChargesVat(line.product, chargeVat)
+                              ? ` · IVA ${String(saleVatPercentLabel(true) ?? 0).replace(/\.0+$/, "")}%`
                               : ""}
                           </p>
                           {showChargedInput ? (
@@ -2106,9 +2131,9 @@ export function NewInvoiceForm({
                     </dd>
                   </div>
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
-                    <dt>IVA</dt>
+                    <dt>{chargeVat ? "IVA" : "IVA (N/A)"}</dt>
                     <dd className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
-                      {formatCop(vatCents)}
+                      {chargeVat ? formatCop(vatCents) : formatCop(0)}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">

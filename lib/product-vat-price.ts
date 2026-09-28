@@ -5,10 +5,40 @@
  *
  * No se “ajusta” el porcentaje al bruto redondeado del catálogo: `vat_percent` en BD
  * queda en 19 para referencia; los cálculos usan siempre `SALE_VAT_PERCENT`.
+ *
+ * Cuenta: `storefront_config.charge_vat === false` apaga el IVA en toda la cuenta
+ * (aunque el producto tenga `has_vat`). Si la clave no existe, el IVA sigue activo
+ * (compatibilidad). Liaco se siembra con `charge_vat: false`.
  */
 
 /** IVA general ventas bienes Colombia (información / cálculo único). */
 export const SALE_VAT_PERCENT = 19;
+
+/** Clave en `tenants.storefront_config`. */
+export const CHARGE_VAT_CONFIG_KEY = "charge_vat" as const;
+
+/**
+ * Si la cuenta cobra IVA. `false` explícito = apagado; ausente/`true` = encendido
+ * (comportamiento histórico).
+ */
+export function tenantChargesVat(storefrontConfig: unknown): boolean {
+  if (
+    !storefrontConfig ||
+    typeof storefrontConfig !== "object" ||
+    Array.isArray(storefrontConfig)
+  ) {
+    return true;
+  }
+  return (storefrontConfig as Record<string, unknown>)[CHARGE_VAT_CONFIG_KEY] !== false;
+}
+
+/** IVA efectivo del ítem: cuenta + flag del producto. */
+export function effectiveHasVat(
+  storefrontConfig: unknown,
+  productHasVat: boolean | null | undefined,
+): boolean {
+  return tenantChargesVat(storefrontConfig) && Boolean(productHasVat);
+}
 
 export function unitPriceNetCents(price_cents: number): number {
   return Math.max(0, Math.round(Number(price_cents ?? 0)));

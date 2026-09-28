@@ -16,7 +16,7 @@ const COPY: Record<PosPriceFlag, { title: string; detail: string }> = {
   higher: {
     title: "Vender por encima del precio de venta",
     detail:
-      "Permite cobrar más que el precio de lista. El precio cobrado ya incluye el IVA.",
+      "Permite cobrar más que el precio de lista. El precio cobrado es el valor final del ticket.",
   },
 };
 
@@ -64,9 +64,9 @@ export function PosPriceSettings({
   canEdit: boolean;
 }) {
   return (
-    <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+    <>
       <PosPriceFlagToggle flag="below" enabled={allowBelow} canEdit={canEdit} />
       <PosPriceFlagToggle flag="higher" enabled={allowHigher} canEdit={canEdit} />
-    </div>
+    </>
   );
 }

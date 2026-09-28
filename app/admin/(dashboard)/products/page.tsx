@@ -21,7 +21,10 @@ import {
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { unitPriceGrossCents } from "@/lib/product-vat-price";
+import {
+  effectiveHasVat,
+  unitPriceGrossCents,
+} from "@/lib/product-vat-price";
 import { AdminProductsFlashToast } from "@/components/admin/AdminProductsFlashToast";
 import { InventorySubnav } from "@/components/admin/InventorySubnav";
 import {
@@ -87,7 +90,10 @@ type AdminProductRowModel = {
   stock_local: number;
 };
 
-function normalizeAdminProductRow(row: unknown): AdminProductRowModel {
+function normalizeAdminProductRow(
+  row: unknown,
+  storefrontConfig: unknown,
+): AdminProductRowModel {
   const raw = row as RawAdminProductRow;
   const stockLocal = Math.max(0, Math.floor(Number(raw.stock_local ?? raw.stock_quantity ?? 0)));
   const category = Array.isArray(raw.categories)
@@ -95,7 +101,7 @@ function normalizeAdminProductRow(row: unknown): AdminProductRowModel {
     : raw.categories;
   const publicPriceCents = unitPriceGrossCents(
     raw.price_cents,
-    raw.has_vat,
+    effectiveHasVat(storefrontConfig, raw.has_vat),
     raw.vat_percent,
   );
   return {
@@ -216,20 +222,30 @@ export default async function AdminProductsPage({
 
   const supabase = await createSupabaseServerClient();
 
-  const [categoryList, listResult, categoriesManage] = await Promise.all([
-    fetchAdminCategoriesList(supabase),
-    fetchAdminProductsList(supabase, {
-      q,
-      status,
-      categoryId,
-      lowStockMax: LOW_STOCK_MAX,
-      page: currentPage,
-      pageSize,
-    }),
-    showCategories
-      ? fetchAdminCategoriesManageList(supabase)
-      : Promise.resolve({ list: [], error: false }),
-  ]);
+  const [categoryList, listResult, categoriesManage, tenantCfg] =
+    await Promise.all([
+      fetchAdminCategoriesList(supabase),
+      fetchAdminProductsList(supabase, {
+        q,
+        status,
+        categoryId,
+        lowStockMax: LOW_STOCK_MAX,
+        page: currentPage,
+        pageSize,
+      }),
+      showCategories
+        ? fetchAdminCategoriesManageList(supabase)
+        : Promise.resolve({ list: [], error: false }),
+      authPerm?.tenantId
+        ? supabase
+            .from("tenants")
+            .select("storefront_config")
+            .eq("id", authPerm.tenantId)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+  const storefrontConfig = tenantCfg.data?.storefront_config;
 
   const {
     list,
@@ -243,7 +259,7 @@ export default async function AdminProductsPage({
     list.map((row) => String((row as { id?: string }).id ?? "")),
   );
   const productRows = list.map((row) => {
-    const normalized = normalizeAdminProductRow(row);
+    const normalized = normalizeAdminProductRow(row, storefrontConfig);
     return {
       ...normalized,
       stock_local: inventoryByProduct.get(normalized.id) ?? 0,

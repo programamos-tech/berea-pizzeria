@@ -6,7 +6,10 @@ import { AdminNewPageShell } from "@/components/admin/AdminNewPageShell";
 import { NuevaFacturaPageClient } from "@/components/admin/NuevaFacturaPageClient";
 import { loadQuotationEditDraft } from "@/lib/load-quotation-edit-draft";
 import { findDefaultPosCustomerId } from "@/lib/pos-default-customer";
-import { posPricePolicyFromConfig } from "@/lib/product-vat-price";
+import {
+  posPricePolicyFromConfig,
+  tenantChargesVat,
+} from "@/lib/product-vat-price";
 import { requireAdminPermission } from "@/lib/require-admin-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
@@ -39,6 +42,7 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
     .eq("id", perm.tenantId)
     .maybeSingle();
   const pricePolicy = posPricePolicyFromConfig(tenant?.storefront_config);
+  const chargeVat = tenantChargesVat(tenant?.storefront_config);
 
   if (quotationId) {
     const loaded = await loadQuotationEditDraft(supabase, quotationId);
@@ -60,6 +64,7 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
           canUseCredit={canUseCredit}
           canUseKits={canUseKits}
           pricePolicy={pricePolicy}
+          chargeVat={chargeVat}
         />
       </AdminNewPageShell>
     );
@@ -81,6 +86,7 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
         canUseCredit={canUseCredit}
         canUseKits={canUseKits}
         pricePolicy={pricePolicy}
+        chargeVat={chargeVat}
       />
     </AdminNewPageShell>
   );

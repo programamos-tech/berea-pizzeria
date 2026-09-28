@@ -7,6 +7,7 @@ export type AdminIngredientRow = {
   unit: string;
   notes: string;
   is_active: boolean;
+  stock_qty: number;
 };
 
 export type AdminRecipeRow = {
@@ -27,13 +28,32 @@ export async function fetchAdminIngredients(
 ): Promise<AdminIngredientRow[]> {
   const { data, error } = await supabase
     .from("ingredients")
-    .select("id,name,slug,unit,notes,is_active")
+    .select("id,name,slug,unit,notes,is_active,stock_qty")
     .order("name", { ascending: true });
   if (error) {
-    console.error("fetchAdminIngredients", error.message);
-    return [];
+    // Compat: columna stock_qty aún no migrada
+    const fallback = await supabase
+      .from("ingredients")
+      .select("id,name,slug,unit,notes,is_active")
+      .order("name", { ascending: true });
+    if (fallback.error) {
+      console.error("fetchAdminIngredients", error.message);
+      return [];
+    }
+    return (fallback.data ?? []).map((row) => ({
+      ...(row as Omit<AdminIngredientRow, "stock_qty">),
+      stock_qty: 0,
+    }));
   }
-  return (data ?? []) as AdminIngredientRow[];
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    name: String(row.name),
+    slug: String(row.slug),
+    unit: String(row.unit),
+    notes: String(row.notes ?? ""),
+    is_active: Boolean(row.is_active),
+    stock_qty: Math.max(0, Number(row.stock_qty ?? 0)),
+  }));
 }
 
 export async function fetchAdminRecipes(

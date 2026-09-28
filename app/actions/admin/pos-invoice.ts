@@ -28,7 +28,10 @@ import {
   type ProductKitRow,
 } from "@/lib/product-kits";
 import { computePosProductLineAmounts } from "@/lib/pos-line-price";
-import { posPricePolicyFromConfig } from "@/lib/product-vat-price";
+import {
+  effectiveHasVat,
+  posPricePolicyFromConfig,
+} from "@/lib/product-vat-price";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { fetchCurrentBranchInventoryMap } from "@/lib/branch-inventory";
@@ -371,9 +374,8 @@ export async function createPosInvoiceAction(formData: FormData) {
     }
   }
 
-  const pricePolicy = posPricePolicyFromConfig(
-    tenantCfgRes.data?.storefront_config,
-  );
+  const storefrontConfig = tenantCfgRes.data?.storefront_config;
+  const pricePolicy = posPricePolicyFromConfig(storefrontConfig);
 
   function saleLineAmounts(
     p: {
@@ -387,7 +389,7 @@ export async function createPosInvoiceAction(formData: FormData) {
   ): { lineNetAfter: number; unitFinal: number } {
     const priced = computePosProductLineAmounts({
       priceCatalog: Math.max(0, Math.floor(Number(p.price_cents ?? 0))),
-      hasVat: Boolean(p.has_vat),
+      hasVat: effectiveHasVat(storefrontConfig, p.has_vat),
       wholesalePct,
       quantity,
       chargedUnitCents,

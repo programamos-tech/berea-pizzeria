@@ -10,7 +10,10 @@ import {
   legacySizeFromOptions,
   parseSizeOptionsFromFormData,
 } from "@/lib/product-size-options";
-import { SALE_VAT_PERCENT } from "@/lib/product-vat-price";
+import {
+  SALE_VAT_PERCENT,
+  tenantChargesVat,
+} from "@/lib/product-vat-price";
 import {
   omitDisabledProductCatalogFields,
   parseProductCatalogFields,
@@ -27,16 +30,20 @@ function revalidateStoreProductCache() {
   revalidateStoreCatalogTags();
 }
 
-async function loadCatalogFieldsForActor() {
+async function loadTenantStorefrontConfig() {
   const perm = await loadAdminPermissions();
-  if (!perm) return parseProductCatalogFields(null);
+  if (!perm) return null;
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("tenants")
     .select("storefront_config")
     .eq("id", perm.tenantId)
     .maybeSingle();
-  return parseProductCatalogFields(data?.storefront_config);
+  return data?.storefront_config ?? null;
+}
+
+async function loadCatalogFieldsForActor() {
+  return parseProductCatalogFields(await loadTenantStorefrontConfig());
 }
 
 function extFromFilename(name: string) {
@@ -330,7 +337,8 @@ export async function createProduct(formData: FormData) {
   const expiration_date = has_expiration
     ? parseExpirationDate(formData.get("expiration_date"))
     : null;
-  const has_vat = formData.get("has_vat") === "on";
+  const chargeVat = tenantChargesVat(await loadTenantStorefrontConfig());
+  const has_vat = chargeVat && formData.get("has_vat") === "on";
   const vat_percent = has_vat ? SALE_VAT_PERCENT : null;
   const colors = parseColorsFromFormData(formData);
   const fragrance_options = parseFragranceOptionsFromFormData(formData);
@@ -510,7 +518,8 @@ export async function updateProduct(productId: string, formData: FormData) {
   const expiration_date = has_expiration
     ? parseExpirationDate(formData.get("expiration_date"))
     : null;
-  const has_vat = formData.get("has_vat") === "on";
+  const chargeVat = tenantChargesVat(await loadTenantStorefrontConfig());
+  const has_vat = chargeVat && formData.get("has_vat") === "on";
   const vat_percent = has_vat ? SALE_VAT_PERCENT : null;
   const colors = parseColorsFromFormData(formData);
   const fragrance_options = parseFragranceOptionsFromFormData(formData);

@@ -11,6 +11,7 @@ export function NuevaFacturaClient({
   canUseCredit = true,
   canUseKits = true,
   pricePolicy,
+  chargeVat = true,
 }: {
   initialError?: string;
   initialCustomerId?: string;
@@ -18,6 +19,7 @@ export function NuevaFacturaClient({
   canUseCredit?: boolean;
   canUseKits?: boolean;
   pricePolicy?: PosPricePolicy;
+  chargeVat?: boolean;
 }) {
   return (
     <>
@@ -29,6 +31,7 @@ export function NuevaFacturaClient({
         canUseCredit={canUseCredit}
         canUseKits={canUseKits}
         pricePolicy={pricePolicy}
+        chargeVat={chargeVat}
       />
     </>
   );
