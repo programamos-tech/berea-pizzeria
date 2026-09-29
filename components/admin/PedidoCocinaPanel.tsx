@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { updatePedidoKitchenStatus } from "@/app/actions/admin/kitchen-status";
 import { AdminPortalRoot } from "@/components/admin/AdminPortalRoot";
 import {
   KITCHEN_STATUSES,
-  kitchenStatusButtonClass,
   kitchenStatusColors,
   kitchenStatusHint,
   kitchenStatusLabel,
+  kitchenStatusTone,
   type KitchenStatus,
 } from "@/lib/kitchen-status";
 import { createPortal } from "react-dom";
@@ -118,13 +118,34 @@ export function PedidoCocinaPanel({
   );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState<PedidoLineRecipe | null>(null);
   const [mounted, setMounted] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setMounted(true), []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onDocPointerDown(e: MouseEvent) {
+      if (!menuRef.current?.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onDocPointerDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocPointerDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
   function setKitchen(next: KitchenStatus) {
     if (next === status || pending) return;
+    setMenuOpen(false);
     setError(null);
     startTransition(async () => {
       const res = await updatePedidoKitchenStatus(orderId, next);
@@ -142,6 +163,7 @@ export function PedidoCocinaPanel({
   }
 
   const cronometroStopped = status === "entregado";
+  const currentTone = kitchenStatusTone(status, serviceType);
 
   return (
     <section className="print:hidden rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-5">
@@ -168,28 +190,81 @@ export function PedidoCocinaPanel({
             stoppedAt={kitchenCompletedAt}
           />
           <div
-            className="flex flex-wrap gap-1.5 sm:justify-end"
+            className="relative self-end"
+            ref={menuRef}
             data-testid="pedido-cocina-estados"
           >
-            {KITCHEN_STATUSES.map((s) => {
-              const active = status === s;
-              return (
-                <button
-                  key={s}
-                  type="button"
-                  disabled={pending}
-                  onClick={() => setKitchen(s)}
-                  data-testid={`pedido-cocina-btn-${s}`}
-                  className={[
-                    "rounded-md px-2.5 py-1.5 text-[11px] font-bold tracking-wide transition sm:text-xs",
-                    kitchenStatusButtonClass(s, active),
-                    pending ? "opacity-70" : "",
-                  ].join(" ")}
-                >
-                  {kitchenStatusLabel(s, serviceType)}
-                </button>
-              );
-            })}
+            <button
+              type="button"
+              disabled={pending}
+              aria-haspopup="listbox"
+              aria-expanded={menuOpen}
+              aria-label="Cambiar estado de cocina"
+              onClick={() => setMenuOpen((o) => !o)}
+              data-testid="pedido-cocina-dropdown"
+              className={[
+                "inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[11px] font-bold tracking-wide transition sm:text-xs",
+                currentTone.className,
+                "shadow-sm hover:brightness-[0.98]",
+                pending ? "opacity-70" : "",
+              ].join(" ")}
+            >
+              <span data-testid={`pedido-cocina-actual-${status}`}>
+                {currentTone.label}
+              </span>
+              <svg
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className={[
+                  "size-3.5 shrink-0 opacity-70 transition",
+                  menuOpen ? "rotate-180" : "",
+                ].join(" ")}
+                aria-hidden
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.25 4.5a.75.75 0 0 1-1.08 0l-4.25-4.5a.75.75 0 0 1 .02-1.06Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+            {menuOpen ? (
+              <ul
+                role="listbox"
+                aria-label="Estados de cocina"
+                data-testid="pedido-cocina-menu"
+                className="absolute right-0 z-20 mt-1.5 min-w-[11.5rem] overflow-hidden rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-950"
+              >
+                {KITCHEN_STATUSES.map((s) => {
+                  const active = status === s;
+                  const tone = kitchenStatusTone(s, serviceType);
+                  return (
+                    <li key={s} role="option" aria-selected={active}>
+                      <button
+                        type="button"
+                        disabled={pending || active}
+                        onClick={() => setKitchen(s)}
+                        data-testid={`pedido-cocina-opt-${s}`}
+                        className={[
+                          "flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition",
+                          active
+                            ? "bg-zinc-50 dark:bg-zinc-900/80"
+                            : "hover:bg-zinc-50 dark:hover:bg-zinc-900/60",
+                          pending ? "opacity-70" : "",
+                        ].join(" ")}
+                      >
+                        <span className={tone.className}>{tone.label}</span>
+                        {active ? (
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
+                            Actual
+                          </span>
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
           </div>
           {error ? (
             <p
