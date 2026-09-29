@@ -51,6 +51,36 @@ export function kitchenStatusHint(status: KitchenStatus): string {
   }
 }
 
+/** Color de letra para listados (sin pastilla). */
+export function kitchenStatusTone(
+  status: KitchenStatus,
+  serviceType?: "domicilio" | "en_el_lugar" | null,
+): { label: string; className: string } {
+  const label = kitchenStatusLabel(status, serviceType);
+  switch (status) {
+    case "entregado":
+      return {
+        label,
+        className: "font-semibold text-emerald-700 dark:text-emerald-400",
+      };
+    case "listo":
+      return {
+        label,
+        className: "font-semibold text-teal-700 dark:text-teal-400",
+      };
+    case "en_preparacion":
+      return {
+        label,
+        className: "font-semibold text-[var(--admin-coral)]",
+      };
+    default:
+      return {
+        label,
+        className: "font-semibold text-zinc-700 dark:text-zinc-300",
+      };
+  }
+}
+
 /** Siguiente estado sugerido (avance lineal). */
 export function nextKitchenStatus(
   current: KitchenStatus | null | undefined,

@@ -28,6 +28,44 @@ export function billPaymentStatusLabel(status: BillPaymentStatus): string {
   }
 }
 
+/** Etiqueta corta para listados. */
+export function billPaymentStatusListLabel(status: BillPaymentStatus): string {
+  switch (status) {
+    case "pending":
+      return "Pendiente";
+    case "partial":
+      return "Pago parcial";
+    case "paid":
+      return "Pagado";
+    default:
+      return status;
+  }
+}
+
+export function billPaymentStatusTone(status: BillPaymentStatus): {
+  label: string;
+  className: string;
+} {
+  const label = billPaymentStatusListLabel(status);
+  switch (status) {
+    case "paid":
+      return {
+        label,
+        className: "font-semibold text-emerald-700 dark:text-emerald-400",
+      };
+    case "partial":
+      return {
+        label,
+        className: "font-semibold text-amber-700 dark:text-amber-300",
+      };
+    default:
+      return {
+        label,
+        className: "font-semibold text-amber-700 dark:text-amber-300",
+      };
+  }
+}
+
 export type PedidoBillPaymentMethod =
   | "cash"
   | "transfer"
