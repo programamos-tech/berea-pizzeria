@@ -5,6 +5,8 @@ import { updatePedidoKitchenStatus } from "@/app/actions/admin/kitchen-status";
 import { AdminPortalRoot } from "@/components/admin/AdminPortalRoot";
 import {
   KITCHEN_STATUSES,
+  kitchenStatusButtonClass,
+  kitchenStatusColors,
   kitchenStatusHint,
   kitchenStatusLabel,
   type KitchenStatus,
@@ -148,7 +150,10 @@ export function PedidoCocinaPanel({
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
             Cocina
           </p>
-          <p className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <p
+            className={`mt-1 text-lg font-semibold ${kitchenStatusColors(status).title}`}
+            data-testid="pedido-cocina-titulo"
+          >
             {kitchenStatusLabel(status, serviceType)}
           </p>
           <p className="mt-0.5 text-xs text-zinc-500">
@@ -162,7 +167,10 @@ export function PedidoCocinaPanel({
             stopped={cronometroStopped}
             stoppedAt={kitchenCompletedAt}
           />
-          <div className="flex flex-wrap gap-1.5 sm:justify-end">
+          <div
+            className="flex flex-wrap gap-1.5 sm:justify-end"
+            data-testid="pedido-cocina-estados"
+          >
             {KITCHEN_STATUSES.map((s) => {
               const active = status === s;
               return (
@@ -171,11 +179,10 @@ export function PedidoCocinaPanel({
                   type="button"
                   disabled={pending}
                   onClick={() => setKitchen(s)}
+                  data-testid={`pedido-cocina-btn-${s}`}
                   className={[
-                    "rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition sm:text-xs",
-                    active
-                      ? "bg-[var(--admin-coral)] text-white shadow-sm"
-                      : "border border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800",
+                    "rounded-md px-2.5 py-1.5 text-[11px] font-bold tracking-wide transition sm:text-xs",
+                    kitchenStatusButtonClass(s, active),
                     pending ? "opacity-70" : "",
                   ].join(" ")}
                 >
