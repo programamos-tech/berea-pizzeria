@@ -127,19 +127,18 @@ export function VentasSalesTable({
                   <p className="mt-0.5 truncate text-sm text-zinc-800 dark:text-zinc-200">
                     {row.customer_name}
                   </p>
-                  <p className="mt-1 text-[11px] text-zinc-500">
-                    {formatVentaFecha(row.created_at)}
-                  </p>
-                  <p className="mt-1.5 text-xs">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                     {cocina ? (
                       <span className={cocina.className}>{cocina.label}</span>
                     ) : null}
-                    {cocina && pago ? (
-                      <span className="mx-1.5 text-zinc-400">·</span>
-                    ) : null}
                     {pago ? (
-                      <span className={pago.className}>{pago.label}</span>
+                      <span className={`text-xs ${pago.className}`}>
+                        {pago.label}
+                      </span>
                     ) : null}
+                  </div>
+                  <p className="mt-1 text-[11px] text-zinc-500">
+                    {formatVentaFecha(row.created_at)}
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-2">
@@ -159,18 +158,18 @@ export function VentasSalesTable({
         })}
       </ul>
 
-      {/* Desktop: tabla plana estilo reportes / caja */}
+      {/* Desktop: Pedido · Total · Cliente · Tipo · Cocina · Pago · Fecha · ver */}
       <div className="hidden min-w-0 overflow-x-auto xl:block">
         <table className="min-w-full text-left text-sm">
           <thead>
             <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
               <th className={thClass}>Pedido</th>
-              <th className={thClass}>Fecha</th>
+              <th className={`${thClass} text-right`}>Total</th>
               <th className={thClass}>Cliente</th>
               <th className={thClass}>Tipo</th>
               <th className={thClass}>Cocina</th>
               <th className={thClass}>Pago</th>
-              <th className={`${thClass} text-right`}>Total</th>
+              <th className={thClass}>Fecha</th>
               <th className={`${thClass} w-10 pr-0`} />
             </tr>
           </thead>
@@ -208,8 +207,8 @@ export function VentasSalesTable({
                       #{ref}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap py-2.5 pr-4 text-zinc-600 dark:text-zinc-400">
-                    {formatVentaFecha(row.created_at)}
+                  <td className="whitespace-nowrap py-2.5 pr-4 text-right tabular-nums font-semibold text-zinc-900 dark:text-zinc-50">
+                    <StaticCopCents cents={Number(row.total_cents ?? 0)} />
                   </td>
                   <td className="max-w-[12rem] truncate py-2.5 pr-4 text-zinc-900 dark:text-zinc-100">
                     {row.customer_name}
@@ -220,11 +219,11 @@ export function VentasSalesTable({
                       mesaLabel={row.mesa_label}
                     />
                   </td>
-                  <td className="py-2.5 pr-4 text-xs">
+                  <td className="py-2.5 pr-4">
                     {cocina ? (
                       <span className={cocina.className}>{cocina.label}</span>
                     ) : (
-                      <span className="text-zinc-400">—</span>
+                      <span className="text-xs text-zinc-400">—</span>
                     )}
                   </td>
                   <td className="py-2.5 pr-4 text-xs">
@@ -234,8 +233,8 @@ export function VentasSalesTable({
                       <span className="text-zinc-400">—</span>
                     )}
                   </td>
-                  <td className="whitespace-nowrap py-2.5 pr-4 text-right tabular-nums font-medium text-zinc-900 dark:text-zinc-50">
-                    <StaticCopCents cents={Number(row.total_cents ?? 0)} />
+                  <td className="whitespace-nowrap py-2.5 pr-4 text-xs text-zinc-500 dark:text-zinc-400">
+                    {formatVentaFecha(row.created_at)}
                   </td>
                   <td className="py-2.5 text-right">
                     <Link

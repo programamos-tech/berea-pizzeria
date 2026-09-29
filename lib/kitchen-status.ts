@@ -51,32 +51,42 @@ export function kitchenStatusHint(status: KitchenStatus): string {
   }
 }
 
-/** Color de letra para listados (sin pastilla). */
+/**
+ * Badge de cocina para listados — cada estado con color propio.
+ * Recibido (zinc) → En preparación (coral) → Listo (ámbar) → Servido/Entregado (verde).
+ */
 export function kitchenStatusTone(
   status: KitchenStatus,
   serviceType?: "domicilio" | "en_el_lugar" | null,
 ): { label: string; className: string } {
   const label = kitchenStatusLabel(status, serviceType);
+  const base =
+    "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-bold tracking-wide";
   switch (status) {
-    case "entregado":
+    case "recibido":
       return {
         label,
-        className: "font-semibold text-emerald-700 dark:text-emerald-400",
-      };
-    case "listo":
-      return {
-        label,
-        className: "font-semibold text-teal-700 dark:text-teal-400",
+        className: `${base} bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600/60`,
       };
     case "en_preparacion":
       return {
         label,
-        className: "font-semibold text-[var(--admin-coral)]",
+        className: `${base} bg-[color-mix(in_srgb,var(--admin-coral)_16%,white)] text-[var(--admin-coral)] ring-1 ring-[color-mix(in_srgb,var(--admin-coral)_35%,transparent)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_22%,#18181b)] dark:text-[color-mix(in_srgb,var(--admin-coral)_90%,white)]`,
+      };
+    case "listo":
+      return {
+        label,
+        className: `${base} bg-amber-50 text-amber-800 ring-1 ring-amber-200/90 dark:bg-amber-950/45 dark:text-amber-100 dark:ring-amber-800/50`,
+      };
+    case "entregado":
+      return {
+        label,
+        className: `${base} bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200/90 dark:bg-emerald-950/45 dark:text-emerald-100 dark:ring-emerald-700/50`,
       };
     default:
       return {
         label,
-        className: "font-semibold text-zinc-700 dark:text-zinc-300",
+        className: `${base} bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200`,
       };
   }
 }
