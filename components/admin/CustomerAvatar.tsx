@@ -1,6 +1,8 @@
 import { createAvatar } from "@dicebear/core";
 import * as notionists from "@dicebear/notionists";
-import { ADMIN_SIDEBAR_BG } from "@/lib/admin-theme";
+
+/** Fondo claro del avatar (independiente del sidebar carbón). */
+const AVATAR_PLATE_DEFAULT = "fafafa";
 
 type Props = {
   /** Email o id (vía `customerAvatarSeed`) → mismo personaje siempre. */
@@ -24,7 +26,7 @@ export function CustomerAvatar({
 }: Props) {
   const safe = seed.trim() || "default";
   const bg =
-    (backgroundHex ?? ADMIN_SIDEBAR_BG).replace(/^#/, "") || "ffffff";
+    (backgroundHex ?? AVATAR_PLATE_DEFAULT).replace(/^#/, "") || "ffffff";
   const svg = createAvatar(notionists, {
     seed: safe,
     size,
