@@ -22,6 +22,7 @@ const NuevaFacturaClient = nextDynamic(
 export function NuevaFacturaPageClient({
   initialError,
   initialCustomerId,
+  initialDiningTableId,
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
@@ -31,6 +32,7 @@ export function NuevaFacturaPageClient({
 }: {
   initialError?: string;
   initialCustomerId?: string;
+  initialDiningTableId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
@@ -42,6 +44,7 @@ export function NuevaFacturaPageClient({
     <NuevaFacturaClient
       initialError={initialError}
       initialCustomerId={initialCustomerId}
+      initialDiningTableId={initialDiningTableId}
       editQuotation={editQuotation}
       canUseCredit={canUseCredit}
       canUseKits={canUseKits}

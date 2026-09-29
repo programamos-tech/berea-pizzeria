@@ -11,6 +11,7 @@ import type { PosPricePolicy } from "@/lib/product-vat-price";
 export function NuevaFacturaClient({
   initialError,
   initialCustomerId,
+  initialDiningTableId,
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
@@ -20,6 +21,7 @@ export function NuevaFacturaClient({
 }: {
   initialError?: string;
   initialCustomerId?: string;
+  initialDiningTableId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
@@ -33,6 +35,7 @@ export function NuevaFacturaClient({
       <NewInvoiceForm
         initialError={initialError}
         initialCustomerId={initialCustomerId}
+        initialDiningTableId={initialDiningTableId}
         editQuotation={editQuotation}
         canUseCredit={canUseCredit}
         canUseKits={canUseKits}

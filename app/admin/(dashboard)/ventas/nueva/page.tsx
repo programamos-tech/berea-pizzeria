@@ -23,6 +23,7 @@ type Props = {
     error?: string;
     customer?: string;
     quotation?: string;
+    mesa?: string;
   }>;
 };
 
@@ -35,6 +36,10 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
   const quotationId =
     typeof sp.quotation === "string" && sp.quotation.trim().length > 0
       ? sp.quotation.trim()
+      : undefined;
+  const mesaFromQuery =
+    typeof sp.mesa === "string" && sp.mesa.trim().length > 0
+      ? sp.mesa.trim()
       : undefined;
 
   const supabase = await createSupabaseServerClient();
@@ -93,11 +98,18 @@ export default async function AdminNuevaFacturaPage({ searchParams }: Props) {
   const initialCustomerId =
     fromQuery ?? (await findDefaultPosCustomerId(supabase));
 
+  const initialDiningTableId =
+    mesaFromQuery &&
+    diningTables.some((t) => t.id === mesaFromQuery && !t.occupied)
+      ? mesaFromQuery
+      : undefined;
+
   return (
     <AdminNewPageShell>
       <NuevaFacturaPageClient
         initialError={initialError}
         initialCustomerId={initialCustomerId}
+        initialDiningTableId={initialDiningTableId}
         canUseCredit={canUseCredit}
         canUseKits={canUseKits}
         pricePolicy={pricePolicy}

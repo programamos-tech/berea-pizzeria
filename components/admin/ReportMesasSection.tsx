@@ -4,6 +4,7 @@ import { fetchDiningTablesBoard } from "@/lib/admin-dining-tables";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Armchair, CircleDot, UtensilsCrossed } from "lucide-react";
+import Link from "next/link";
 import { Suspense } from "react";
 
 const labelClass =
@@ -29,68 +30,86 @@ function openedAgo(iso: string): string {
 function MesaTile({ table }: { table: DiningTableWithSession }) {
   const occupied = Boolean(table.openSession);
   const displayNum = table.code || table.name.replace(/\D+/g, "") || table.name;
+  const href = occupied
+    ? `/admin/orders/${table.openSession!.orderId}`
+    : `/admin/ventas/nueva?mesa=${encodeURIComponent(table.id)}`;
+  const label = occupied
+    ? `Mesa ${displayNum} ocupada · ver pedido`
+    : `Mesa ${displayNum} libre · nuevo pedido`;
 
   return (
-    <li
-      className={[
-        "relative flex min-h-[7.5rem] flex-col items-center justify-between rounded-2xl border px-2.5 py-3 text-center transition",
-        occupied
-          ? "border-[color-mix(in_srgb,var(--admin-coral)_45%,#e4e4e7)] bg-[var(--admin-coral-mist)] shadow-[0_1px_0_color-mix(in_srgb,var(--admin-coral)_25%,transparent)] dark:border-[color-mix(in_srgb,var(--admin-coral)_40%,#3f3f46)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_14%,transparent)]"
-          : "border-zinc-200/90 bg-white dark:border-zinc-700/80 dark:bg-zinc-900/50",
-      ].join(" ")}
-    >
-      <span
-        className={[
-          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]",
+    <li>
+      <Link
+        href={href}
+        prefetch
+        data-testid={
           occupied
-            ? "bg-[var(--admin-coral)] text-white"
-            : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
+            ? `mesa-ocupada-${table.code || table.id}`
+            : `mesa-libre-${table.code || table.id}`
+        }
+        data-order-id={occupied ? table.openSession!.orderId : undefined}
+        aria-label={label}
+        className={[
+          "relative flex min-h-[7.5rem] flex-col items-center justify-between rounded-2xl border px-2.5 py-3 text-center transition outline-none",
+          "focus-visible:ring-2 focus-visible:ring-[var(--admin-coral)] focus-visible:ring-offset-2",
+          occupied
+            ? "border-[color-mix(in_srgb,var(--admin-coral)_45%,#e4e4e7)] bg-[var(--admin-coral-mist)] shadow-[0_1px_0_color-mix(in_srgb,var(--admin-coral)_25%,transparent)] hover:brightness-[0.98] dark:border-[color-mix(in_srgb,var(--admin-coral)_40%,#3f3f46)] dark:bg-[color-mix(in_srgb,var(--admin-coral)_14%,transparent)]"
+            : "border-zinc-200/90 bg-white hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700/80 dark:bg-zinc-900/50 dark:hover:border-zinc-600 dark:hover:bg-zinc-900",
         ].join(" ")}
       >
-        {occupied ? (
-          <UtensilsCrossed className="size-2.5" strokeWidth={2.4} aria-hidden />
-        ) : (
-          <CircleDot className="size-2.5" strokeWidth={2.4} aria-hidden />
-        )}
-        {occupied ? "Ocupada" : "Libre"}
-      </span>
-
-      <MesaFloorIcon
-        occupied={occupied}
-        className={`mt-1 size-12 ${occupied ? "" : "text-zinc-400 dark:text-zinc-500"}`}
-      />
-
-      <div className="mt-1 min-w-0 w-full">
-        <p
+        <span
           className={[
-            "truncate text-base font-semibold tabular-nums tracking-tight",
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em]",
             occupied
-              ? "text-zinc-900 dark:text-zinc-50"
-              : "text-zinc-800 dark:text-zinc-100",
+              ? "bg-[var(--admin-coral)] text-white"
+              : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
           ].join(" ")}
         >
-          {displayNum}
-        </p>
-        <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
-          {table.name}
-        </p>
-        <p className="mt-0.5 flex items-center justify-center gap-1 truncate text-[10px] text-zinc-500 dark:text-zinc-400">
-          <Armchair className="size-3 shrink-0 opacity-70" aria-hidden />
-          <span className="truncate">
-            {occupied && table.openSession?.guestCount
-              ? `${table.openSession.guestCount} comensal${table.openSession.guestCount === 1 ? "" : "es"}`
-              : seatsLabel(table.seats)}
-            {occupied && table.openSession
-              ? ` · ${openedAgo(table.openSession.openedAt)}`
-              : ""}
-          </span>
-        </p>
-        {occupied && table.openSession?.note?.trim() ? (
-          <p className="mt-0.5 truncate text-[10px] font-medium text-[var(--admin-coral-deep)] dark:text-[var(--admin-coral-soft)]">
-            {table.openSession.note.trim()}
+          {occupied ? (
+            <UtensilsCrossed className="size-2.5" strokeWidth={2.4} aria-hidden />
+          ) : (
+            <CircleDot className="size-2.5" strokeWidth={2.4} aria-hidden />
+          )}
+          {occupied ? "Ocupada" : "Libre"}
+        </span>
+
+        <MesaFloorIcon
+          occupied={occupied}
+          className={`mt-1 size-12 ${occupied ? "" : "text-zinc-400 dark:text-zinc-500"}`}
+        />
+
+        <div className="mt-1 min-w-0 w-full">
+          <p
+            className={[
+              "truncate text-base font-semibold tabular-nums tracking-tight",
+              occupied
+                ? "text-zinc-900 dark:text-zinc-50"
+                : "text-zinc-800 dark:text-zinc-100",
+            ].join(" ")}
+          >
+            {displayNum}
           </p>
-        ) : null}
-      </div>
+          <p className="truncate text-[11px] text-zinc-500 dark:text-zinc-400">
+            {table.name}
+          </p>
+          <p className="mt-0.5 flex items-center justify-center gap-1 truncate text-[10px] text-zinc-500 dark:text-zinc-400">
+            <Armchair className="size-3 shrink-0 opacity-70" aria-hidden />
+            <span className="truncate">
+              {occupied && table.openSession?.guestCount
+                ? `${table.openSession.guestCount} comensal${table.openSession.guestCount === 1 ? "" : "es"}`
+                : seatsLabel(table.seats)}
+              {occupied && table.openSession
+                ? ` · ${openedAgo(table.openSession.openedAt)}`
+                : ""}
+            </span>
+          </p>
+          {occupied && table.openSession?.note?.trim() ? (
+            <p className="mt-0.5 truncate text-[10px] font-medium text-[var(--admin-coral-deep)] dark:text-[var(--admin-coral-soft)]">
+              {table.openSession.note.trim()}
+            </p>
+          ) : null}
+        </div>
+      </Link>
     </li>
   );
 }
@@ -146,14 +165,14 @@ async function ReportMesasBoard() {
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col">
+    <section className="flex min-h-0 flex-1 flex-col" data-testid="report-mesas-map">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
             Mapa de mesas
           </h2>
           <p className="mt-0.5 text-[11px] text-zinc-500">
-            Salón · sucursal activa · estado en tiempo real
+            Salón · pedidos abiertos en el lugar · tocá una mesa
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">

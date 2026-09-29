@@ -478,6 +478,7 @@ function onInvoiceFormSubmit(
 export function NewInvoiceForm({
   initialError,
   initialCustomerId,
+  initialDiningTableId,
   editQuotation,
   canUseCredit = true,
   canUseKits = true,
@@ -487,6 +488,8 @@ export function NewInvoiceForm({
 }: {
   initialError?: string;
   initialCustomerId?: string;
+  /** Mesa preseleccionada (p. ej. desde mapa de Reportes). */
+  initialDiningTableId?: string;
   editQuotation?: QuotationEditDraft;
   canUseCredit?: boolean;
   canUseKits?: boolean;
@@ -606,6 +609,13 @@ export function NewInvoiceForm({
   >(editingQuotation ? "quotation" : "pedido");
   const [serviceType, setServiceType] = useState<PosServiceType>("en_el_lugar");
   const [diningTableId, setDiningTableId] = useState<string>(() => {
+    const pref = String(initialDiningTableId ?? "").trim();
+    if (
+      pref &&
+      diningTables.some((t) => t.id === pref && !t.occupied)
+    ) {
+      return pref;
+    }
     const firstFree = diningTables.find((t) => !t.occupied);
     return firstFree?.id ?? "";
   });
