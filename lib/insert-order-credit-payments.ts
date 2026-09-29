@@ -1,13 +1,18 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { OrderCreditPaymentMethod } from "@/lib/order-credit";
 
+/** Medios que entran al ledger de caja / reportes. */
+export type OrderLedgerPaymentMethod =
+  | OrderCreditPaymentMethod
+  | "dataphone";
+
 export type OrderCreditPaymentInsert = {
   amountCents: number;
-  paymentMethod: OrderCreditPaymentMethod;
+  paymentMethod: OrderLedgerPaymentMethod;
   notes?: string | null;
 };
 
-/** Inserta abonos de crédito. tenant_id / branch_id los completa el trigger. */
+/** Inserta cobros/abonos en order_payments. tenant_id / branch_id: trigger. */
 export async function insertOrderCreditPayments(
   supabase: SupabaseClient,
   args: {

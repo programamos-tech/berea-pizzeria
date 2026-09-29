@@ -450,9 +450,16 @@ export async function fetchCashDayLiveTotals(
     const amount = Math.max(0, Math.floor(Number(pay.amount_cents ?? 0)));
     if (amount <= 0) continue;
     const method = String(pay.payment_method ?? "").trim().toLowerCase();
-    if (method === "cash") salesCash += amount;
-    else if (method === "transfer") salesTransfer += amount;
-    else continue;
+    if (method === "cash" || method === "efectivo") salesCash += amount;
+    else if (
+      method === "transfer" ||
+      method === "transferencia" ||
+      method === "dataphone" ||
+      method === "datáfono"
+    ) {
+      // Transferencia / datáfono → no gaveta; suma a Transferencia / En cuentas.
+      salesTransfer += amount;
+    } else continue;
     salesTotal += amount;
   }
 

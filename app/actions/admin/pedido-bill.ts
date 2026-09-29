@@ -1,11 +1,14 @@
 "use server";
 
+import { fetchOpenCashSession } from "@/lib/cash-register";
+import { insertOrderCreditPayments } from "@/lib/insert-order-credit-payments";
 import {
   deriveBillPaymentStatus,
   deriveBillStatusFromLines,
   equalBillSplitAmounts,
   isPedidoBillPaymentMethod,
   isValidMixedBreakdown,
+  pedidoBillLedgerPaymentRows,
   type BillPaymentStatus,
   type PedidoBillPaymentBreakdown,
   type PedidoBillPaymentMethod,
@@ -56,6 +59,39 @@ function revalidatePedido(orderId: string) {
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/ventas");
   revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  revalidatePath("/admin/caja");
+  revalidatePath("/admin/reportes");
+}
+
+async function recordPedidoLedgerPayments(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  args: {
+    orderId: string;
+    createdBy: string;
+    amountCents: number;
+    paymentMethod: PedidoBillPaymentMethod;
+    mixedBreakdown?: PedidoBillPaymentBreakdown | null;
+    notes?: string | null;
+  },
+): Promise<"ok" | "db"> {
+  const rows = pedidoBillLedgerPaymentRows({
+    amountCents: args.amountCents,
+    paymentMethod: args.paymentMethod,
+    mixedBreakdown: args.mixedBreakdown,
+  });
+  if (rows.length === 0) return "ok";
+  const actorSession = await fetchOpenCashSession(supabase);
+  return insertOrderCreditPayments(supabase, {
+    orderId: args.orderId,
+    createdBy: args.createdBy,
+    payments: rows.map((r) => ({
+      amountCents: r.amountCents,
+      paymentMethod: r.paymentMethod,
+      notes: args.notes ?? "Cobro pedido · Cuenta",
+    })),
+    cashRegisterSessionId: actorSession?.id ?? null,
+  });
 }
 
 async function refreshBillPaymentStatus(
@@ -292,6 +328,7 @@ export async function payPedidoBill(input: {
     if (!target) return { ok: false, error: "invalid" };
     if (target.paid_at != null) return { ok: false, error: "already_paid" };
 
+    const splitAmount = Math.max(0, Math.floor(Number(target.amount_cents ?? 0)));
     const { error: payErr } = await supabase
       .from("order_bill_splits")
       .update({
@@ -301,6 +338,15 @@ export async function payPedidoBill(input: {
       .eq("id", splitId)
       .eq("order_id", id);
     if (payErr) return { ok: false, error: "db" };
+
+    const ledger = await recordPedidoLedgerPayments(supabase, {
+      orderId: id,
+      createdBy: perm.userId,
+      amountCents: splitAmount,
+      paymentMethod: method,
+      notes: `Cobro pedido · ${String(target.label ?? "parte")}`,
+    });
+    if (ledger !== "ok") return { ok: false, error: "db" };
 
     const allPaid = splitRows.every(
       (s) => String(s.id) === splitId || s.paid_at != null,
@@ -345,6 +391,14 @@ export async function payPedidoBill(input: {
   }
 
   // Sin divisiones: pago total
+  const ledger = await recordPedidoLedgerPayments(supabase, {
+    orderId: id,
+    createdBy: perm.userId,
+    amountCents: totalCents,
+    paymentMethod: method,
+  });
+  if (ledger !== "ok") return { ok: false, error: "db" };
+
   const { error: ordErr } = await supabase
     .from("orders")
     .update({
@@ -484,6 +538,15 @@ export async function payPedidoBillLines(input: {
     .in("id", lineIds)
     .is("bill_paid_at", null);
   if (payErr) return { ok: false, error: "db" };
+
+  const ledger = await recordPedidoLedgerPayments(supabase, {
+    orderId: id,
+    createdBy: perm.userId,
+    amountCents: selectedTotal,
+    paymentMethod: method,
+    mixedBreakdown: breakdown,
+  });
+  if (ledger !== "ok") return { ok: false, error: "db" };
 
   const nextLines = rows.map((r) => ({
     billPaidAt:

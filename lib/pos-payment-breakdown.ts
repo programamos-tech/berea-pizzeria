@@ -18,12 +18,19 @@ function paidTotalCents(total_cents: unknown): number {
   return Math.max(0, Math.round(Number(total_cents ?? 0)));
 }
 
-/** Crédito y cotización: el cobro cuenta el día del abono, no el de la factura. */
+/**
+ * Crédito, cotización y pedidos: el cobro cuenta el día del abono
+ * (`order_payments`), no el total de la factura al marcar paid.
+ */
 export function isPosDeferredIncome(
   wompiReference: string | null | undefined,
 ): boolean {
   const ref = (wompiReference ?? "").trim();
-  return ref === "POS:credit" || ref === "POS:quotation";
+  return (
+    ref === "POS:credit" ||
+    ref === "POS:quotation" ||
+    ref.startsWith("POS:pedido:")
+  );
 }
 
 /**

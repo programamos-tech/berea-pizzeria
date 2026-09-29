@@ -96,6 +96,46 @@ export function isPedidoBillPaymentMethod(
   );
 }
 
+/** Filas de order_payments a partir del medio de cobro de la Cuenta. */
+export function pedidoBillLedgerPaymentRows(args: {
+  amountCents: number;
+  paymentMethod: PedidoBillPaymentMethod;
+  mixedBreakdown?: PedidoBillPaymentBreakdown | null;
+}): { amountCents: number; paymentMethod: "cash" | "transfer" | "dataphone" }[] {
+  const amount = Math.max(0, Math.floor(args.amountCents));
+  if (amount <= 0) return [];
+  if (args.paymentMethod === "mixed") {
+    const b = args.mixedBreakdown;
+    if (!b) return [];
+    return (
+      [
+        {
+          amountCents: Math.max(0, Math.floor(b.cash || 0)),
+          paymentMethod: "cash" as const,
+        },
+        {
+          amountCents: Math.max(0, Math.floor(b.transfer || 0)),
+          paymentMethod: "transfer" as const,
+        },
+        {
+          amountCents: Math.max(0, Math.floor(b.dataphone || 0)),
+          paymentMethod: "dataphone" as const,
+        },
+      ] as const
+    ).filter((r) => r.amountCents > 0);
+  }
+  if (args.paymentMethod === "cash") {
+    return [{ amountCents: amount, paymentMethod: "cash" }];
+  }
+  if (args.paymentMethod === "transfer") {
+    return [{ amountCents: amount, paymentMethod: "transfer" }];
+  }
+  if (args.paymentMethod === "dataphone") {
+    return [{ amountCents: amount, paymentMethod: "dataphone" }];
+  }
+  return [];
+}
+
 export function emptyPaymentBreakdown(): PedidoBillPaymentBreakdown {
   return { cash: 0, transfer: 0, dataphone: 0 };
 }

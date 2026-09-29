@@ -818,8 +818,16 @@ async function fetchAdminReportViaLegacy(
     if (amount <= 0) continue;
     totalCobradoPedidos += amount;
     const method = String(pay.payment_method ?? "").trim().toLowerCase();
-    if (method === "cash") efectivo += amount;
-    else if (method === "transfer") transferencia += amount;
+    if (method === "cash" || method === "efectivo") efectivo += amount;
+    else if (
+      method === "transfer" ||
+      method === "transferencia" ||
+      method === "dataphone" ||
+      method === "datáfono"
+    ) {
+      // Transferencia / datáfono → En cuentas (no gaveta).
+      transferencia += amount;
+    }
   }
 
   const paidPeriodOrders = orders.filter(
