@@ -53,12 +53,17 @@ function IconExternalStore({ className }: { className?: string }) {
 }
 
 /** Sidebar siempre carbón: tipografía e ink pensados para fondo oscuro. */
-const sidebarInkMuted = "text-zinc-400";
+const sidebarInkMuted = "text-zinc-300";
 const sidebarBorder = "border-white/10";
 const sidebarSurface =
   "border border-white/10 bg-white/[0.06]";
 const sidebarSurfaceHover =
   "hover:border-white/15 hover:bg-white/[0.09]";
+/** Ítems inactivos / submenú anidado — legibles sobre #141414. */
+const sidebarNavIdle =
+  "text-zinc-200 hover:bg-white/[0.08] hover:text-white";
+const sidebarNavChildIdle =
+  "text-zinc-200 hover:bg-white/[0.08] hover:text-white";
 
 type AccountBrand = {
   name: string;
@@ -206,7 +211,7 @@ function SidebarPoweredBy() {
       data-testid="sidebar-powered-by"
     >
       <span
-        className={`text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-500`}
+        className={`text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-400`}
       >
         Powered by
       </span>
@@ -273,7 +278,7 @@ function AdminSidebarInner({
       "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition",
       active
         ? "bg-[var(--admin-coral)] text-white shadow-[0_8px_20px_-12px_color-mix(in_srgb,var(--admin-coral)_70%,transparent)]"
-        : "text-zinc-300 hover:bg-white/[0.07] hover:text-white",
+        : sidebarNavIdle,
     ].join(" ");
 
   return (
@@ -302,22 +307,21 @@ function AdminSidebarInner({
               {section.items.map((item) => {
                 const active = adminNavItemActive(pathname, item.href, item);
                 const children = item.children ?? [];
+                const parentHasOpenChild = children.length > 0 && active;
                 return (
                   <li key={`${section.title}-${item.label}`}>
                     <Link
                       href={item.href}
                       prefetch
                       className={linkClass(
-                        children.length > 0
-                          ? false
-                          : active,
+                        children.length > 0 ? false : active,
                       )}
                     >
                       {item.icon}
                       <span
                         className={
-                          children.length > 0 && active
-                            ? "font-semibold text-white"
+                          parentHasOpenChild
+                            ? "font-semibold text-zinc-50"
                             : undefined
                         }
                       >
@@ -325,7 +329,10 @@ function AdminSidebarInner({
                       </span>
                     </Link>
                     {children.length > 0 ? (
-                      <ul className="ml-[1.15rem] mt-0.5 space-y-0.5 border-l border-white/10 py-0.5 pl-2">
+                      <ul
+                        className="ml-[1.15rem] mt-0.5 space-y-0.5 border-l border-white/20 py-0.5 pl-2"
+                        data-testid={`sidebar-submenu-${item.label.toLowerCase()}`}
+                      >
                         {children.map((child) => {
                           const childActive = adminNavItemActive(
                             pathname,
@@ -336,11 +343,12 @@ function AdminSidebarInner({
                               <Link
                                 href={child.href}
                                 prefetch
+                                data-testid={`sidebar-sublink-${child.href.replace(/\//g, "-")}`}
                                 className={[
                                   "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition",
                                   childActive
                                     ? "bg-[var(--admin-coral)] text-white shadow-sm"
-                                    : "text-zinc-400 hover:bg-white/[0.07] hover:text-white",
+                                    : sidebarNavChildIdle,
                                 ].join(" ")}
                               >
                                 {child.label}
