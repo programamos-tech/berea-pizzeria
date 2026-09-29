@@ -12,11 +12,13 @@ import { BranchSwitcher } from "@/components/admin/BranchSwitcher";
 import { OperatorAccountLogo } from "@/components/admin/OperatorAccountLogo";
 import { ADMIN_BEREA_SIGNATURE_ON_SIDEBAR_CLASS } from "@/lib/admin-theme";
 import {
+  adminLogoSrcOnDarkSidebar,
   adminProductBrand,
   adminSidebarLogoPath,
   adminSupportWhatsAppDisplay,
   adminSupportWhatsAppPrefilledText,
   adminSupportWhatsAppUrl,
+  liacoMarkOnDarkPath,
 } from "@/lib/brand";
 import type { BranchContext } from "@/lib/branch-context";
 import { storagePublicObjectUrl } from "@/lib/storage-public-url";
@@ -73,6 +75,7 @@ type AccountBrand = {
 };
 
 function SidebarProductBrand({ account }: { account: AccountBrand }) {
+  const logoSrc = adminLogoSrcOnDarkSidebar(account.logoSrc);
   return (
     <Link
       href="/admin"
@@ -80,15 +83,15 @@ function SidebarProductBrand({ account }: { account: AccountBrand }) {
       data-testid="sidebar-brand-logo"
       className="inline-flex rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--admin-coral)_55%,transparent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-sidebar-bg)]"
     >
-      {/* Sidebar carbón: sin placa blanca; marca en blanco. */}
+      {/* Asset ya blanco/transparente — sin placa ni filters. */}
       <span className="relative block h-14 w-28 overflow-hidden bg-transparent">
         <Image
-          src={account.logoSrc}
+          src={logoSrc}
           alt={account.name}
           fill
           sizes="112px"
           unoptimized
-          className="object-contain p-1 brightness-0 invert"
+          className="object-contain p-0.5"
         />
       </span>
     </Link>
@@ -107,10 +110,15 @@ function SidebarTenantAccount({
   onNavigate: () => void;
 }) {
   const branchLogo = storagePublicObjectUrl(branchContext.active.logoPath);
-  const markSrc = branchLogo ?? account.logoSrc;
-  const cardClass = `mt-3.5 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${sidebarSurface}`;
-  /** Logo de cuenta en sidebar: transparente + blanco; logo propio de sucursal a color. */
   const branchOwnLogo = Boolean(branchLogo);
+  const accountOnDark = adminLogoSrcOnDarkSidebar(account.logoSrc);
+  /** Cuenta Liaco: marca blanca/transparente; sucursal con logo propio a color. */
+  const markSrc = branchOwnLogo
+    ? branchLogo!
+    : accountOnDark.includes("liaco")
+      ? liacoMarkOnDarkPath
+      : accountOnDark;
+  const cardClass = `mt-3.5 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${sidebarSurface}`;
 
   return (
     <div className={cardClass} data-testid="sidebar-sucursal-card">
@@ -119,7 +127,7 @@ function SidebarTenantAccount({
         name={branchContext.active.name}
         size={32}
         plateColor="transparent"
-        fullColor={branchOwnLogo}
+        fullColor
       />
       <span className="min-w-0 flex-1">
         <span className={`block text-[9px] font-semibold uppercase tracking-[0.12em] ${sidebarInkMuted}`}>

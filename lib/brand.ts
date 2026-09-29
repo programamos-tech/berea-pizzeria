@@ -80,6 +80,37 @@ export const liacoHorizontalLogoPath =
   "/logo-liaco-horizontal.png";
 
 /**
+ * Liaco blanco sobre transparente — sidebar carbón (#141414).
+ * El PNG original es negro sobre blanco opaco; no usar invert ahí.
+ */
+export const liacoStackedLogoOnDarkPath =
+  process.env.NEXT_PUBLIC_LIACO_LOGO_STACKED_ON_DARK?.trim() ||
+  "/logo-liaco-stacked-on-dark.png";
+
+/** Marca Liaco compacta (blanco / transparente) para “Sucursal activa”. */
+export const liacoMarkOnDarkPath =
+  process.env.NEXT_PUBLIC_LIACO_LOGO_MARK_ON_DARK?.trim() ||
+  "/logo-liaco-mark-on-dark.png";
+
+/** Resuelve logo de cuenta para chrome oscuro del sidebar. */
+export function adminLogoSrcOnDarkSidebar(logoSrc: string): string {
+  const src = String(logoSrc ?? "").trim();
+  if (!src) return liacoStackedLogoOnDarkPath;
+  if (
+    src.includes("logo-liaco-stacked") ||
+    src.includes("logo-liaco-horizontal") ||
+    src.includes("logo-liaco-pizzeria") ||
+    src.endsWith(liacoStackedLogoPath) ||
+    src.endsWith(liacoHorizontalLogoPath)
+  ) {
+    return src.includes("horizontal")
+      ? "/logo-liaco-horizontal-on-dark.png"
+      : liacoStackedLogoOnDarkPath;
+  }
+  return src;
+}
+
+/**
  * Cuenta SaaS / workspace en el sidebar.
  * Override: `NEXT_PUBLIC_ADMIN_TENANT_NAME`.
  */
