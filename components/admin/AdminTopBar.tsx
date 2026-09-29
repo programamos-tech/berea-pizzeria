@@ -78,12 +78,9 @@ export function AdminTopBar({
           >
             +
           </Link>
-          {showOrderNotifications ? (
-            <AdminNotificationBell className="lg:hidden" />
-          ) : null}
+          {showOrderNotifications ? <AdminNotificationBell /> : null}
           <div className="ml-0.5 hidden items-center gap-1 border-l border-zinc-200 pl-2 dark:border-zinc-700 lg:flex">
             <AdminThemeToggle />
-            {showOrderNotifications ? <AdminNotificationBell /> : null}
           </div>
 
           <AdminUserMenu

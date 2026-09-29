@@ -121,15 +121,16 @@ export function orderNotificationSubtitle(n: AdminWebOrderNotification): string 
   return `${webOrderPaymentLabel(n.checkoutPaymentMethod)} · ${formatCentsHint(n.totalCents)}`;
 }
 
+/** `total_cents` ya está en centavos COP (igual que formatCop). */
 function formatCentsHint(cents: number): string {
   try {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
       maximumFractionDigits: 0,
-    }).format(Math.max(0, cents) / 100);
+    }).format(Math.max(0, Math.floor(cents)));
   } catch {
-    return `$${Math.max(0, Math.round(cents / 100))}`;
+    return `$${Math.max(0, Math.floor(cents))}`;
   }
 }
 
