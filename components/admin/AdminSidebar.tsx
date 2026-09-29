@@ -10,6 +10,7 @@ import {
 } from "@/components/admin/admin-nav-config";
 import { BranchSwitcher } from "@/components/admin/BranchSwitcher";
 import { OperatorAccountLogo } from "@/components/admin/OperatorAccountLogo";
+import { ADMIN_BEREA_SIGNATURE_ON_SIDEBAR_CLASS } from "@/lib/admin-theme";
 import {
   adminProductBrand,
   adminSidebarLogoPath,
@@ -51,8 +52,13 @@ function IconExternalStore({ className }: { className?: string }) {
   );
 }
 
-const sidebarInkMuted = "text-zinc-500 dark:text-zinc-500";
-const sidebarBorder = "border-zinc-200 dark:border-zinc-800/90";
+/** Sidebar siempre carbón: tipografía e ink pensados para fondo oscuro. */
+const sidebarInkMuted = "text-zinc-400";
+const sidebarBorder = "border-white/10";
+const sidebarSurface =
+  "border border-white/10 bg-white/[0.06]";
+const sidebarSurfaceHover =
+  "hover:border-white/15 hover:bg-white/[0.09]";
 
 type AccountBrand = {
   name: string;
@@ -66,7 +72,7 @@ function SidebarProductBrand({ account }: { account: AccountBrand }) {
     <Link
       href="/admin"
       prefetch
-      className="inline-flex rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-zinc-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-sidebar-bg)]"
+      className="inline-flex rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--admin-coral)_55%,transparent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-sidebar-bg)]"
     >
       {account.logoFullColor ? (
         <span
@@ -108,8 +114,7 @@ function SidebarTenantAccount({
 }) {
   const branchLogo = storagePublicObjectUrl(branchContext.active.logoPath);
   const markSrc = branchLogo ?? account.logoSrc;
-  const cardClass =
-    "mt-3.5 flex w-full items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-2 text-left dark:border-zinc-700/70 dark:bg-zinc-900/55";
+  const cardClass = `mt-3.5 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${sidebarSurface}`;
 
   return (
     <div className={cardClass}>
@@ -121,13 +126,13 @@ function SidebarTenantAccount({
         fullColor={Boolean(branchLogo) || account.logoFullColor}
       />
       <span className="min-w-0 flex-1">
-        <span className="block text-[9px] font-semibold uppercase tracking-[0.12em] text-zinc-500 dark:text-zinc-400">
+        <span className={`block text-[9px] font-semibold uppercase tracking-[0.12em] ${sidebarInkMuted}`}>
           Sucursal activa
         </span>
         <BranchSwitcher
           active={branchContext.active}
           branches={branchContext.available}
-          appearance="bare"
+          appearance="on-dark"
           className="mt-0.5 w-full"
         />
       </span>
@@ -137,7 +142,7 @@ function SidebarTenantAccount({
           prefetch
           onClick={() => onNavigate()}
           title={`Ver tienda · ${account.name}`}
-          className={`shrink-0 rounded-md p-1 opacity-70 transition hover:bg-zinc-100 hover:opacity-100 dark:hover:bg-zinc-800 ${sidebarInkMuted}`}
+          className={`shrink-0 rounded-md p-1 opacity-70 transition hover:bg-white/10 hover:opacity-100 ${sidebarInkMuted}`}
         >
           <IconExternalStore className="size-4" />
           <span className="sr-only">Ver tienda</span>
@@ -162,9 +167,7 @@ function SidebarHeader({
     <div className={`border-b px-3 py-3 ${sidebarBorder}`}>
       <div className="flex flex-col items-center text-center">
         <SidebarProductBrand account={account} />
-        <p
-          className={`mt-2 text-[13px] font-semibold tracking-tight text-zinc-800 dark:text-zinc-200`}
-        >
+        <p className="mt-2 text-[13px] font-semibold tracking-tight text-zinc-50">
           {account.name}
         </p>
         <p
@@ -198,8 +201,13 @@ function IconWhatsApp({ className }: { className?: string }) {
 
 function SidebarPoweredBy() {
   return (
-    <p className="mt-3 flex flex-col items-center gap-1 px-1">
-      <span className={`text-[9px] font-medium uppercase tracking-[0.14em] ${sidebarInkMuted}`}>
+    <p
+      className="mt-3 flex flex-col items-center gap-1 px-1"
+      data-testid="sidebar-powered-by"
+    >
+      <span
+        className={`text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-500`}
+      >
         Powered by
       </span>
       <Image
@@ -207,7 +215,7 @@ function SidebarPoweredBy() {
         alt={adminProductBrand}
         width={480}
         height={265}
-        className="h-5 w-auto max-w-[7.5rem] object-contain object-center"
+        className={`h-5 w-auto max-w-[7.5rem] object-contain object-center ${ADMIN_BEREA_SIGNATURE_ON_SIDEBAR_CLASS}`}
       />
     </p>
   );
@@ -222,21 +230,21 @@ function SidebarSupportCard() {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-left shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-none dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+        className={`group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition ${sidebarSurface} ${sidebarSurfaceHover}`}
       >
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-sm">
           <IconWhatsApp className="size-[18px]" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[13px] font-medium text-zinc-900 dark:text-white">
+          <span className="block text-[13px] font-medium text-zinc-50">
             ¿Necesitas ayuda?
           </span>
-          <span className="mt-0.5 block truncate text-[11px] text-zinc-500 dark:text-zinc-400">
+          <span className={`mt-0.5 block truncate text-[11px] ${sidebarInkMuted}`}>
             WhatsApp · {adminSupportWhatsAppDisplay}
           </span>
         </span>
         <span
-          className="shrink-0 text-zinc-400 transition group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300"
+          className="shrink-0 text-zinc-500 transition group-hover:text-zinc-300"
           aria-hidden
         >
           →
@@ -264,13 +272,14 @@ function AdminSidebarInner({
     [
       "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition",
       active
-        ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900 dark:shadow-none"
-        : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-white/[0.06] dark:hover:text-zinc-100",
+        ? "bg-[var(--admin-coral)] text-white shadow-[0_8px_20px_-12px_color-mix(in_srgb,var(--admin-coral)_70%,transparent)]"
+        : "text-zinc-300 hover:bg-white/[0.07] hover:text-white",
     ].join(" ");
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-[50] hidden w-64 shrink-0 flex-col border-r bg-[var(--admin-sidebar-bg)] print:hidden lg:flex ${sidebarBorder}`}
+      data-testid="admin-sidebar"
+      className={`fixed inset-y-0 left-0 z-[50] hidden w-64 shrink-0 flex-col border-r bg-[var(--admin-sidebar-bg)] text-zinc-100 print:hidden lg:flex ${sidebarBorder}`}
     >
       <SidebarHeader
         account={account}
@@ -308,7 +317,7 @@ function AdminSidebarInner({
                       <span
                         className={
                           children.length > 0 && active
-                            ? "font-semibold text-zinc-900 dark:text-zinc-100"
+                            ? "font-semibold text-white"
                             : undefined
                         }
                       >
@@ -316,7 +325,7 @@ function AdminSidebarInner({
                       </span>
                     </Link>
                     {children.length > 0 ? (
-                      <ul className="mt-0.5 space-y-0.5 border-l border-zinc-200 py-0.5 pl-2 ml-[1.15rem] dark:border-zinc-800">
+                      <ul className="ml-[1.15rem] mt-0.5 space-y-0.5 border-l border-white/10 py-0.5 pl-2">
                         {children.map((child) => {
                           const childActive = adminNavItemActive(
                             pathname,
@@ -330,8 +339,8 @@ function AdminSidebarInner({
                                 className={[
                                   "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition",
                                   childActive
-                                    ? "bg-zinc-900 text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900 dark:shadow-none"
-                                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/[0.06] dark:hover:text-zinc-100",
+                                    ? "bg-[var(--admin-coral)] text-white shadow-sm"
+                                    : "text-zinc-400 hover:bg-white/[0.07] hover:text-white",
                                 ].join(" ")}
                               >
                                 {child.label}
@@ -360,14 +369,12 @@ function AdminSidebarFallback({
 }) {
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-[45] hidden w-64 flex-col border-r bg-[var(--admin-sidebar-bg)] print:hidden lg:flex lg:flex-col ${sidebarBorder}`}
+      className={`fixed inset-y-0 left-0 z-[45] hidden w-64 flex-col border-r bg-[var(--admin-sidebar-bg)] text-zinc-100 print:hidden lg:flex lg:flex-col ${sidebarBorder}`}
     >
       <div className={`border-b px-3 py-3 ${sidebarBorder}`}>
         <div className="flex flex-col items-center text-center">
           <SidebarProductBrand account={account} />
-          <p
-            className={`mt-2 text-[13px] font-semibold tracking-tight text-zinc-800 dark:text-zinc-200`}
-          >
+          <p className="mt-2 text-[13px] font-semibold tracking-tight text-zinc-50">
             {account.name}
           </p>
           <p
@@ -376,10 +383,12 @@ function AdminSidebarFallback({
             Gestiona tu Pizzería
           </p>
         </div>
-        <div className="mt-3.5 flex w-full items-center gap-2.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-2 dark:border-zinc-700/70 dark:bg-zinc-900/55">
-          <span className="size-8 shrink-0 overflow-hidden rounded-md bg-zinc-200 dark:bg-zinc-700" />
+        <div
+          className={`mt-3.5 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 ${sidebarSurface}`}
+        >
+          <span className="size-8 shrink-0 overflow-hidden rounded-md bg-white/10" />
           <span className="min-w-0 flex-1">
-            <span className="block h-3 w-20 rounded bg-zinc-200 dark:bg-zinc-700" />
+            <span className="block h-3 w-20 rounded bg-white/10" />
           </span>
         </div>
       </div>

@@ -3,10 +3,10 @@
 /* Modo oscuro del admin: `data-admin-theme="dark"` en un ancestro (ver `AdminThemeProvider`). */
 @custom-variant dark (&:where([data-admin-theme="dark"], [data-admin-theme="dark"] *));
 
-/* Sidebar + acentos de gráfica en oscuro (teal un poco más claro). */
+/* Sidebar ya es carbón en claro; en modo oscuro baja un tono + gráfica más suave. */
 [data-admin-theme="dark"] {
-  --admin-sidebar-bg: var(--admin-sidebar-bg-dark, #09090b);
-  --admin-chart-line: var(--admin-coral-soft, #7ecfe0);
+  --admin-sidebar-bg: var(--admin-sidebar-bg-dark, #0a0a0a);
+  --admin-chart-line: var(--admin-coral-soft, #f5a89e);
 }
 
 :root {

@@ -78,7 +78,8 @@ export function BranchSwitcher({
   active: BranchRef;
   branches: BranchRef[];
   className?: string;
-  appearance?: "default" | "bare";
+  /** bare: sin chrome; on-dark: tipografía clara para sidebar carbón. */
+  appearance?: "default" | "bare" | "on-dark";
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -87,7 +88,11 @@ export function BranchSwitcher({
   const [open, setOpen] = useState(false);
   const [switchingBranch, setSwitchingBranch] = useState<BranchRef | null>(null);
   const [switching, startSwitch] = useTransition();
-  const bare = appearance === "bare";
+  const bare = appearance === "bare" || appearance === "on-dark";
+  const onDark = appearance === "on-dark";
+  const ink = onDark
+    ? "text-zinc-100 hover:text-white"
+    : "text-zinc-700 hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white";
 
   const selectBranch = (branchId: string) => {
     setOpen(false);
@@ -123,7 +128,7 @@ export function BranchSwitcher({
   if (branches.length <= 1) {
     return (
       <div
-        className={`${bare ? "flex" : "hidden rounded-lg border border-zinc-200 px-2.5 py-1.5 sm:flex dark:border-zinc-700"} items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 ${className}`}
+        className={`${bare ? "flex" : "hidden rounded-lg border border-zinc-200 px-2.5 py-1.5 sm:flex dark:border-zinc-700"} items-center gap-1.5 text-xs font-medium ${onDark ? "text-zinc-100" : "text-zinc-700 dark:text-zinc-200"} ${className}`}
       >
         {!bare ? <MapPin className="size-3.5" aria-hidden /> : null}
         <span className="max-w-32 truncate">{active.name}</span>
@@ -139,12 +144,12 @@ export function BranchSwitcher({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        className={`${bare ? "" : "rounded-lg border border-zinc-200 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"} flex w-full items-center gap-1.5 text-left text-xs font-medium text-zinc-700 outline-none transition hover:text-zinc-950 focus-visible:ring-2 focus-visible:ring-zinc-400/50 dark:text-zinc-200 dark:hover:text-white`}
+        className={`${bare ? "" : "rounded-lg border border-zinc-200 bg-white px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"} flex w-full items-center gap-1.5 text-left text-xs font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-zinc-400/50 ${ink}`}
       >
         {!bare ? <MapPin className="size-3.5 shrink-0" aria-hidden /> : null}
         <span className="min-w-0 flex-1 truncate">{active.name}</span>
         <ChevronDown
-          className={`size-3.5 shrink-0 text-zinc-400 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`size-3.5 shrink-0 transition-transform ${onDark ? "text-zinc-400" : "text-zinc-400"} ${open ? "rotate-180" : ""}`}
           aria-hidden
         />
       </button>
