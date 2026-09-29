@@ -10,6 +10,11 @@ import {
   type KitchenStatus,
 } from "@/lib/kitchen-status";
 import {
+  isBillPaymentStatus,
+  type BillPaymentStatus,
+  type PedidoBillSplit,
+} from "@/lib/pedido-bill";
+import {
   isPosCreditSale,
   mapOrderCreditPaymentRows,
   orderCreditPendingCents,
@@ -138,8 +143,42 @@ export async function AdminOrderInvoiceScreen({
 
   let mesaLabel: string | null = null;
   let lineRecipes: PedidoLineRecipe[] = [];
+  let billRequestedAt: string | null = null;
+  let billPaymentStatus: BillPaymentStatus | null = null;
+  let billSplits: PedidoBillSplit[] = [];
 
   if (isPedido) {
+    billRequestedAt =
+      "bill_requested_at" in order && order.bill_requested_at != null
+        ? String(order.bill_requested_at)
+        : null;
+    const rawBill =
+      "bill_payment_status" in order && order.bill_payment_status != null
+        ? String(order.bill_payment_status)
+        : String(order.status) === "paid"
+          ? "paid"
+          : "pending";
+    billPaymentStatus = isBillPaymentStatus(rawBill) ? rawBill : "pending";
+
+    const { data: splitRows } = await supabase
+      .from("order_bill_splits")
+      .select("id,label,amount_cents,sort_order,paid_at,payment_method")
+      .eq("order_id", orderId)
+      .order("sort_order", { ascending: true });
+    billSplits = (splitRows ?? []).map((s) => {
+      const method =
+        s.payment_method === "cash" || s.payment_method === "transfer"
+          ? s.payment_method
+          : null;
+      return {
+        id: String(s.id),
+        label: String(s.label ?? "Parte"),
+        amountCents: Math.max(0, Number(s.amount_cents ?? 0)),
+        sortOrder: Number(s.sort_order ?? 0),
+        paidAt: s.paid_at != null ? String(s.paid_at) : null,
+        paymentMethod: method,
+      };
+    });
     if (serviceType === "en_el_lugar") {
       const { data: sess } = await supabase
         .from("dining_table_sessions")
@@ -404,6 +443,9 @@ export async function AdminOrderInvoiceScreen({
       kitchenCompletedAt={kitchenCompletedAt}
       mesaLabel={mesaLabel}
       lineRecipes={lineRecipes}
+      billRequestedAt={billRequestedAt}
+      billPaymentStatus={billPaymentStatus}
+      billSplits={billSplits}
       ventasListHref={listHref}
       listLabel={isPedido ? "Pedidos" : listLabel}
       invoiceBrand={invoiceBrand}

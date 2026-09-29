@@ -32,6 +32,7 @@ export function ventaFormaPagoLabel(
   if (r === "POS:mixed") return "Mixto";
   if (r === "POS:credit") return "Crédito";
   if (r === "POS:quotation") return "Cotización";
+  if (r.startsWith("POS:pedido:")) return "Pedido";
   if (r.startsWith("POS:")) return "Mostrador";
   if (opts?.checkoutPaymentMethod === "transfer") return "Transferencia (web)";
   return "En línea";
@@ -74,6 +75,13 @@ export function ventaFormaPagoBadge(
   if (r === "POS:quotation") {
     return {
       label: "Cotización",
+      className:
+        "bg-zinc-100 text-zinc-800 ring-1 ring-zinc-200/80 dark:bg-zinc-800/80 dark:text-zinc-100 dark:ring-zinc-600/70",
+    };
+  }
+  if (r.startsWith("POS:pedido:")) {
+    return {
+      label: "Pedido",
       className:
         "bg-zinc-100 text-zinc-800 ring-1 ring-zinc-200/80 dark:bg-zinc-800/80 dark:text-zinc-100 dark:ring-zinc-600/70",
     };

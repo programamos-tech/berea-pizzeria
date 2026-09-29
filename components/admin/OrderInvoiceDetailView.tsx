@@ -11,6 +11,12 @@ import {
   PedidoCocinaPanel,
   type PedidoLineRecipe,
 } from "@/components/admin/PedidoCocinaPanel";
+import { PedidoCuentaPanel } from "@/components/admin/PedidoCuentaPanel";
+import type {
+  BillPaymentStatus,
+  PedidoBillSplit,
+} from "@/lib/pedido-bill";
+import { billPaymentStatusLabel } from "@/lib/pedido-bill";
 import { StaticCopCents } from "@/components/admin/ReportsAnimatedFigures";
 import type { KitchenStatus } from "@/lib/kitchen-status";
 import {
@@ -131,6 +137,9 @@ export type OrderInvoiceDetailViewProps = {
   kitchenCompletedAt?: string | null;
   mesaLabel?: string | null;
   lineRecipes?: PedidoLineRecipe[];
+  billRequestedAt?: string | null;
+  billPaymentStatus?: BillPaymentStatus | null;
+  billSplits?: PedidoBillSplit[];
   /** Enlace al listado Ventas (p. ej. misma página y filtros). */
   ventasListHref?: string;
   /** Texto del listado en el breadcrumb. */
@@ -264,6 +273,9 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
     kitchenCompletedAt = null,
     mesaLabel = null,
     lineRecipes = [],
+    billRequestedAt = null,
+    billPaymentStatus = null,
+    billSplits = [],
     ventasListHref = "/admin/ventas",
     listLabel = "Ventas",
     creditExtras,
@@ -309,11 +321,32 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
   const pagoTone = ventaFormaPagoTone(wompiReference, {
     checkoutPaymentMethod: checkoutPaymentMethod ?? undefined,
   });
-  const pagoRecibido = ventaPagoRecibidoTone(
-    status,
-    wompiReference,
-    creditPendingCents ?? undefined,
-  );
+  const pagoRecibido = isPedido
+    ? {
+        label: billPaymentStatusLabel(
+          billPaymentStatus ??
+            (status === "paid" ? "paid" : "pending"),
+        ),
+        className:
+          billPaymentStatus === "paid" || status === "paid"
+            ? "font-semibold text-emerald-700 dark:text-emerald-400"
+            : billPaymentStatus === "partial"
+              ? "font-semibold text-amber-700 dark:text-amber-300"
+              : "font-semibold text-amber-700 dark:text-amber-300",
+      }
+    : ventaPagoRecibidoTone(
+        status,
+        wompiReference,
+        creditPendingCents ?? undefined,
+      );
+  const pedidoServiceLabel =
+    serviceType === "domicilio"
+      ? "Domicilio"
+      : serviceType === "en_el_lugar"
+        ? mesaLabel
+          ? `Mesa ${mesaLabel}`
+          : "En el lugar"
+        : null;
 
   const subtotalLines = lines.reduce(
     (s, l) => s + l.unitPriceCents * l.quantity,
@@ -720,6 +753,27 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
               initialKitchenCompletedAt={kitchenCompletedAt}
               serviceType={serviceType}
               lineRecipes={lineRecipes}
+            />
+          </div>
+        ) : null}
+        {isPedido ? (
+          <div className="mb-5">
+            <PedidoCuentaPanel
+              orderId={orderId}
+              invoiceRef={invoiceRef}
+              customerName={customerName}
+              serviceLabel={pedidoServiceLabel}
+              totalCents={totalCents}
+              orderStatus={status}
+              initialBillRequestedAt={billRequestedAt}
+              initialBillPaymentStatus={billPaymentStatus}
+              initialSplits={billSplits}
+              lines={lines.map((l) => ({
+                name: l.name,
+                quantity: l.quantity,
+                unitPriceCents: l.unitPriceCents,
+                lineTotalCents: l.unitPriceCents * l.quantity,
+              }))}
             />
           </div>
         ) : null}

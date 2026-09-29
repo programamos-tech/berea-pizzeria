@@ -28,6 +28,9 @@ export function ventaPagoIcon(
   if (r === "POS:quotation") {
     return { Icon: FileText, label: "Cotización" };
   }
+  if (r.startsWith("POS:pedido:")) {
+    return { Icon: ClipboardList, label: "Pedido" };
+  }
   if (r.startsWith("POS:")) {
     return { Icon: ClipboardList, label: "Mostrador" };
   }
