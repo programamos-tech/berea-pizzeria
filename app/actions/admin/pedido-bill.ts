@@ -2,6 +2,7 @@
 
 import {
   deriveBillPaymentStatus,
+  deriveBillStatusFromLines,
   equalBillSplitAmounts,
   type BillPaymentStatus,
 } from "@/lib/pedido-bill";
@@ -17,7 +18,8 @@ type ActionErr =
   | "not_pedido"
   | "cancelled"
   | "already_paid"
-  | "has_paid_splits";
+  | "has_paid_splits"
+  | "no_lines";
 
 async function loadPedidoOrder(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -353,4 +355,109 @@ export async function payPedidoBill(input: {
   await closeDiningSessionIfAny(supabase, id);
   revalidatePedido(id);
   return { ok: true, billPaymentStatus: "paid" };
+}
+
+/** Cobra líneas seleccionadas del pedido (checkbox por producto). */
+export async function payPedidoBillLines(input: {
+  orderId: string;
+  lineIds: string[];
+  paymentMethod: "cash" | "transfer";
+}): Promise<
+  | { ok: true; billPaymentStatus: BillPaymentStatus; paidLineIds: string[] }
+  | { ok: false; error: ActionErr }
+> {
+  const id = String(input.orderId ?? "").trim();
+  const method = input.paymentMethod;
+  const lineIds = [
+    ...new Set(
+      (input.lineIds ?? [])
+        .map((x) => String(x ?? "").trim())
+        .filter((x) => x.length > 0),
+    ),
+  ];
+  if (!id || (method !== "cash" && method !== "transfer") || lineIds.length === 0) {
+    return { ok: false, error: "invalid" };
+  }
+
+  const perm = await loadAdminPermissions();
+  if (!perm) return { ok: false, error: "auth" };
+  if (!perm.permissions.ventas_crear) return { ok: false, error: "forbidden" };
+
+  const supabase = await createSupabaseServerClient();
+  const order = await loadPedidoOrder(supabase, id);
+  if (!order) return { ok: false, error: "db" };
+  const bad = assertPedido(order);
+  if (bad) return { ok: false, error: bad };
+  if (String(order.status) === "paid") return { ok: false, error: "already_paid" };
+
+  const { data: allLines, error: linesErr } = await supabase
+    .from("order_items")
+    .select("id,bill_paid_at")
+    .eq("order_id", id);
+  if (linesErr) return { ok: false, error: "db" };
+  const rows = allLines ?? [];
+  if (rows.length === 0) return { ok: false, error: "no_lines" };
+
+  const byId = new Map(rows.map((r) => [String(r.id), r]));
+  for (const lid of lineIds) {
+    const row = byId.get(lid);
+    if (!row) return { ok: false, error: "invalid" };
+    if (row.bill_paid_at != null) return { ok: false, error: "already_paid" };
+  }
+
+  const nowIso = new Date().toISOString();
+  const { error: payErr } = await supabase
+    .from("order_items")
+    .update({
+      bill_paid_at: nowIso,
+      bill_payment_method: method,
+    })
+    .eq("order_id", id)
+    .in("id", lineIds)
+    .is("bill_paid_at", null);
+  if (payErr) return { ok: false, error: "db" };
+
+  const nextLines = rows.map((r) => ({
+    billPaidAt:
+      lineIds.includes(String(r.id)) || r.bill_paid_at != null
+        ? nowIso
+        : null,
+  }));
+  const status = deriveBillStatusFromLines({
+    lines: nextLines,
+    orderStatus: "pending",
+  });
+
+  if (status === "paid") {
+    const { error: ordErr } = await supabase
+      .from("orders")
+      .update({
+        status: "paid",
+        bill_payment_status: "paid",
+        bill_requested_at:
+          order.bill_requested_at != null
+            ? String(order.bill_requested_at)
+            : nowIso,
+      })
+      .eq("id", id);
+    if (ordErr) return { ok: false, error: "db" };
+    await closeDiningSessionIfAny(supabase, id);
+    revalidatePedido(id);
+    return { ok: true, billPaymentStatus: "paid", paidLineIds: lineIds };
+  }
+
+  const { error: ordErr } = await supabase
+    .from("orders")
+    .update({
+      bill_requested_at:
+        order.bill_requested_at != null
+          ? String(order.bill_requested_at)
+          : nowIso,
+      bill_payment_status: status,
+    })
+    .eq("id", id);
+  if (ordErr) return { ok: false, error: "db" };
+
+  revalidatePedido(id);
+  return { ok: true, billPaymentStatus: status, paidLineIds: lineIds };
 }

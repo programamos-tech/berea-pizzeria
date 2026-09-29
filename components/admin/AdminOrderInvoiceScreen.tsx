@@ -10,8 +10,11 @@ import {
   type KitchenStatus,
 } from "@/lib/kitchen-status";
 import {
+  deriveBillStatusFromLines,
   isBillPaymentStatus,
+  lineBillAmountCents,
   type BillPaymentStatus,
+  type PedidoBillLine,
   type PedidoBillSplit,
 } from "@/lib/pedido-bill";
 import {
@@ -34,6 +37,8 @@ type ItemRow = {
   product_id: string | null;
   line_discount_percent: number | null;
   line_discount_amount_cents: number | null;
+  bill_paid_at?: string | null;
+  bill_payment_method?: string | null;
   products:
     | { reference: string | null; recipe_id: string | null }
     | { reference: string | null; recipe_id: string | null }[]
@@ -88,7 +93,7 @@ export async function AdminOrderInvoiceScreen({
     supabase
       .from("order_items")
       .select(
-        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, products(reference, recipe_id)",
+        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, bill_paid_at, bill_payment_method, products(reference, recipe_id)",
       )
       .eq("order_id", orderId),
   ]);
@@ -105,18 +110,40 @@ export async function AdminOrderInvoiceScreen({
 
   const items = (itemsRaw ?? []) as unknown as ItemRow[];
 
-  const lines = items.map((it) => ({
-    id: String(it.id),
-    name: String(it.product_name_snapshot ?? "Producto"),
-    reference: productRefFromRow(it),
-    quantity: Number(it.quantity ?? 0),
-    unitPriceCents: Number(it.unit_price_cents ?? 0),
-    lineDiscountPercent:
+  const lines = items.map((it) => {
+    const quantity = Number(it.quantity ?? 0);
+    const unitPriceCents = Number(it.unit_price_cents ?? 0);
+    const lineDiscountPercent =
       it.line_discount_percent != null && Number(it.line_discount_percent) > 0
         ? Number(it.line_discount_percent)
-        : null,
-    lineDiscountAmountCents: Math.max(0, Number(it.line_discount_amount_cents ?? 0)),
-  }));
+        : null;
+    const lineDiscountAmountCents = Math.max(
+      0,
+      Number(it.line_discount_amount_cents ?? 0),
+    );
+    const billMethod: "cash" | "transfer" | null =
+      it.bill_payment_method === "cash" || it.bill_payment_method === "transfer"
+        ? it.bill_payment_method
+        : null;
+    return {
+      id: String(it.id),
+      name: String(it.product_name_snapshot ?? "Producto"),
+      reference: productRefFromRow(it),
+      quantity,
+      unitPriceCents,
+      lineDiscountPercent,
+      lineDiscountAmountCents,
+      billPaidAt:
+        it.bill_paid_at != null ? String(it.bill_paid_at) : null,
+      billPaymentMethod: billMethod,
+      amountCents: lineBillAmountCents({
+        quantity,
+        unitPriceCents,
+        lineDiscountPercent,
+        lineDiscountAmountCents,
+      }),
+    };
+  });
 
   const serviceTypeRaw =
     "service_type" in order && order.service_type != null
@@ -146,39 +173,40 @@ export async function AdminOrderInvoiceScreen({
   let billRequestedAt: string | null = null;
   let billPaymentStatus: BillPaymentStatus | null = null;
   let billSplits: PedidoBillSplit[] = [];
+  let billLines: PedidoBillLine[] = [];
 
   if (isPedido) {
     billRequestedAt =
       "bill_requested_at" in order && order.bill_requested_at != null
         ? String(order.bill_requested_at)
         : null;
+    billLines = lines.map((l) => ({
+      id: l.id,
+      name: l.name,
+      quantity: l.quantity,
+      unitPriceCents: l.unitPriceCents,
+      lineDiscountPercent: l.lineDiscountPercent,
+      lineDiscountAmountCents: l.lineDiscountAmountCents,
+      amountCents: l.amountCents,
+      billPaidAt: l.billPaidAt,
+      billPaymentMethod: l.billPaymentMethod,
+    }));
+    const fromLines = deriveBillStatusFromLines({
+      lines: billLines,
+      orderStatus: String(order.status),
+    });
     const rawBill =
       "bill_payment_status" in order && order.bill_payment_status != null
         ? String(order.bill_payment_status)
-        : String(order.status) === "paid"
-          ? "paid"
-          : "pending";
-    billPaymentStatus = isBillPaymentStatus(rawBill) ? rawBill : "pending";
+        : null;
+    billPaymentStatus = isBillPaymentStatus(rawBill ?? "")
+      ? (rawBill as BillPaymentStatus)
+      : fromLines;
+    // Prefer line-derived status when lines already have paid flags.
+    if (billLines.some((l) => l.billPaidAt != null) || fromLines === "paid") {
+      billPaymentStatus = fromLines;
+    }
 
-    const { data: splitRows } = await supabase
-      .from("order_bill_splits")
-      .select("id,label,amount_cents,sort_order,paid_at,payment_method")
-      .eq("order_id", orderId)
-      .order("sort_order", { ascending: true });
-    billSplits = (splitRows ?? []).map((s) => {
-      const method =
-        s.payment_method === "cash" || s.payment_method === "transfer"
-          ? s.payment_method
-          : null;
-      return {
-        id: String(s.id),
-        label: String(s.label ?? "Parte"),
-        amountCents: Math.max(0, Number(s.amount_cents ?? 0)),
-        sortOrder: Number(s.sort_order ?? 0),
-        paidAt: s.paid_at != null ? String(s.paid_at) : null,
-        paymentMethod: method,
-      };
-    });
     if (serviceType === "en_el_lugar") {
       const { data: sess } = await supabase
         .from("dining_table_sessions")
@@ -446,6 +474,7 @@ export async function AdminOrderInvoiceScreen({
       billRequestedAt={billRequestedAt}
       billPaymentStatus={billPaymentStatus}
       billSplits={billSplits}
+      billLines={billLines}
       ventasListHref={listHref}
       listLabel={isPedido ? "Pedidos" : listLabel}
       invoiceBrand={invoiceBrand}
