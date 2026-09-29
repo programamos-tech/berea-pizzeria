@@ -10,6 +10,7 @@ export function OperatorAccountLogo({
   src: string;
   name: string;
   size?: 32 | 40 | 56 | 64;
+  /** Fondo del recuadro; `transparent` = sin placa (p. ej. sidebar carbón). */
   plateColor?: string;
   fullColor?: boolean;
 }) {
@@ -28,11 +29,15 @@ export function OperatorAccountLogo({
         ? "p-[14%]"
         : "p-[16%]";
   const tone = fullColor ? "" : "brightness-0 invert";
+  const clearPlate =
+    !plateColor ||
+    plateColor === "transparent" ||
+    plateColor === "rgba(0,0,0,0)";
 
   return (
     <span
       className={`relative block aspect-square ${box} shrink-0 overflow-hidden`}
-      style={{ backgroundColor: plateColor }}
+      style={clearPlate ? undefined : { backgroundColor: plateColor }}
     >
       <Image
         src={src}

@@ -77,31 +77,20 @@ function SidebarProductBrand({ account }: { account: AccountBrand }) {
     <Link
       href="/admin"
       prefetch
+      data-testid="sidebar-brand-logo"
       className="inline-flex rounded-md outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--admin-coral)_55%,transparent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--admin-sidebar-bg)]"
     >
-      {account.logoFullColor ? (
-        <span
-          className="relative block h-14 w-28 overflow-hidden rounded-xl"
-          style={{ backgroundColor: account.plateColor }}
-        >
-          <Image
-            src={account.logoSrc}
-            alt={account.name}
-            fill
-            sizes="76px"
-            unoptimized
-            className="object-contain p-1.5"
-          />
-        </span>
-      ) : (
-        <OperatorAccountLogo
+      {/* Sidebar carbón: sin placa blanca; marca en blanco. */}
+      <span className="relative block h-14 w-28 overflow-hidden bg-transparent">
+        <Image
           src={account.logoSrc}
-          name={account.name}
-          size={56}
-          plateColor={account.plateColor}
-          fullColor={account.logoFullColor}
+          alt={account.name}
+          fill
+          sizes="112px"
+          unoptimized
+          className="object-contain p-1 brightness-0 invert"
         />
-      )}
+      </span>
     </Link>
   );
 }
@@ -120,15 +109,17 @@ function SidebarTenantAccount({
   const branchLogo = storagePublicObjectUrl(branchContext.active.logoPath);
   const markSrc = branchLogo ?? account.logoSrc;
   const cardClass = `mt-3.5 flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left ${sidebarSurface}`;
+  /** Logo de cuenta en sidebar: transparente + blanco; logo propio de sucursal a color. */
+  const branchOwnLogo = Boolean(branchLogo);
 
   return (
-    <div className={cardClass}>
+    <div className={cardClass} data-testid="sidebar-sucursal-card">
       <OperatorAccountLogo
         src={markSrc}
         name={branchContext.active.name}
         size={32}
-        plateColor={branchLogo ? "#ffffff" : account.plateColor}
-        fullColor={Boolean(branchLogo) || account.logoFullColor}
+        plateColor="transparent"
+        fullColor={branchOwnLogo}
       />
       <span className="min-w-0 flex-1">
         <span className={`block text-[9px] font-semibold uppercase tracking-[0.12em] ${sidebarInkMuted}`}>
