@@ -235,13 +235,6 @@ export function PedidoCuentaModal({
     });
   }
 
-  const badgeLabel =
-    billStatus === "paid"
-      ? "Pagado"
-      : billStatus === "partial"
-        ? "Parcial"
-        : "Cuenta";
-
   const canPay =
     selectedCents > 0 &&
     !pending &&
@@ -255,7 +248,7 @@ export function PedidoCuentaModal({
         data-testid="pedido-cuenta-btn"
         className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--admin-coral)] bg-[var(--admin-coral)] px-3 py-1.5 text-sm font-bold tracking-wide text-white shadow-sm transition hover:brightness-105"
       >
-        {badgeLabel}
+        Cuenta
       </button>
 
       {mounted && open
