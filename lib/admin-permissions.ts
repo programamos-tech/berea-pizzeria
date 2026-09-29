@@ -7,6 +7,8 @@ export const COLLABORATOR_JOB_ROLES = [
   "admin",
   "sales",
   "inventory",
+  "kitchen",
+  "service",
 ] as const;
 
 export type CollaboratorJobRole = (typeof COLLABORATOR_JOB_ROLES)[number];
@@ -15,7 +17,12 @@ export function isCollaboratorJobRole(
   raw: string | null | undefined,
 ): raw is CollaboratorJobRole {
   return (
-    raw === "owner" || raw === "admin" || raw === "sales" || raw === "inventory"
+    raw === "owner" ||
+    raw === "admin" ||
+    raw === "sales" ||
+    raw === "inventory" ||
+    raw === "kitchen" ||
+    raw === "service"
   );
 }
 
@@ -30,6 +37,23 @@ export function normalizeCollaboratorJobRole(
   if (v === "inventory" || v === "inventario" || v === "support") {
     return "inventory";
   }
+  if (
+    v === "kitchen" ||
+    v === "cocinero" ||
+    v === "cocina" ||
+    v === "cook"
+  ) {
+    return "kitchen";
+  }
+  if (
+    v === "service" ||
+    v === "mesero" ||
+    v === "mesera" ||
+    v === "servicio" ||
+    v === "waiter"
+  ) {
+    return "service";
+  }
   if (v === "sales" || v === "venta" || v === "cashier" || v === "cajero") {
     return "sales";
   }
@@ -40,6 +64,8 @@ export function collaboratorJobRoleLabel(role: CollaboratorJobRole): string {
   if (role === "owner") return "Propietario";
   if (role === "admin") return "Administrador";
   if (role === "inventory") return "Inventario";
+  if (role === "kitchen") return "Cocinero";
+  if (role === "service") return "Mesero";
   return "Venta";
 }
 
@@ -52,6 +78,12 @@ export function collaboratorJobRoleToneClass(role: CollaboratorJobRole): string 
   }
   if (role === "inventory") {
     return "font-medium text-violet-700 dark:text-violet-300";
+  }
+  if (role === "kitchen") {
+    return "font-medium text-orange-700 dark:text-orange-300";
+  }
+  if (role === "service") {
+    return "font-medium text-teal-700 dark:text-teal-300";
   }
   return "font-medium text-sky-700 dark:text-sky-300";
 }
@@ -263,12 +295,30 @@ export function defaultPermissionsInventory(): PermissionMap {
   return m;
 }
 
+/** Cocinero: ve pedidos / cocina; no caja ni reportes. */
+export function defaultPermissionsKitchen(): PermissionMap {
+  const m = allFalse();
+  m.ventas_ver = true;
+  return m;
+}
+
+/** Mesero / servicio: toma y atiende pedidos en salón. */
+export function defaultPermissionsService(): PermissionMap {
+  const m = allFalse();
+  m.ventas_ver = true;
+  m.ventas_crear = true;
+  m.clientes_ver = true;
+  return m;
+}
+
 export function permissionsFromRoleTemplate(
   role: CollaboratorJobRole,
 ): PermissionMap {
   if (role === "owner") return defaultPermissionsOwner();
   if (role === "admin") return defaultPermissionsAdmin();
   if (role === "inventory") return defaultPermissionsInventory();
+  if (role === "kitchen") return defaultPermissionsKitchen();
+  if (role === "service") return defaultPermissionsService();
   return defaultPermissionsSales();
 }
 

@@ -8,6 +8,7 @@ import { AdminOrderNotificationsProvider } from "@/components/admin/AdminOrderNo
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminTopBar } from "@/components/admin/AdminTopBar";
 import { CashRegisterMorningGateModal } from "@/components/admin/CashRegisterMorningGateModal";
+import type { CollaboratorJobRole } from "@/lib/admin-permissions";
 import type { BranchContext } from "@/lib/branch-context";
 import { pathAllowedDuringCashGate } from "@/lib/cash-register-gate";
 import { isAdminPathInMaintenance } from "@/lib/admin-nav-maintenance";
@@ -20,6 +21,7 @@ export function AdminDashboardShell({
   children,
   allowedNavHrefs,
   notifyNewWebOrders = false,
+  jobRole = null,
   cashGate = null,
   sessionUser,
   actingAccount = null,
@@ -30,6 +32,8 @@ export function AdminDashboardShell({
   /** Hrefs del menú lateral permitidos para esta sesión (incluye `/admin/cuenta` y `/`). */
   allowedNavHrefs: string[];
   notifyNewWebOrders?: boolean;
+  /** Rol laboral: copia del modal de pedido nuevo (cocina / salón). */
+  jobRole?: CollaboratorJobRole | null;
   cashGate?: {
     mustOpen: boolean;
     businessDayLabel: string;
@@ -79,6 +83,7 @@ export function AdminDashboardShell({
     <AdminOrderNotificationsProvider
       enabled={notifyNewWebOrders && !mustOpen}
       branchId={branchContext.active.id}
+      jobRole={jobRole}
     >
       <AdminAuthVisibilityKeepAlive />
       <div className="isolate flex min-h-dvh max-w-full items-stretch antialiased">
