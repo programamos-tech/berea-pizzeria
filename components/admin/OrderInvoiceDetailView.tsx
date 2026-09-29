@@ -370,6 +370,10 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
   const showShippingRow =
     shippingCents > 0 ||
     (Boolean(shippingCity?.trim()) && checkoutPaymentMethod === "transfer");
+  const shippingLabel =
+    isPedido && (serviceType === "domicilio" || shippingCents > 0)
+      ? "Domicilio"
+      : "Envío";
 
   const hasShipping =
     Boolean(shippingAddress?.trim()) || Boolean(shippingCity?.trim());
@@ -501,6 +505,9 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                   customerName={customerName}
                   serviceLabel={pedidoServiceLabel}
                   totalCents={totalCents}
+                  shippingCents={
+                    serviceType === "domicilio" ? shippingCents : 0
+                  }
                   orderStatus={status}
                   initialBillRequestedAt={billRequestedAt}
                   initialBillPaymentStatus={billPaymentStatus}
@@ -896,10 +903,15 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-zinc-500">
-                    Envío
-                    {shippingCity?.trim() ? ` · ${shippingCity.trim()}` : ""}
+                    {shippingLabel}
+                    {!isPedido && shippingCity?.trim()
+                      ? ` · ${shippingCity.trim()}`
+                      : ""}
                   </span>
-                  <span className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
+                  <span
+                    className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100"
+                    data-testid="pedido-detalle-domicilio"
+                  >
                     {shippingCents > 0 ? (
                       <StaticCopCents cents={shippingCents} />
                     ) : (
@@ -1152,8 +1164,8 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                     {showShippingRow ? (
                       <div className="mt-2 flex justify-between gap-4 text-[11px]">
                         <span className="font-semibold text-black">
-                          Envío
-                          {shippingCity?.trim()
+                          {shippingLabel}
+                          {!isPedido && shippingCity?.trim()
                             ? ` · ${shippingCity.trim()}`
                             : ""}
                         </span>

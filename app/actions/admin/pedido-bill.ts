@@ -34,7 +34,7 @@ async function loadPedidoOrder(
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id,status,total_cents,wompi_reference,bill_requested_at,bill_payment_status,tenant_id,branch_id",
+      "id,status,total_cents,shipping_cents,wompi_reference,bill_requested_at,bill_payment_status,tenant_id,branch_id",
     )
     .eq("id", orderId)
     .maybeSingle();
@@ -433,6 +433,20 @@ export async function payPedidoBillLines(input: {
       }
     }
     selectedTotal += amount;
+  }
+
+  const unpaidIds = rows
+    .filter((r) => r.bill_paid_at == null)
+    .map((r) => String(r.id));
+  const paysAllRemaining =
+    unpaidIds.length > 0 &&
+    unpaidIds.every((uid) => lineIds.includes(uid));
+  const shippingCents = Math.max(
+    0,
+    Math.floor(Number(order.shipping_cents ?? 0)),
+  );
+  if (paysAllRemaining && shippingCents > 0) {
+    selectedTotal += shippingCents;
   }
 
   let breakdown: PedidoBillPaymentBreakdown | null = null;

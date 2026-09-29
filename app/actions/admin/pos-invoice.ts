@@ -88,6 +88,11 @@ export type PosInvoicePayload = {
   shippingPhone: string | null;
   /** Punto de referencia de domicilio (opcional). */
   shippingReference?: string | null;
+  /**
+   * Valor del domicilio (centavos). Solo pedidos domicilio; se suma al total.
+   * Opcional; si viene, debe ser >= 0.
+   */
+  shippingCents?: number | null;
   /** Token de un solo uso para evitar doble factura por doble clic. */
   submissionId?: string | null;
 };
@@ -496,6 +501,14 @@ export async function createPosInvoiceAction(formData: FormData) {
   }
   vatCents = Math.max(0, totalCents - subtotalCents);
 
+  let shippingCents = 0;
+  if (isPedido && serviceType === "domicilio") {
+    const rawShip = Math.floor(Number(payload.shippingCents ?? 0));
+    if (!Number.isFinite(rawShip) || rawShip < 0) redirectFail("validation");
+    shippingCents = rawShip;
+  }
+  totalCents += shippingCents;
+
   if (!Number.isFinite(totalCents) || totalCents < 0) redirectFail("validation");
 
   const submissionId = String(payload.submissionId ?? "").trim();
@@ -631,6 +644,7 @@ export async function createPosInvoiceAction(formData: FormData) {
         shipping_address: shippingAddress,
         shipping_phone: shippingPhone,
         shipping_reference: shippingReference,
+        shipping_cents: shippingCents,
         ...(serviceType ? { service_type: serviceType } : {}),
         ...(isPedido ? { kitchen_status: "recibido" } : {}),
         ...(!skipsSettlement && paymentMethod === "mixed"

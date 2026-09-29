@@ -69,6 +69,7 @@ export function PedidoCuentaModal({
   customerName,
   serviceLabel,
   totalCents,
+  shippingCents = 0,
   orderStatus,
   initialBillRequestedAt,
   initialBillPaymentStatus,
@@ -79,6 +80,8 @@ export function PedidoCuentaModal({
   customerName: string;
   serviceLabel: string | null;
   totalCents: number;
+  /** Valor del domicilio incluido en el total (solo pedidos domicilio). */
+  shippingCents?: number;
   orderStatus: string;
   initialBillRequestedAt: string | null;
   initialBillPaymentStatus: BillPaymentStatus | null;
@@ -132,15 +135,29 @@ export function PedidoCuentaModal({
     () => lines.filter((l) => !l.billPaidAt),
     [lines],
   );
+  const feeCents = Math.max(0, Math.floor(shippingCents));
   const paidCents = sumPaidLineCents(lines);
-  const pendingCents = sumUnpaidLineCents(lines);
+  const unpaidProductCents = sumUnpaidLineCents(lines);
+  /** Domicilio se cobra con el último pago de productos pendientes. */
+  const pendingCents = Math.max(0, totalCents - paidCents);
   const selectedCents = useMemo(() => {
     let s = 0;
+    let selectedUnpaid = 0;
     for (const l of lines) {
-      if (selected.has(l.id) && !l.billPaidAt) s += l.amountCents;
+      if (selected.has(l.id) && !l.billPaidAt) {
+        s += l.amountCents;
+        selectedUnpaid += 1;
+      }
+    }
+    if (
+      feeCents > 0 &&
+      unpaid.length > 0 &&
+      selectedUnpaid === unpaid.length
+    ) {
+      s += feeCents;
     }
     return s;
-  }, [lines, selected]);
+  }, [lines, selected, feeCents, unpaid.length]);
   const isFullyPaid = orderStatus === "paid" || billStatus === "paid";
 
   const mixedBreakdown: PedidoBillPaymentBreakdown = {
@@ -426,6 +443,26 @@ export function PedidoCuentaModal({
                           );
                         })}
                       </ul>
+
+                      {feeCents > 0 ? (
+                        <div
+                          className="mt-3 flex items-baseline justify-between gap-3 border-t border-zinc-100 pt-3 text-sm dark:border-zinc-800"
+                          data-testid="pedido-cuenta-domicilio"
+                        >
+                          <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                            Domicilio
+                          </span>
+                          <span className="tabular-nums font-semibold text-zinc-900 dark:text-zinc-100">
+                            {formatCop(feeCents)}
+                          </span>
+                        </div>
+                      ) : null}
+                      {feeCents > 0 && unpaidProductCents > 0 ? (
+                        <p className="mt-1.5 text-xs text-zinc-500">
+                          El valor del domicilio se incluye al pagar todos los
+                          productos pendientes.
+                        </p>
+                      ) : null}
 
                       {error ? (
                         <p

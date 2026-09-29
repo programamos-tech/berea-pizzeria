@@ -612,6 +612,8 @@ export function NewInvoiceForm({
   const [requestElectronicInvoice, setRequestElectronicInvoice] =
     useState(false);
   const [guestName, setGuestName] = useState("");
+  /** Valor del domicilio (pesos enteros); solo pedido domicilio. */
+  const [domicilioFeeRaw, setDomicilioFeeRaw] = useState("");
   const skipsStockGate =
     documentKind === "quotation" || documentKind === "pedido";
   /** Pedido: IVA solo si piden factura electrónica. */
@@ -1086,7 +1088,11 @@ export function NewInvoiceForm({
     [pricingByKey],
   );
 
-  const totalCents = subtotalCents + vatCents;
+  const domicilioFeeCents =
+    documentKind === "pedido" && serviceType === "domicilio"
+      ? parseCopInputDigitsToInt(domicilioFeeRaw)
+      : 0;
+  const totalCents = subtotalCents + vatCents + domicilioFeeCents;
 
   const cartStockExceeded = useMemo(() => {
     const byId = new Map<string, number>();
@@ -1453,6 +1459,10 @@ export function NewInvoiceForm({
       shippingAddress: address,
       shippingPhone: phone,
       shippingReference,
+      shippingCents:
+        documentKind === "pedido" && serviceType === "domicilio"
+          ? domicilioFeeCents
+          : 0,
       submissionId,
     });
   }, [
@@ -1478,6 +1488,7 @@ export function NewInvoiceForm({
     customerWholesalePct,
     pricePolicy,
     effectiveChargeVat,
+    domicilioFeeCents,
     submissionId,
   ]);
 
@@ -2216,6 +2227,7 @@ export function NewInvoiceForm({
                         setServiceType(tab.id);
                         if (tab.id === "en_el_lugar") {
                           setShipChoice("pickup");
+                          setDomicilioFeeRaw("");
                           if (
                             !diningTableId ||
                             !availableTables.some((t) => t.id === diningTableId)
@@ -2347,6 +2359,35 @@ export function NewInvoiceForm({
                         {clientShippingReference}
                       </p>
                     ) : null}
+                  </div>
+                  <div>
+                    <label className={labelClass} htmlFor="pedido-valor-domicilio">
+                      Valor del domicilio
+                    </label>
+                    <div className="relative mt-1.5">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">
+                        $
+                      </span>
+                      <input
+                        id="pedido-valor-domicilio"
+                        data-testid="pedido-valor-domicilio"
+                        type="text"
+                        inputMode="numeric"
+                        value={domicilioFeeRaw}
+                        onChange={(e) => {
+                          const n = parseCopInputDigitsToInt(e.target.value);
+                          setDomicilioFeeRaw(
+                            n <= 0 ? "" : formatCopInputGrouping(n),
+                          );
+                        }}
+                        placeholder="0"
+                        className={`${inputClass} pl-7`}
+                        autoComplete="off"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                      Opcional. Se suma al total del pedido (productos + domicilio).
+                    </p>
                   </div>
                 </div>
               )}
@@ -2558,6 +2599,19 @@ export function NewInvoiceForm({
                       {formatCop(vatCents)}
                     </dd>
                   </div>
+                  ) : null}
+                  {documentKind === "pedido" &&
+                  serviceType === "domicilio" &&
+                  domicilioFeeCents > 0 ? (
+                    <div
+                      className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800"
+                      data-testid="pedido-resumen-domicilio"
+                    >
+                      <dt>Domicilio</dt>
+                      <dd className="tabular-nums font-medium text-zinc-900 dark:text-zinc-100">
+                        {formatCop(domicilioFeeCents)}
+                      </dd>
+                    </div>
                   ) : null}
                   <div className="flex justify-between gap-2 border-t border-zinc-200/70 pt-2 dark:border-zinc-800">
                     <dt className="font-medium text-zinc-800 dark:text-zinc-200">
