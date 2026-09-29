@@ -12,7 +12,9 @@ import {
 import {
   deriveBillStatusFromLines,
   isBillPaymentStatus,
+  isPedidoBillPaymentMethod,
   lineBillAmountCents,
+  parsePaymentBreakdown,
   type BillPaymentStatus,
   type PedidoBillLine,
   type PedidoBillSplit,
@@ -39,6 +41,7 @@ type ItemRow = {
   line_discount_amount_cents: number | null;
   bill_paid_at?: string | null;
   bill_payment_method?: string | null;
+  bill_payment_breakdown?: unknown;
   products:
     | { reference: string | null; recipe_id: string | null }
     | { reference: string | null; recipe_id: string | null }[]
@@ -93,7 +96,7 @@ export async function AdminOrderInvoiceScreen({
     supabase
       .from("order_items")
       .select(
-        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, bill_paid_at, bill_payment_method, products(reference, recipe_id)",
+        "id, quantity, unit_price_cents, product_name_snapshot, product_id, line_discount_percent, line_discount_amount_cents, bill_paid_at, bill_payment_method, bill_payment_breakdown, products(reference, recipe_id)",
       )
       .eq("order_id", orderId),
   ]);
@@ -121,10 +124,10 @@ export async function AdminOrderInvoiceScreen({
       0,
       Number(it.line_discount_amount_cents ?? 0),
     );
-    const billMethod: "cash" | "transfer" | null =
-      it.bill_payment_method === "cash" || it.bill_payment_method === "transfer"
-        ? it.bill_payment_method
-        : null;
+    const rawMethod = String(it.bill_payment_method ?? "");
+    const billMethod = isPedidoBillPaymentMethod(rawMethod)
+      ? rawMethod
+      : null;
     return {
       id: String(it.id),
       name: String(it.product_name_snapshot ?? "Producto"),
@@ -136,6 +139,7 @@ export async function AdminOrderInvoiceScreen({
       billPaidAt:
         it.bill_paid_at != null ? String(it.bill_paid_at) : null,
       billPaymentMethod: billMethod,
+      billPaymentBreakdown: parsePaymentBreakdown(it.bill_payment_breakdown),
       amountCents: lineBillAmountCents({
         quantity,
         unitPriceCents,
@@ -174,6 +178,7 @@ export async function AdminOrderInvoiceScreen({
   let billPaymentStatus: BillPaymentStatus | null = null;
   let billSplits: PedidoBillSplit[] = [];
   let billLines: PedidoBillLine[] = [];
+  let hasOpenDiningSession = false;
 
   if (isPedido) {
     billRequestedAt =
@@ -190,6 +195,7 @@ export async function AdminOrderInvoiceScreen({
       amountCents: l.amountCents,
       billPaidAt: l.billPaidAt,
       billPaymentMethod: l.billPaymentMethod,
+      billPaymentBreakdown: l.billPaymentBreakdown,
     }));
     const fromLines = deriveBillStatusFromLines({
       lines: billLines,
@@ -210,7 +216,7 @@ export async function AdminOrderInvoiceScreen({
     if (serviceType === "en_el_lugar") {
       const { data: sess } = await supabase
         .from("dining_table_sessions")
-        .select("dining_table_id, dining_tables(name, code)")
+        .select("status, dining_table_id, dining_tables(name, code)")
         .eq("order_id", orderId)
         .order("opened_at", { ascending: false })
         .limit(1)
@@ -224,6 +230,7 @@ export async function AdminOrderInvoiceScreen({
       const code = table?.code != null ? String(table.code).trim() : "";
       const name = table?.name != null ? String(table.name).trim() : "";
       mesaLabel = code || name || null;
+      hasOpenDiningSession = String(sess?.status ?? "") === "open";
     }
 
     const recipeIds = [
@@ -475,6 +482,7 @@ export async function AdminOrderInvoiceScreen({
       billPaymentStatus={billPaymentStatus}
       billSplits={billSplits}
       billLines={billLines}
+      hasOpenDiningSession={hasOpenDiningSession}
       ventasListHref={listHref}
       listLabel={isPedido ? "Pedidos" : listLabel}
       invoiceBrand={invoiceBrand}

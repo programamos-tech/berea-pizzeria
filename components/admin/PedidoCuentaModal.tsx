@@ -11,12 +11,22 @@ import { AdminPortalRoot } from "@/components/admin/AdminPortalRoot";
 import {
   billPaymentMethodLabel,
   billPaymentStatusLabel,
+  emptyPaymentBreakdown,
+  isValidMixedBreakdown,
+  PEDIDO_BILL_PAYMENT_METHODS,
   sumPaidLineCents,
+  sumPaymentBreakdown,
   sumUnpaidLineCents,
   type BillPaymentStatus,
   type PedidoBillLine,
+  type PedidoBillPaymentBreakdown,
+  type PedidoBillPaymentMethod,
 } from "@/lib/pedido-bill";
-import { formatCop } from "@/lib/money";
+import {
+  formatCop,
+  formatCopInputGrouping,
+  parseCopInputDigitsToInt,
+} from "@/lib/money";
 import { formatStoreDateTime } from "@/lib/store-datetime-format";
 
 function statusTone(status: BillPaymentStatus): string {
@@ -46,6 +56,8 @@ function errorMessage(code: string): string {
       return "No se pudo guardar. Intentá de nuevo.";
     case "invalid":
       return "Seleccioná al menos un producto pendiente.";
+    case "mixed":
+      return "En Mixto, repartí el total en al menos dos medios.";
     default:
       return "No se pudo completar el cobro.";
   }
@@ -86,7 +98,11 @@ export function PedidoCuentaModal({
       (orderStatus === "paid" ? "paid" : "pending"),
   );
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
-  const [payMethod, setPayMethod] = useState<"cash" | "transfer">("cash");
+  const [payMethod, setPayMethod] =
+    useState<PedidoBillPaymentMethod>("cash");
+  const [mixedCashRaw, setMixedCashRaw] = useState("");
+  const [mixedTransferRaw, setMixedTransferRaw] = useState("");
+  const [mixedDataphoneRaw, setMixedDataphoneRaw] = useState("");
 
   useEffect(() => setMounted(true), []);
 
@@ -127,6 +143,17 @@ export function PedidoCuentaModal({
   }, [lines, selected]);
   const isFullyPaid = orderStatus === "paid" || billStatus === "paid";
 
+  const mixedBreakdown: PedidoBillPaymentBreakdown = {
+    cash: parseCopInputDigitsToInt(mixedCashRaw),
+    transfer: parseCopInputDigitsToInt(mixedTransferRaw),
+    dataphone: parseCopInputDigitsToInt(mixedDataphoneRaw),
+  };
+  const mixedSum = sumPaymentBreakdown(mixedBreakdown);
+  const mixedOk =
+    payMethod !== "mixed" ||
+    (selectedCents > 0 && isValidMixedBreakdown(mixedBreakdown, selectedCents));
+  const mixedRemain = selectedCents - mixedSum;
+
   function toggle(id: string, paid: boolean) {
     if (paid) return;
     setSelected((prev) => {
@@ -165,18 +192,25 @@ export function PedidoCuentaModal({
       setError(errorMessage("invalid"));
       return;
     }
+    if (payMethod === "mixed" && !mixedOk) {
+      setError(errorMessage("mixed"));
+      return;
+    }
     setError(null);
     startTransition(async () => {
       const res = await payPedidoBillLines({
         orderId,
         lineIds: ids,
         paymentMethod: payMethod,
+        mixedBreakdown: payMethod === "mixed" ? mixedBreakdown : null,
       });
       if (!res.ok) {
         setError(errorMessage(res.error));
         return;
       }
       const nowIso = new Date().toISOString();
+      const breakdown =
+        payMethod === "mixed" ? mixedBreakdown : emptyPaymentBreakdown();
       setLines((prev) =>
         prev.map((l) =>
           res.paidLineIds.includes(l.id)
@@ -184,6 +218,8 @@ export function PedidoCuentaModal({
                 ...l,
                 billPaidAt: nowIso,
                 billPaymentMethod: payMethod,
+                billPaymentBreakdown:
+                  payMethod === "mixed" ? breakdown : null,
               }
             : l,
         ),
@@ -191,6 +227,10 @@ export function PedidoCuentaModal({
       setSelected(new Set());
       setBillStatus(res.billPaymentStatus);
       if (!billRequestedAt) setBillRequestedAt(nowIso);
+      setMixedCashRaw("");
+      setMixedTransferRaw("");
+      setMixedDataphoneRaw("");
+      setOpen(false);
       router.refresh();
     });
   }
@@ -201,6 +241,11 @@ export function PedidoCuentaModal({
       : billStatus === "partial"
         ? "Parcial"
         : "Cuenta";
+
+  const canPay =
+    selectedCents > 0 &&
+    !pending &&
+    (payMethod !== "mixed" || mixedOk);
 
   return (
     <>
@@ -378,6 +423,7 @@ export function PedidoCuentaModal({
                                       Pagado ·{" "}
                                       {billPaymentMethodLabel(
                                         line.billPaymentMethod,
+                                        line.billPaymentBreakdown,
                                       )}
                                     </span>
                                   ) : null}
@@ -404,20 +450,19 @@ export function PedidoCuentaModal({
                           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                             Método
                           </p>
-                          <div className="mt-1.5 flex flex-wrap gap-1.5">
-                            {(
-                              [
-                                ["cash", "Efectivo"],
-                                ["transfer", "Transferencia"],
-                              ] as const
-                            ).map(([value, label]) => {
-                              const active = payMethod === value;
+                          <div
+                            className="mt-1.5 flex flex-wrap gap-1.5"
+                            data-testid="pedido-cuenta-metodos"
+                          >
+                            {PEDIDO_BILL_PAYMENT_METHODS.map(({ id, label }) => {
+                              const active = payMethod === id;
                               return (
                                 <button
-                                  key={value}
+                                  key={id}
                                   type="button"
                                   disabled={pending}
-                                  onClick={() => setPayMethod(value)}
+                                  onClick={() => setPayMethod(id)}
+                                  data-testid={`pedido-cuenta-method-${id}`}
                                   className={[
                                     "rounded-md px-2.5 py-1.5 text-xs font-semibold transition",
                                     active
@@ -430,9 +475,81 @@ export function PedidoCuentaModal({
                               );
                             })}
                           </div>
+
+                          {payMethod === "mixed" ? (
+                            <div
+                              className="mt-3 space-y-2 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 dark:border-zinc-800 dark:bg-zinc-900/40"
+                              data-testid="pedido-cuenta-mixto"
+                            >
+                              <p className="text-xs text-zinc-500">
+                                Repartí {formatCop(selectedCents || 0)} en al
+                                menos dos medios.
+                              </p>
+                              {(
+                                [
+                                  ["cash", "Efectivo", mixedCashRaw, setMixedCashRaw],
+                                  [
+                                    "transfer",
+                                    "Transferencia",
+                                    mixedTransferRaw,
+                                    setMixedTransferRaw,
+                                  ],
+                                  [
+                                    "dataphone",
+                                    "Datáfono",
+                                    mixedDataphoneRaw,
+                                    setMixedDataphoneRaw,
+                                  ],
+                                ] as const
+                              ).map(([key, label, raw, setRaw]) => (
+                                <label
+                                  key={key}
+                                  className="flex items-center justify-between gap-3 text-sm"
+                                >
+                                  <span className="text-zinc-700 dark:text-zinc-300">
+                                    {label}
+                                  </span>
+                                  <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={raw}
+                                    disabled={pending || selectedCents <= 0}
+                                    placeholder="0"
+                                    onChange={(e) => {
+                                      const n = parseCopInputDigitsToInt(
+                                        e.target.value,
+                                      );
+                                      setRaw(
+                                        n <= 0 ? "" : formatCopInputGrouping(n),
+                                      );
+                                    }}
+                                    data-testid={`pedido-cuenta-mixto-${key}`}
+                                    className="w-32 rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-right text-sm tabular-nums text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                                  />
+                                </label>
+                              ))}
+                              <p
+                                className={[
+                                  "text-xs tabular-nums",
+                                  mixedOk
+                                    ? "text-emerald-700 dark:text-emerald-400"
+                                    : "text-amber-700 dark:text-amber-300",
+                                ].join(" ")}
+                              >
+                                {selectedCents <= 0
+                                  ? "Seleccioná productos primero."
+                                  : mixedRemain === 0 && mixedOk
+                                    ? "Desglose completo."
+                                    : mixedRemain > 0
+                                      ? `Faltan ${formatCop(mixedRemain)}`
+                                      : `Sobran ${formatCop(-mixedRemain)}`}
+                              </p>
+                            </div>
+                          ) : null}
+
                           <button
                             type="button"
-                            disabled={pending || selectedCents <= 0}
+                            disabled={!canPay}
                             onClick={pagarSeleccion}
                             data-testid="pedido-cuenta-pagar-seleccion"
                             className="mt-3 w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"

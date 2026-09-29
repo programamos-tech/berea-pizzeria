@@ -4,7 +4,11 @@ import {
   deriveBillPaymentStatus,
   deriveBillStatusFromLines,
   equalBillSplitAmounts,
+  isPedidoBillPaymentMethod,
+  isValidMixedBreakdown,
   type BillPaymentStatus,
+  type PedidoBillPaymentBreakdown,
+  type PedidoBillPaymentMethod,
 } from "@/lib/pedido-bill";
 import { loadAdminPermissions } from "@/lib/load-admin-permissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -19,7 +23,9 @@ type ActionErr =
   | "cancelled"
   | "already_paid"
   | "has_paid_splits"
-  | "no_lines";
+  | "no_lines"
+  | "mixed"
+  | "no_mesa";
 
 async function loadPedidoOrder(
   supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
@@ -361,9 +367,16 @@ export async function payPedidoBill(input: {
 export async function payPedidoBillLines(input: {
   orderId: string;
   lineIds: string[];
-  paymentMethod: "cash" | "transfer";
+  paymentMethod: PedidoBillPaymentMethod;
+  /** Requerido si paymentMethod === "mixed". */
+  mixedBreakdown?: PedidoBillPaymentBreakdown | null;
 }): Promise<
-  | { ok: true; billPaymentStatus: BillPaymentStatus; paidLineIds: string[] }
+  | {
+      ok: true;
+      billPaymentStatus: BillPaymentStatus;
+      paidLineIds: string[];
+      suggestLiberarMesa: boolean;
+    }
   | { ok: false; error: ActionErr }
 > {
   const id = String(input.orderId ?? "").trim();
@@ -375,7 +388,7 @@ export async function payPedidoBillLines(input: {
         .filter((x) => x.length > 0),
     ),
   ];
-  if (!id || (method !== "cash" && method !== "transfer") || lineIds.length === 0) {
+  if (!id || !isPedidoBillPaymentMethod(method) || lineIds.length === 0) {
     return { ok: false, error: "invalid" };
   }
 
@@ -392,17 +405,57 @@ export async function payPedidoBillLines(input: {
 
   const { data: allLines, error: linesErr } = await supabase
     .from("order_items")
-    .select("id,bill_paid_at")
+    .select("id,bill_paid_at,quantity,unit_price_cents,line_discount_percent,line_discount_amount_cents")
     .eq("order_id", id);
   if (linesErr) return { ok: false, error: "db" };
   const rows = allLines ?? [];
   if (rows.length === 0) return { ok: false, error: "no_lines" };
 
   const byId = new Map(rows.map((r) => [String(r.id), r]));
+  let selectedTotal = 0;
   for (const lid of lineIds) {
     const row = byId.get(lid);
     if (!row) return { ok: false, error: "invalid" };
     if (row.bill_paid_at != null) return { ok: false, error: "already_paid" };
+    const qty = Math.max(0, Math.floor(Number(row.quantity ?? 0)));
+    const unit = Math.max(0, Math.floor(Number(row.unit_price_cents ?? 0)));
+    const gross = unit * qty;
+    const amountDisc = Math.max(
+      0,
+      Math.floor(Number(row.line_discount_amount_cents ?? 0)),
+    );
+    let amount = gross;
+    if (amountDisc > 0) amount = Math.max(0, gross - amountDisc);
+    else {
+      const pct = Number(row.line_discount_percent ?? 0);
+      if (Number.isFinite(pct) && pct > 0) {
+        amount = Math.max(0, Math.round(gross * (1 - Math.min(100, pct) / 100)));
+      }
+    }
+    selectedTotal += amount;
+  }
+
+  let breakdown: PedidoBillPaymentBreakdown | null = null;
+  if (method === "mixed") {
+    const raw = input.mixedBreakdown;
+    if (
+      !raw ||
+      !isValidMixedBreakdown(
+        {
+          cash: Math.max(0, Math.floor(Number(raw.cash ?? 0))),
+          transfer: Math.max(0, Math.floor(Number(raw.transfer ?? 0))),
+          dataphone: Math.max(0, Math.floor(Number(raw.dataphone ?? 0))),
+        },
+        selectedTotal,
+      )
+    ) {
+      return { ok: false, error: "mixed" };
+    }
+    breakdown = {
+      cash: Math.max(0, Math.floor(Number(raw.cash ?? 0))),
+      transfer: Math.max(0, Math.floor(Number(raw.transfer ?? 0))),
+      dataphone: Math.max(0, Math.floor(Number(raw.dataphone ?? 0))),
+    };
   }
 
   const nowIso = new Date().toISOString();
@@ -411,6 +464,7 @@ export async function payPedidoBillLines(input: {
     .update({
       bill_paid_at: nowIso,
       bill_payment_method: method,
+      bill_payment_breakdown: breakdown,
     })
     .eq("order_id", id)
     .in("id", lineIds)
@@ -441,9 +495,20 @@ export async function payPedidoBillLines(input: {
       })
       .eq("id", id);
     if (ordErr) return { ok: false, error: "db" };
-    await closeDiningSessionIfAny(supabase, id);
+    // No cierra mesa sola: el usuario libera con CTA en el detalle.
+    const { data: openSess } = await supabase
+      .from("dining_table_sessions")
+      .select("id")
+      .eq("order_id", id)
+      .eq("status", "open")
+      .maybeSingle();
     revalidatePedido(id);
-    return { ok: true, billPaymentStatus: "paid", paidLineIds: lineIds };
+    return {
+      ok: true,
+      billPaymentStatus: "paid",
+      paidLineIds: lineIds,
+      suggestLiberarMesa: Boolean(openSess?.id),
+    };
   }
 
   const { error: ordErr } = await supabase
@@ -459,5 +524,49 @@ export async function payPedidoBillLines(input: {
   if (ordErr) return { ok: false, error: "db" };
 
   revalidatePedido(id);
-  return { ok: true, billPaymentStatus: status, paidLineIds: lineIds };
+  return {
+    ok: true,
+    billPaymentStatus: status,
+    paidLineIds: lineIds,
+    suggestLiberarMesa: false,
+  };
+}
+
+/** Libera la mesa asociada al pedido (cierra sesión de comedor abierta). */
+export async function liberarPedidoMesa(
+  orderId: string,
+): Promise<{ ok: true } | { ok: false; error: ActionErr }> {
+  const id = String(orderId ?? "").trim();
+  if (!id) return { ok: false, error: "invalid" };
+
+  const perm = await loadAdminPermissions();
+  if (!perm) return { ok: false, error: "auth" };
+  if (!perm.permissions.ventas_crear && !perm.permissions.ventas_ver) {
+    return { ok: false, error: "forbidden" };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const order = await loadPedidoOrder(supabase, id);
+  if (!order) return { ok: false, error: "db" };
+  const bad = assertPedido(order);
+  if (bad) return { ok: false, error: bad };
+
+  const { data: sess } = await supabase
+    .from("dining_table_sessions")
+    .select("id")
+    .eq("order_id", id)
+    .eq("status", "open")
+    .maybeSingle();
+  if (!sess?.id) return { ok: false, error: "no_mesa" };
+
+  const { error } = await supabase
+    .from("dining_table_sessions")
+    .update({ status: "closed", closed_at: new Date().toISOString() })
+    .eq("id", String(sess.id))
+    .eq("status", "open");
+  if (error) return { ok: false, error: "db" };
+
+  revalidatePedido(id);
+  revalidatePath("/admin/reportes");
+  return { ok: true };
 }

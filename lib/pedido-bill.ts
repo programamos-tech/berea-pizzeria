@@ -28,11 +28,93 @@ export function billPaymentStatusLabel(status: BillPaymentStatus): string {
   }
 }
 
+export type PedidoBillPaymentMethod =
+  | "cash"
+  | "transfer"
+  | "mixed"
+  | "dataphone";
+
+export type PedidoBillPaymentBreakdown = {
+  cash: number;
+  transfer: number;
+  dataphone: number;
+};
+
+export const PEDIDO_BILL_PAYMENT_METHODS: {
+  id: PedidoBillPaymentMethod;
+  label: string;
+}[] = [
+  { id: "cash", label: "Efectivo" },
+  { id: "transfer", label: "Transferencia" },
+  { id: "mixed", label: "Mixto" },
+  { id: "dataphone", label: "Datáfono" },
+];
+
+export function isPedidoBillPaymentMethod(
+  v: string,
+): v is PedidoBillPaymentMethod {
+  return (
+    v === "cash" || v === "transfer" || v === "mixed" || v === "dataphone"
+  );
+}
+
+export function emptyPaymentBreakdown(): PedidoBillPaymentBreakdown {
+  return { cash: 0, transfer: 0, dataphone: 0 };
+}
+
+export function sumPaymentBreakdown(
+  b: PedidoBillPaymentBreakdown | null | undefined,
+): number {
+  if (!b) return 0;
+  return (
+    Math.max(0, Math.floor(b.cash || 0)) +
+    Math.max(0, Math.floor(b.transfer || 0)) +
+    Math.max(0, Math.floor(b.dataphone || 0))
+  );
+}
+
+/** Mixto válido: suma exacta al total y al menos 2 medios con monto > 0. */
+export function isValidMixedBreakdown(
+  breakdown: PedidoBillPaymentBreakdown,
+  totalCents: number,
+): boolean {
+  const total = Math.max(0, Math.floor(totalCents));
+  if (total <= 0) return false;
+  const cash = Math.max(0, Math.floor(breakdown.cash || 0));
+  const transfer = Math.max(0, Math.floor(breakdown.transfer || 0));
+  const dataphone = Math.max(0, Math.floor(breakdown.dataphone || 0));
+  if (cash + transfer + dataphone !== total) return false;
+  const parts = [cash, transfer, dataphone].filter((n) => n > 0).length;
+  return parts >= 2;
+}
+
+export function parsePaymentBreakdown(
+  raw: unknown,
+): PedidoBillPaymentBreakdown | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  return {
+    cash: Math.max(0, Math.floor(Number(o.cash ?? 0) || 0)),
+    transfer: Math.max(0, Math.floor(Number(o.transfer ?? 0) || 0)),
+    dataphone: Math.max(0, Math.floor(Number(o.dataphone ?? 0) || 0)),
+  };
+}
+
 export function billPaymentMethodLabel(
-  method: "cash" | "transfer" | null | undefined,
+  method: PedidoBillPaymentMethod | null | undefined,
+  breakdown?: PedidoBillPaymentBreakdown | null,
 ): string {
   if (method === "cash") return "Efectivo";
   if (method === "transfer") return "Transferencia";
+  if (method === "dataphone") return "Datáfono";
+  if (method === "mixed") {
+    if (!breakdown) return "Mixto";
+    const parts: string[] = [];
+    if (breakdown.cash > 0) parts.push(`Efectivo`);
+    if (breakdown.transfer > 0) parts.push(`Transferencia`);
+    if (breakdown.dataphone > 0) parts.push(`Datáfono`);
+    return parts.length > 0 ? `Mixto (${parts.join(" + ")})` : "Mixto";
+  }
   return "—";
 }
 
@@ -104,7 +186,8 @@ export type PedidoBillLine = {
   lineDiscountAmountCents: number;
   amountCents: number;
   billPaidAt: string | null;
-  billPaymentMethod: "cash" | "transfer" | null;
+  billPaymentMethod: PedidoBillPaymentMethod | null;
+  billPaymentBreakdown: PedidoBillPaymentBreakdown | null;
 };
 
 export function deriveBillStatusFromLines(opts: {

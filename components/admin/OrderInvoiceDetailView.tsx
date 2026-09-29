@@ -12,9 +12,12 @@ import {
   type PedidoLineRecipe,
 } from "@/components/admin/PedidoCocinaPanel";
 import { PedidoCuentaModal } from "@/components/admin/PedidoCuentaModal";
+import { PedidoLiberarMesaBanner } from "@/components/admin/PedidoLiberarMesaBanner";
 import type {
   BillPaymentStatus,
   PedidoBillLine,
+  PedidoBillPaymentBreakdown,
+  PedidoBillPaymentMethod,
   PedidoBillSplit,
 } from "@/lib/pedido-bill";
 import { billPaymentStatusLabel } from "@/lib/pedido-bill";
@@ -84,7 +87,8 @@ type Line = {
   lineDiscountPercent: number | null;
   lineDiscountAmountCents: number;
   billPaidAt?: string | null;
-  billPaymentMethod?: "cash" | "transfer" | null;
+  billPaymentMethod?: PedidoBillPaymentMethod | null;
+  billPaymentBreakdown?: PedidoBillPaymentBreakdown | null;
   amountCents?: number;
 };
 
@@ -145,6 +149,8 @@ export type OrderInvoiceDetailViewProps = {
   billPaymentStatus?: BillPaymentStatus | null;
   billSplits?: PedidoBillSplit[];
   billLines?: PedidoBillLine[];
+  /** Hay sesión de mesa abierta ligada a este pedido. */
+  hasOpenDiningSession?: boolean;
   /** Enlace al listado Ventas (p. ej. misma página y filtros). */
   ventasListHref?: string;
   /** Texto del listado en el breadcrumb. */
@@ -282,6 +288,7 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
     billPaymentStatus = null,
     billSplits = [],
     billLines = [],
+    hasOpenDiningSession = false,
     ventasListHref = "/admin/ventas",
     listLabel = "Ventas",
     creditExtras,
@@ -512,6 +519,8 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
                             l.unitPriceCents * l.quantity,
                           billPaidAt: l.billPaidAt ?? null,
                           billPaymentMethod: l.billPaymentMethod ?? null,
+                          billPaymentBreakdown:
+                            l.billPaymentBreakdown ?? null,
                         }))
                   }
                 />
@@ -779,6 +788,17 @@ export function OrderInvoiceDetailView(props: OrderInvoiceDetailViewProps) {
 
       {/* Pantalla: layout limpio estilo Reportes (impresión arriba en bloques hidden print:block) */}
       <div className="print:hidden">
+        {isPedido &&
+        serviceType === "en_el_lugar" &&
+        hasOpenDiningSession &&
+        (status === "paid" || billPaymentStatus === "paid") ? (
+          <div className="mb-4">
+            <PedidoLiberarMesaBanner
+              orderId={orderId}
+              mesaLabel={mesaLabel}
+            />
+          </div>
+        ) : null}
         {isPedido && kitchenStatus ? (
           <div className="mb-5">
             <PedidoCocinaPanel
