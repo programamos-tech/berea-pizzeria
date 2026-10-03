@@ -16,7 +16,6 @@ import {
 import {
   canonicalPlatformUrl,
   firstHostname,
-  isProductionVercelAlias,
   PLATFORM_PRODUCT_HOST,
   publicHostname,
   resolveTenantFromHost,
@@ -123,12 +122,10 @@ export async function middleware(request: NextRequest) {
     alreadyOnPlatform ? PLATFORM_PRODUCT_HOST : host,
   ).kind;
 
-  // Un solo host canónico: www y aliases de producción de Vercel → productos.bereahouse.com.
-  // 307 (no 301/308) para no cachear bucles en el navegador.
-  if (
-    !alreadyOnPlatform &&
-    (host === `www.${PLATFORM_PRODUCT_HOST}` || isProductionVercelAlias(host))
-  ) {
+  // www del host de plataforma → canónico (sin www).
+  // No forzar redirect de *.vercel.app: este deploy (Liaco) se sirve en
+  // berea-pizzerias.vercel.app con DEFAULT_TENANT_SLUG hasta tener DNS propio.
+  if (!alreadyOnPlatform && host === `www.${PLATFORM_PRODUCT_HOST}`) {
     const destPath = path === "/" ? "/empezar" : path;
     return NextResponse.redirect(canonicalPlatformUrl(destPath, search), 307);
   }
