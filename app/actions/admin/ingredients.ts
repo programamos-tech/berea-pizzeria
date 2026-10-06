@@ -65,13 +65,39 @@ export async function addIngredientStockEntry(
   const session = await requireAdminPermission("stock_actualizar");
   const ingredientId = String(formData.get("ingredient_id") ?? "").trim();
   const qty = parseQty(formData.get("quantity"));
-  const note = String(formData.get("note") ?? "").trim().slice(0, 240);
-  const unitCostCents = parseOptionalCostCents(formData.get("unit_cost_cents"));
+  const noteRaw = String(formData.get("note") ?? "").trim().slice(0, 240);
+  const totalCostPesos = parseOptionalCostCents(
+    formData.get("total_cost_cents"),
+  );
+  let unitCostCents = parseOptionalCostCents(formData.get("unit_cost_cents"));
   const kindRaw = String(formData.get("kind") ?? "purchase");
   const kind = kindRaw === "adjust" ? "adjust" : "purchase";
 
   if (!ingredientId) return { ok: false, error: "Insumo inválido." };
   if (qty == null) return { ok: false, error: "Indicá una cantidad mayor a 0." };
+
+  // Preferencia: valor total ÷ cantidad → costo unitario para recetas/BOM.
+  if (totalCostPesos != null && totalCostPesos > 0 && qty > 0) {
+    unitCostCents = Math.round(totalCostPesos / qty);
+  }
+
+  const costBits: string[] = [];
+  if (totalCostPesos != null && totalCostPesos > 0) {
+    costBits.push(
+      `Total compra $${totalCostPesos.toLocaleString("es-CO")}`,
+    );
+  }
+  if (unitCostCents != null && unitCostCents > 0) {
+    costBits.push(
+      `Costo unit. $${unitCostCents.toLocaleString("es-CO")}`,
+    );
+  }
+  const note =
+    costBits.length === 0
+      ? noteRaw
+      : noteRaw
+        ? `${noteRaw} · ${costBits.join(" · ")}`.slice(0, 240)
+        : costBits.join(" · ").slice(0, 240);
 
   const supabase = await createSupabaseServerClient();
   const { data: ing, error: fetchErr } = await supabase
