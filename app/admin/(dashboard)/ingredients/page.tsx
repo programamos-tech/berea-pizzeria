@@ -160,54 +160,85 @@ export default async function AdminIngredientsPage({
             role="list"
             className="divide-y divide-zinc-100 lg:hidden dark:divide-zinc-800"
           >
-            {ingredients.map((ing) => (
-              <li key={ing.id} className="min-w-0 py-4">
-                <div className="flex items-start justify-between gap-4">
-                  <Link
-                    href={`/admin/ingredients/${ing.id}`}
-                    className="min-w-0 flex-1 no-underline"
-                  >
-                    <p className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                      {ing.name}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {ingredientCategoryLabel(ing.category_key)} · {ing.unit} ·
-                      stock{" "}
-                      {Number(ing.stock_qty).toLocaleString("es-CO", {
-                        maximumFractionDigits: 2,
-                      })}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {ing.is_active ? "Activo" : "Inactivo"}
-                      {ing.unit_cost_cents != null
-                        ? ` · ${formatCop(ing.unit_cost_cents)} / ${ing.unit}`
-                        : ""}
-                    </p>
-                  </Link>
-                  <IngredientTableActions
-                    ingredientId={ing.id}
-                    ingredientName={ing.name}
-                    unit={ing.unit}
-                    stockQty={ing.stock_qty}
-                    canEdit={canEdit}
-                    canStock={canStock}
-                  />
-                </div>
-              </li>
-            ))}
+            {ingredients.map((ing) => {
+              const categoryLabel = ingredientCategoryLabel(ing.category_key);
+              return (
+                <li key={ing.id} className="min-w-0 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <Link
+                      href={`/admin/ingredients/${ing.id}`}
+                      className="min-w-0 flex-1 no-underline"
+                    >
+                      <p
+                        className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100"
+                        title={ing.name}
+                      >
+                        {ing.name}
+                      </p>
+                      <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-zinc-500 sm:grid-cols-3">
+                        <p className="min-w-0 truncate" title={categoryLabel}>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                            Cat.{" "}
+                          </span>
+                          {categoryLabel}
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                            Unid.{" "}
+                          </span>
+                          <span className="font-mono">{ing.unit}</span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                            Stock{" "}
+                          </span>
+                          <span className="font-mono tabular-nums">
+                            {Number(ing.stock_qty).toLocaleString("es-CO", {
+                              maximumFractionDigits: 2,
+                            })}
+                          </span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                            Costo{" "}
+                          </span>
+                          {ing.unit_cost_cents != null
+                            ? formatCop(ing.unit_cost_cents)
+                            : "—"}
+                        </p>
+                        <p>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">
+                            Estado{" "}
+                          </span>
+                          {ing.is_active ? "Activo" : "Inactivo"}
+                        </p>
+                      </div>
+                    </Link>
+                    <IngredientTableActions
+                      ingredientId={ing.id}
+                      ingredientName={ing.name}
+                      unit={ing.unit}
+                      stockQty={ing.stock_qty}
+                      canEdit={canEdit}
+                      canStock={canStock}
+                    />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
 
-          {/* Desktop — estilo Menú */}
+          {/* Desktop — anchos proporcionales (Nombre acotado) */}
           <div className="hidden min-w-0 overflow-x-auto lg:block">
-            <table className="w-full min-w-[980px] table-fixed text-left text-sm">
+            <table className="w-full min-w-[720px] table-fixed text-left text-sm">
               <colgroup>
-                <col />
-                <col className="w-[9rem]" />
-                <col className="w-[5.5rem]" />
-                <col className="w-[6.5rem]" />
-                <col className="w-[7.5rem]" />
-                <col className="w-[6rem]" />
-                <col className="w-[9rem]" />
+                <col className="w-[26%]" />
+                <col className="w-[16%]" />
+                <col className="w-[10%]" />
+                <col className="w-[12%]" />
+                <col className="w-[14%]" />
+                <col className="w-[10%]" />
+                <col className="w-[12%]" />
               </colgroup>
               <thead>
                 <tr className="border-b border-zinc-200/70 dark:border-zinc-800">
@@ -221,65 +252,76 @@ export default async function AdminIngredientsPage({
                 </tr>
               </thead>
               <tbody>
-                {ingredients.map((ing) => (
-                  <tr
-                    key={ing.id}
-                    className="border-b border-zinc-100/80 last:border-0 transition hover:bg-zinc-50/50 dark:border-zinc-800/80 dark:hover:bg-zinc-900/40"
-                  >
-                    <td className={`${tdClass} min-w-0 overflow-hidden`}>
-                      <Link
-                        href={`/admin/ingredients/${ing.id}`}
-                        className="block truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
-                        title={ing.name}
+                {ingredients.map((ing) => {
+                  const categoryLabel = ingredientCategoryLabel(
+                    ing.category_key,
+                  );
+                  return (
+                    <tr
+                      key={ing.id}
+                      className="border-b border-zinc-100/80 last:border-0 transition hover:bg-zinc-50/50 dark:border-zinc-800/80 dark:hover:bg-zinc-900/40"
+                    >
+                      <td className={`${tdClass} max-w-0 overflow-hidden`}>
+                        <Link
+                          href={`/admin/ingredients/${ing.id}`}
+                          className="block max-w-full truncate font-medium text-zinc-900 hover:underline dark:text-zinc-100"
+                          title={ing.name}
+                        >
+                          {ing.name}
+                        </Link>
+                      </td>
+                      <td
+                        className={`${tdClass} max-w-0 overflow-hidden text-xs text-zinc-600 dark:text-zinc-300`}
                       >
-                        {ing.name}
-                      </Link>
-                    </td>
-                    <td className={`${tdClass} text-xs text-zinc-600 dark:text-zinc-300`}>
-                      {ingredientCategoryLabel(ing.category_key)}
-                    </td>
-                    <td className={`${tdClass} font-mono text-xs text-zinc-600 dark:text-zinc-300`}>
-                      {ing.unit}
-                    </td>
-                    <td
-                      className={`${tdClass} text-right font-mono text-xs tabular-nums font-semibold text-zinc-900 dark:text-zinc-50`}
-                    >
-                      {Number(ing.stock_qty).toLocaleString("es-CO", {
-                        maximumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td
-                      className={`${tdClass} text-right text-xs tabular-nums text-zinc-600 dark:text-zinc-300`}
-                    >
-                      {ing.unit_cost_cents != null
-                        ? formatCop(ing.unit_cost_cents)
-                        : "—"}
-                    </td>
-                    <td className={tdClass}>
-                      {ing.is_active ? (
-                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 ring-1 ring-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800/60">
-                          Activo
+                        <span className="block truncate" title={categoryLabel}>
+                          {categoryLabel}
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 ring-1 ring-zinc-200/90 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
-                          Inactivo
-                        </span>
-                      )}
-                    </td>
-                    <td className={`${tdClass} pr-2 text-right`}>
-                      <div className="flex justify-end">
-                        <IngredientTableActions
-                          ingredientId={ing.id}
-                          ingredientName={ing.name}
-                          unit={ing.unit}
-                          stockQty={ing.stock_qty}
-                          canEdit={canEdit}
-                          canStock={canStock}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td
+                        className={`${tdClass} font-mono text-xs text-zinc-600 dark:text-zinc-300`}
+                      >
+                        {ing.unit}
+                      </td>
+                      <td
+                        className={`${tdClass} text-right font-mono text-xs font-semibold tabular-nums text-zinc-900 dark:text-zinc-50`}
+                      >
+                        {Number(ing.stock_qty).toLocaleString("es-CO", {
+                          maximumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td
+                        className={`${tdClass} text-right text-xs tabular-nums text-zinc-600 dark:text-zinc-300`}
+                      >
+                        {ing.unit_cost_cents != null
+                          ? formatCop(ing.unit_cost_cents)
+                          : "—"}
+                      </td>
+                      <td className={tdClass}>
+                        {ing.is_active ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 ring-1 ring-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800/60">
+                            Activo
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-600 ring-1 ring-zinc-200/90 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700">
+                            Inactivo
+                          </span>
+                        )}
+                      </td>
+                      <td className={`${tdClass} pr-2 text-right`}>
+                        <div className="flex justify-end">
+                          <IngredientTableActions
+                            ingredientId={ing.id}
+                            ingredientName={ing.name}
+                            unit={ing.unit}
+                            stockQty={ing.stock_qty}
+                            canEdit={canEdit}
+                            canStock={canStock}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
